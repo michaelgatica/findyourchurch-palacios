@@ -10,29 +10,39 @@ loadEnv({
   path: ".env.local",
 });
 
-function createValidatedImageUpload(): ValidatedUploadFile {
-  const logoPath = path.join(
+function createValidatedImageUpload(
+  kind: "logo" | "photo",
+  originalName: string,
+): ValidatedUploadFile {
+  const assetPath = path.join(
     process.cwd(),
     "public",
     "assets",
     "logos",
     "find-your-church-palacios-512.png",
   );
+  const buffer = readFileSync(assetPath);
 
   return {
-    kind: "logo",
-    originalName: "find-your-church-palacios-512.png",
+    kind,
+    originalName,
     extension: ".png",
     mimeType: "image/png",
-    size: readFileSync(logoPath).byteLength,
+    size: buffer.byteLength,
     width: 512,
     height: 512,
-    buffer: readFileSync(logoPath),
+    buffer,
   };
 }
 
-async function run() {
-  const timestampSuffix = Date.now();
+async function createSubmissionCase(
+  label: string,
+  uploads: {
+    churchLogo?: ValidatedUploadFile;
+    churchPhotos: ValidatedUploadFile[];
+  },
+) {
+  const timestampSuffix = `${Date.now()}-${label}`;
   const submission = await createChurchSubmission(
     {
       churchName: `Repository Test Church ${timestampSuffix}`,
@@ -60,25 +70,46 @@ async function run() {
       livestreamAvailable: false,
       wheelchairAccessible: true,
     },
-    {
-      churchLogo: createValidatedImageUpload(),
-      churchPhotos: [],
-    },
+    uploads,
   );
 
-  console.log(
-    JSON.stringify(
-      {
-        id: submission.id,
-        slug: submission.slug,
-        status: submission.status,
-        uploadBackends: submission.uploads.map((upload) => upload.backend),
-        uploadPaths: submission.uploads.map((upload) => upload.storagePath ?? upload.relativePath),
-      },
-      null,
-      2,
-    ),
+  return {
+    case: label,
+    id: submission.id,
+    slug: submission.slug,
+    status: submission.status,
+    uploadBackends: submission.uploads.map((upload) => upload.backend),
+    uploadPaths: submission.uploads.map((upload) => upload.storagePath ?? upload.relativePath),
+  };
+}
+
+async function run() {
+  const results = [];
+
+  results.push(
+    await createSubmissionCase("no_images", {
+      churchPhotos: [],
+    }),
   );
+  results.push(
+    await createSubmissionCase("logo_only", {
+      churchLogo: createValidatedImageUpload(
+        "logo",
+        "find-your-church-palacios-512.png",
+      ),
+      churchPhotos: [],
+    }),
+  );
+  results.push(
+    await createSubmissionCase("photos_only", {
+      churchPhotos: [
+        createValidatedImageUpload("photo", "church-photo-1.png"),
+        createValidatedImageUpload("photo", "church-photo-2.png"),
+      ],
+    }),
+  );
+
+  console.log(JSON.stringify(results, null, 2));
 }
 
 run().catch((error) => {

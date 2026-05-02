@@ -1,18 +1,48 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAcceptedChurchImageUpload() {
+      return request.resource != null &&
+        request.resource.size <= 8 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/(png|jpeg|webp)');
+    }
+
+    function isAdmin() {
+      return false;
+      // TODO: Phase 3 should replace this with custom claims or a Firestore-backed
+      // role check once the admin portal session model is finalized.
+    }
+
+    function isFutureChurchRepresentative(churchId) {
+      return false;
+      // TODO: Phase 3 should allow active representatives to upload only for their
+      // own church paths after ownership and editor permissions are in place.
+    }
+
     match /church-submissions/{submissionId}/logo/{fileName} {
-      allow read, write: if false;
-      // TODO: Phase 3 can open scoped admin/church-rep access once the portal is live.
+      allow read: if false;
+      allow write: if false;
+      // Current public submission uploads are handled server-side by the Firebase
+      // Admin SDK, so direct client writes stay disabled for now.
+      // TODO: If uploads ever move client-side, require isSignedIn(),
+      // isAcceptedChurchImageUpload(), and a verified submission ownership flow.
     }
 
     match /church-submissions/{submissionId}/photos/{fileName} {
-      allow read, write: if false;
+      allow read: if false;
+      allow write: if false;
     }
 
     match /churches/{churchId}/logo/{fileName} {
       allow read: if true;
       allow write: if false;
+      // TODO: Future admin/church-representative writes should require either
+      // isAdmin() or isFutureChurchRepresentative(churchId), plus
+      // isAcceptedChurchImageUpload().
     }
 
     match /churches/{churchId}/photos/{fileName} {

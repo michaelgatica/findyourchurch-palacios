@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 
 import { getFirebaseAdminFirestore } from "@/lib/firebase/admin";
+import { canUseLocalUploadFallback } from "@/lib/firebase/config";
 import {
   buildChurchDraftFromSubmissionInput,
   createSlug,
@@ -8,7 +9,10 @@ import {
   stripUndefinedDeep,
   toIsoString,
 } from "@/lib/firebase/firestore";
-import { uploadSubmissionAssetsToFirebaseStorage } from "@/lib/firebase/storage";
+import {
+  isFirebaseStorageConfigurationError,
+  uploadSubmissionAssetsToFirebaseStorage,
+} from "@/lib/firebase/storage";
 import { persistSubmissionUploadsLocally } from "@/lib/repositories/local-submission-repository";
 import type {
   ChurchSubmissionRecord,
@@ -39,12 +43,18 @@ export async function createChurchSubmissionInFirebase(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
 
+    if (!canUseLocalUploadFallback()) {
+      throw error;
+    }
+
     console.warn(
-      `Firebase Storage upload failed. Falling back to local upload preservation. ${errorMessage}`,
+      `Firebase Storage upload failed during development. Falling back to local upload preservation. ${errorMessage}`,
     );
     uploadedAssets = await persistSubmissionUploadsLocally(submissionId, uploads);
     internalNotes = [
-      "Firebase Storage upload failed during submission intake. Local upload fallback preserved the files for manual review.",
+      isFirebaseStorageConfigurationError(error)
+        ? "Firebase Storage is not fully configured in development, so local upload fallback preserved the files for manual review."
+        : "Firebase Storage upload failed during submission intake. Local upload fallback preserved the files for manual review.",
     ];
   }
   const churchDraft = buildChurchDraftFromSubmissionInput(input, uploadedAssets);

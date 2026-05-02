@@ -6,7 +6,9 @@ import {
   shouldUseFirebaseEmulators,
 } from "@/lib/firebase/config";
 
-let emulatorConnectionsInitialized = false;
+type FirebaseClientEmulatorService = "auth" | "storage";
+
+const initializedEmulatorServices = new Set<FirebaseClientEmulatorService>();
 
 export function getFirebaseClientApp(): FirebaseApp | null {
   const config = getFirebasePublicConfig();
@@ -30,10 +32,14 @@ export function shouldConnectFirebaseClientToEmulators() {
   return shouldUseFirebaseEmulators() && typeof window !== "undefined";
 }
 
-export function markFirebaseClientEmulatorsConnected() {
-  emulatorConnectionsInitialized = true;
+export function markFirebaseClientEmulatorsConnected(
+  service: FirebaseClientEmulatorService,
+) {
+  initializedEmulatorServices.add(service);
 }
 
-export function haveFirebaseClientEmulatorsConnected() {
-  return emulatorConnectionsInitialized;
+export function haveFirebaseClientEmulatorsConnected(
+  service: FirebaseClientEmulatorService,
+) {
+  return initializedEmulatorServices.has(service);
 }

@@ -11,7 +11,8 @@
     "emulators": "firebase emulators:start",
     "seed:firebase": "tsx scripts/seed-firestore.ts",
     "seed:admin": "tsx scripts/seed-admin-user.ts",
-    "test:firebase-submission": "tsx scripts/test-firebase-submission.ts"
+    "test:firebase-submission": "tsx scripts/test-firebase-submission.ts",
+    "test:firebase-storage": "tsx scripts/test-firebase-storage.ts"
   },
   "keywords": [
     "ministry",

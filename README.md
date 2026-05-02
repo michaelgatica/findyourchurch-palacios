@@ -1,6 +1,6 @@
 # Find Your Church Palacios
 
-Find Your Church Palacios is the first local launch of the broader Find Your Church platform by El Roi Digital Ministries. This Phase 2 codebase keeps the public website from Phase 1 intact while moving the primary backend to Firebase so future admin approval, church ownership claims, and representative login can be layered in cleanly.
+Find Your Church Palacios is the first local launch of the broader Find Your Church platform by El Roi Digital Ministries. This Phase 2B codebase keeps the public website from Phase 1 intact while moving the primary backend to Firebase so future admin approval, church ownership claims, and representative login can be layered in cleanly.
 
 ## Phase 2 included
 
@@ -8,7 +8,7 @@ Find Your Church Palacios is the first local launch of the broader Find Your Chu
 - Firebase Authentication foundation for future admin and church representative login
 - Firestore-backed repository layer for churches, submissions, users, claim requests, messages, and audit logs
 - Firebase Storage upload pipeline for logos and church photos when Storage is configured
-- Safe local fallback storage for uploads if Firebase Storage is unavailable in development
+- Safe local fallback storage for uploads only in development when Firebase Storage is unavailable
 - Firestore and Storage rules starter files
 - Firebase seed scripts for launch data and the first admin user
 - Emulator configuration for Auth, Firestore, and Storage
@@ -40,6 +40,12 @@ The active Firestore database for this project is `findyourchurchpal`. Set both 
 ## Environment variables
 
 Copy `.env.example` to `.env.local` and fill in the Firebase values for your project.
+
+Important:
+
+- Do not commit `.env.local`.
+- Do not commit Firebase service account JSON files.
+- Keep only `.env.example` in Git.
 
 ### Public Firebase client variables
 
@@ -99,6 +105,32 @@ FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199
    - map the JSON fields into `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`
 
 Important: never expose the private key to the browser. Admin credentials are only used in server-side code under `src/lib/firebase/admin.ts`.
+
+If `npm run seed:admin` fails with `auth/configuration-not-found`, Authentication has not been fully initialized in Firebase yet. Open **Authentication** in Firebase Console, complete setup, and enable the **Email/Password** provider before trying the admin seed again.
+
+## Firebase Storage setup
+
+The current project diagnosis shows that Firestore is working, but Firebase Storage is not fully provisioned yet. Before production uploads can succeed, confirm all of the following in Firebase Console:
+
+1. Open **Storage** in Firebase Console.
+2. If Firebase shows **Get started**, finish the Storage setup flow.
+3. If Firebase prompts you to upgrade billing, complete the required Blaze upgrade for the project.
+4. Wait for the default bucket to be provisioned.
+5. Copy the bucket URL shown in Firebase Console, such as `gs://your-project.firebasestorage.app`.
+6. Set `FIREBASE_STORAGE_BUCKET` and `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` to the bucket name only, without `gs://`.
+
+Examples:
+
+- new default bucket format: `PROJECT_ID.firebasestorage.app`
+- older default bucket format: `PROJECT_ID.appspot.com`
+
+How to find the correct bucket name:
+
+- Firebase Console -> Storage -> Files
+- copy the bucket URL shown at the top of the page
+- remove the `gs://` prefix before placing it in env vars
+
+If the bucket URL is missing entirely, the default bucket has not been provisioned yet.
 
 ## Local development
 
@@ -196,12 +228,18 @@ If Firebase Storage is not available during development, the app safely falls ba
 
 This keeps builds and local testing from failing when Firestore is ready before Storage is fully provisioned.
 
+Production behavior is stricter:
+
+- production does not silently fall back to local uploads
+- if church images are submitted while Storage is misconfigured, the submission action fails clearly
+- the submit form returns a user-facing image upload error instead of pretending the upload succeeded
+
 ## Local fallback behavior
 
 Firebase is the primary backend in Phase 2, but the repository layer intentionally falls back when needed:
 
 - published churches can still load from local seed data if Firebase is not configured
-- submission uploads fall back to local file storage if Firebase Storage is unavailable
+- submission uploads fall back to local file storage only in development if Firebase Storage is unavailable
 - the build does not require live Firebase credentials
 
 ## Firebase Emulator support
@@ -268,6 +306,8 @@ Current intent:
 - only admins can read and write submissions, messages, audit logs, and email logs
 - users can read and update their own Firestore profile within role restrictions
 - church representative access still needs tighter path-based production rules in Phase 3
+- direct client uploads remain disabled until admin and church representative upload flows are finalized
+- image size and content-type constraints are prepared in `storage.rules` for the future authenticated upload paths
 
 Before a production launch, review and harden the rules with your exact auth flow, representative access scope, and Storage bucket settings.
 
@@ -280,14 +320,23 @@ npm run lint
 npm run build
 npm run seed:firebase -- --overwrite
 npm run test:firebase-submission
+npm run test:firebase-storage
 ```
 
 What the verification script does:
 
-- creates a pending review submission through the repository layer
-- attempts Firebase Storage upload for the logo
-- falls back to local upload preservation if Storage is not ready
-- confirms the submission record is written successfully
+- `npm run test:firebase-submission`
+  - creates a pending review submission with no images
+  - creates a pending review submission with a logo
+  - creates a pending review submission with photos
+  - confirms pending review records are written successfully
+  - uses local upload fallback only in development when Storage is not ready
+- `npm run test:firebase-storage`
+  - checks the configured bucket name
+  - queries Firebase for the default bucket state
+  - lists buckets visible to the project
+  - attempts a small upload and deletes it if successful
+  - prints a clear failure message if Storage is disabled, missing, or misconfigured
 
 Public verification targets:
 
@@ -304,6 +353,13 @@ Public verification targets:
   - `churchSubmissions` collection
 - local upload fallback:
   - `storage/uploads/<submission-id>/`
+
+## Secret handling
+
+- `.env.local` must stay local and should never be committed.
+- Firebase service account JSON files should never be copied into the repo.
+- Public Firebase web config values are fine to expose to the browser, but admin credentials are not.
+- If a service account private key, admin seed password, or other secret was ever committed to Git history, rotate it in Firebase or Google Cloud immediately and replace the local env values afterward.
 
 ## Ready for Phase 3
 

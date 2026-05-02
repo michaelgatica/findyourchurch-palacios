@@ -9,5 +9,7 @@ coverage
 npm-debug.log*
 firebase-debug.log
 .firebase
+*firebase-adminsdk*.json
+serviceAccountKey*.json
 storage/uploads/*
 !storage/uploads/.gitkeep

@@ -35,11 +35,14 @@ export function getFirebaseClientAuth() {
     void setPersistence(auth, browserLocalPersistence);
   }
 
-  if (shouldConnectFirebaseClientToEmulators() && !haveFirebaseClientEmulatorsConnected()) {
+  if (
+    shouldConnectFirebaseClientToEmulators() &&
+    !haveFirebaseClientEmulatorsConnected("auth")
+  ) {
     connectAuthEmulator(auth, "http://127.0.0.1:9099", {
       disableWarnings: true,
     });
-    markFirebaseClientEmulatorsConnected();
+    markFirebaseClientEmulatorsConnected("auth");
   }
 
   return auth;

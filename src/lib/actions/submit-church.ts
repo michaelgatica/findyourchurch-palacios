@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { createChurchSubmission } from "@/lib/repositories/submission-repository";
+import { isFirebaseStorageConfigurationError } from "@/lib/firebase/storage";
 import { queueSubmissionReceivedNotification } from "@/lib/services/notification-service";
 import { type SubmissionFormState } from "@/lib/types/directory";
 import { validateChurchSubmissionFormData } from "@/lib/validation/church-submission";
@@ -34,8 +35,9 @@ export async function submitChurchAction(
 
     return {
       status: "error",
-      formError:
-        "We could not save your submission right now. Please try again in a moment.",
+      formError: isFirebaseStorageConfigurationError(error)
+        ? "We could not upload the church images right now. Please try again in a moment, or submit without images."
+        : "We could not save your submission right now. Please try again in a moment.",
       errors: {},
       values: validationResult.values,
     };

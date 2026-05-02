@@ -6,11 +6,13 @@ import { getFirestore as getFirestoreService } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 
 import {
+  assertFirebaseServerConfig,
+  assertFirebaseStorageConfig,
   getFirebaseDatabaseId,
   getFirebaseProjectId,
   getFirebaseServerConfig,
   getFirebaseStorageBucketName,
-  isFirebaseServerConfigured,
+  isProductionEnvironment,
   shouldUseFirebaseEmulators,
 } from "@/lib/firebase/config";
 
@@ -24,6 +26,13 @@ const firebaseAdminAppName = "find-your-church-admin";
 
 function loadServiceAccountFromFile(serviceAccountKeyPath: string) {
   if (!existsSync(serviceAccountKeyPath)) {
+    const message = `Firebase service account file was not found at "${serviceAccountKeyPath}".`;
+
+    if (isProductionEnvironment()) {
+      throw new Error(message);
+    }
+
+    console.warn(message);
     return null;
   }
 
@@ -42,6 +51,10 @@ function loadServiceAccountFromFile(serviceAccountKeyPath: string) {
       privateKey: parsed.private_key,
     };
   } catch (error) {
+    if (isProductionEnvironment()) {
+      throw new Error("Unable to read the configured Firebase service account file.");
+    }
+
     console.error("Unable to read Firebase service account file", error);
     return null;
   }
@@ -78,7 +91,7 @@ export function getFirebaseAdminApp(): App | null {
     return existingApp;
   }
 
-  if (!isFirebaseServerConfigured()) {
+  if (!assertFirebaseServerConfig()) {
     return null;
   }
 
@@ -96,13 +109,17 @@ export function getFirebaseAdminApp(): App | null {
     appOptions.storageBucket = storageBucket;
   }
 
-  if (serviceAccount && !emulatorMode) {
+  if (serviceAccount) {
     appOptions.credential = cert({
       projectId: serviceAccount.projectId,
       clientEmail: serviceAccount.clientEmail,
       privateKey: serviceAccount.privateKey,
     });
-  } else if (!emulatorMode) {
+  } else if (emulatorMode) {
+    // The local Firebase Emulator Suite can run without live service account credentials.
+  } else if (isProductionEnvironment()) {
+    throw new Error("Firebase Admin SDK credentials are not available in production.");
+  } else {
     return null;
   }
 
@@ -131,5 +148,11 @@ export function getFirebaseAdminFirestore() {
 
 export function getFirebaseAdminBucket() {
   const app = getFirebaseAdminApp();
-  return app ? getStorage(app).bucket() : null;
+  const bucketName = getFirebaseStorageBucketName();
+
+  if (!app || !bucketName || !assertFirebaseStorageConfig()) {
+    return null;
+  }
+
+  return getStorage(app).bucket(bucketName);
 }

@@ -57,6 +57,22 @@ async function run() {
 }
 
 run().catch((error) => {
-  console.error("Failed to seed the admin user.", error);
+  const configurationMissing =
+    typeof error === "object" &&
+    error !== null &&
+    "errorInfo" in error &&
+    typeof error.errorInfo === "object" &&
+    error.errorInfo !== null &&
+    "code" in error.errorInfo &&
+    error.errorInfo.code === "auth/configuration-not-found";
+
+  if (configurationMissing) {
+    console.error(
+      "Failed to seed the admin user. Firebase Authentication is not fully initialized. Open Firebase Console, complete Authentication setup, and enable the Email/Password provider before retrying.",
+    );
+  } else {
+    console.error("Failed to seed the admin user.", error);
+  }
+
   process.exitCode = 1;
 });
