@@ -1,6 +1,11 @@
 const trueValues = new Set(["1", "true", "yes", "on"]);
 const warnedMessages = new Set<string>();
 
+interface FirebaseConfigEnvironmentPayload {
+  projectId?: string;
+  storageBucket?: string;
+}
+
 export const firebasePublicEnvVarNames = [
   "NEXT_PUBLIC_FIREBASE_API_KEY",
   "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
@@ -52,6 +57,20 @@ export interface FirebaseServerConfig {
 function normalizeOptionalValue(value?: string) {
   const normalizedValue = value?.trim();
   return normalizedValue ? normalizedValue : undefined;
+}
+
+function parseFirebaseConfigEnvironmentValue() {
+  const rawValue = normalizeOptionalValue(process.env.FIREBASE_CONFIG);
+
+  if (!rawValue || !rawValue.startsWith("{")) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawValue) as FirebaseConfigEnvironmentPayload;
+  } catch {
+    return null;
+  }
 }
 
 function normalizeStorageBucketName(value?: string) {
@@ -155,9 +174,14 @@ export function isFirebaseClientConfigured() {
 }
 
 export function getFirebaseServerConfig(): FirebaseServerConfig {
+  const firebaseConfigEnvironmentValue = parseFirebaseConfigEnvironmentValue();
+
   return {
     projectId:
       normalizeOptionalValue(process.env.FIREBASE_PROJECT_ID) ??
+      normalizeOptionalValue(process.env.GOOGLE_CLOUD_PROJECT) ??
+      normalizeOptionalValue(process.env.GCLOUD_PROJECT) ??
+      normalizeOptionalValue(firebaseConfigEnvironmentValue?.projectId) ??
       normalizeOptionalValue(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID),
     clientEmail: normalizeOptionalValue(process.env.FIREBASE_CLIENT_EMAIL),
     privateKey: normalizeOptionalValue(process.env.FIREBASE_PRIVATE_KEY)?.replace(
@@ -166,6 +190,7 @@ export function getFirebaseServerConfig(): FirebaseServerConfig {
     ),
     storageBucket:
       normalizeStorageBucketName(process.env.FIREBASE_STORAGE_BUCKET) ??
+      normalizeStorageBucketName(firebaseConfigEnvironmentValue?.storageBucket) ??
       normalizeStorageBucketName(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET),
     databaseId:
       normalizeOptionalValue(process.env.FIREBASE_DATABASE_ID) ??
@@ -175,8 +200,21 @@ export function getFirebaseServerConfig(): FirebaseServerConfig {
   };
 }
 
+export function isGoogleManagedFirebaseRuntime() {
+  return Boolean(
+    process.env.FIREBASE_CONFIG ||
+      process.env.K_SERVICE ||
+      process.env.GOOGLE_CLOUD_PROJECT ||
+      process.env.GCLOUD_PROJECT,
+  );
+}
+
 function hasFirebaseServerCredentials(config: FirebaseServerConfig) {
   if (shouldUseFirebaseEmulators()) {
+    return Boolean(config.projectId);
+  }
+
+  if (isGoogleManagedFirebaseRuntime()) {
     return Boolean(config.projectId);
   }
 
@@ -194,7 +232,11 @@ export function getMissingFirebaseServerEnvVarNames() {
     missingEnvVarNames.push("FIREBASE_PROJECT_ID (or NEXT_PUBLIC_FIREBASE_PROJECT_ID)");
   }
 
-  if (!shouldUseFirebaseEmulators() && !config.serviceAccountKeyPath) {
+  if (
+    !shouldUseFirebaseEmulators() &&
+    !isGoogleManagedFirebaseRuntime() &&
+    !config.serviceAccountKeyPath
+  ) {
     if (!config.clientEmail) {
       missingEnvVarNames.push("FIREBASE_CLIENT_EMAIL");
     }

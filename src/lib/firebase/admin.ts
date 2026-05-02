@@ -1,6 +1,13 @@
 import { existsSync, readFileSync } from "fs";
 
-import { cert, getApps, initializeApp, type App, type AppOptions } from "firebase-admin/app";
+import {
+  applicationDefault,
+  cert,
+  getApps,
+  initializeApp,
+  type App,
+  type AppOptions,
+} from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore as getFirestoreService } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
@@ -12,6 +19,7 @@ import {
   getFirebaseProjectId,
   getFirebaseServerConfig,
   getFirebaseStorageBucketName,
+  isGoogleManagedFirebaseRuntime,
   isProductionEnvironment,
   shouldUseFirebaseEmulators,
 } from "@/lib/firebase/config";
@@ -115,6 +123,8 @@ export function getFirebaseAdminApp(): App | null {
       clientEmail: serviceAccount.clientEmail,
       privateKey: serviceAccount.privateKey,
     });
+  } else if (!emulatorMode && isGoogleManagedFirebaseRuntime()) {
+    appOptions.credential = applicationDefault();
   } else if (emulatorMode) {
     // The local Firebase Emulator Suite can run without live service account credentials.
   } else if (isProductionEnvironment()) {
