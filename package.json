@@ -1,0 +1,43 @@
+{
+  "name": "find-my-church-palacios",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Phase 1 public foundation for Find Your Church Palacios.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "emulators": "firebase emulators:start",
+    "seed:firebase": "tsx scripts/seed-firestore.ts",
+    "seed:admin": "tsx scripts/seed-admin-user.ts",
+    "test:firebase-submission": "tsx scripts/test-firebase-submission.ts"
+  },
+  "keywords": [
+    "ministry",
+    "church-directory",
+    "nextjs"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "firebase": "^12.12.1",
+    "firebase-admin": "^13.8.0",
+    "image-size": "^2.0.2",
+    "next": "^15.5.15",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "zod": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^15.5.15",
+    "firebase-tools": "^15.16.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

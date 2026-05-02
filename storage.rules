@@ -1,0 +1,27 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /church-submissions/{submissionId}/logo/{fileName} {
+      allow read, write: if false;
+      // TODO: Phase 3 can open scoped admin/church-rep access once the portal is live.
+    }
+
+    match /church-submissions/{submissionId}/photos/{fileName} {
+      allow read, write: if false;
+    }
+
+    match /churches/{churchId}/logo/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /churches/{churchId}/photos/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

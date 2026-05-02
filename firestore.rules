@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasUserProfile() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function currentUserRole() {
+      return hasUserProfile()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : null;
+    }
+
+    function isAdmin() {
+      return currentUserRole() == 'admin';
+    }
+
+    match /churches/{churchId} {
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /churchSubmissions/{submissionId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isAdmin() || (signedIn() && userId == request.auth.uid);
+      allow create: if isAdmin() || (signedIn() && userId == request.auth.uid);
+      allow update: if isAdmin() || (
+        signedIn() &&
+        userId == request.auth.uid &&
+        request.resource.data.role == resource.data.role
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /churchRepresentatives/{representativeId} {
+      allow read, write: if isAdmin();
+      // TODO: Scope church representative access to their own church documents in Phase 3.
+    }
+
+    match /churchClaimRequests/{claimRequestId} {
+      allow create: if signedIn();
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read, write: if isAdmin();
+      // TODO: Allow church representatives to access only their own church threads.
+    }
+
+    match /auditLogs/{auditLogId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /emailLogs/{emailLogId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /locations/{locationId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
