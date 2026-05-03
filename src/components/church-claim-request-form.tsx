@@ -325,7 +325,7 @@ export function ChurchClaimRequestForm({
           connect your request to a verified account and the right church listing.
         </p>
 
-        <div className="button-row">
+        <div className="button-row claim-auth-switches">
           <button
             type="button"
             className={authMode === "signin" ? "button button--secondary" : "button button--ghost"}

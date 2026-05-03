@@ -49,7 +49,10 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
         <div className="directory-search-panel__header">
           <div>
             <p className="eyebrow eyebrow--gold">Search Churches</p>
-            <h2>Find the right church for your family or visit</h2>
+            <h2 className="directory-search-panel__title">
+              <span>Find the right church</span>
+              <span>for your family or visit</span>
+            </h2>
             <p className="supporting-text">
               Search by church name, pastor, ministry, worship style, or keyword, then narrow the
               list with filters.
@@ -113,7 +116,7 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
               checked={filters.childrenMinistry}
               onChange={(event) => updateFilter("childrenMinistry", event.target.checked)}
             />
-            <span>Children&apos;s ministry</span>
+            <span>Children&apos;s</span>
           </label>
 
           <label className="toggle-field">
@@ -122,7 +125,7 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
               checked={filters.youthMinistry}
               onChange={(event) => updateFilter("youthMinistry", event.target.checked)}
             />
-            <span>Youth ministry</span>
+            <span>Youth</span>
           </label>
 
           <label className="toggle-field">
@@ -131,7 +134,7 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
               checked={filters.nurseryCare}
               onChange={(event) => updateFilter("nurseryCare", event.target.checked)}
             />
-            <span>Nursery care</span>
+            <span>Nursery</span>
           </label>
 
           <label className="toggle-field">
@@ -140,7 +143,7 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
               checked={filters.spanishService}
               onChange={(event) => updateFilter("spanishService", event.target.checked)}
             />
-            <span>Spanish service</span>
+            <span>Spanish</span>
           </label>
 
           <label className="toggle-field">
@@ -158,7 +161,7 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
               checked={filters.wheelchairAccessible}
               onChange={(event) => updateFilter("wheelchairAccessible", event.target.checked)}
             />
-            <span>Wheelchair accessible</span>
+            <span>Accessible</span>
           </label>
         </div>
 
