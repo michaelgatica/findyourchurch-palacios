@@ -182,6 +182,7 @@ main {
 .site-header__nav-shell {
   display: none;
   gap: 1rem;
+  min-width: 0;
   padding: 1rem;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.92);
@@ -203,7 +204,9 @@ main {
   padding: 0.85rem 1rem;
   border-radius: 18px;
   color: var(--deep-green);
+  white-space: nowrap;
   font-weight: 600;
+  font-size: 0.97rem;
   transition:
     background-color 180ms ease,
     color 180ms ease,
@@ -224,6 +227,7 @@ main {
 
 .site-header__claim-link {
   width: 100%;
+  white-space: nowrap;
 }
 
 h1,
@@ -853,7 +857,9 @@ input[type="checkbox"] {
 }
 
 .directory-toggle-grid {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .directory-search-panel__actions {
@@ -888,6 +894,19 @@ input[type="checkbox"] {
 
 .directory-list .church-card__description {
   min-height: 0;
+}
+
+.directory-toggle-grid .toggle-field {
+  width: fit-content;
+  min-height: 46px;
+  padding: 0.72rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.directory-toggle-grid .toggle-field span {
+  white-space: nowrap;
+  font-size: 0.96rem;
 }
 
 .content-page-grid,
@@ -953,36 +972,44 @@ input[type="checkbox"] {
 .profile-hero__inner {
   display: grid;
   gap: 1.4rem;
-  padding: 1.6rem;
+  padding: 1.75rem;
   border-radius: 32px;
   background:
-    linear-gradient(135deg, rgba(11, 74, 36, 0.95), rgba(6, 56, 28, 0.92)),
-    var(--dark-green);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 245, 239, 0.98)),
+    rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(11, 74, 36, 0.08);
   box-shadow: var(--shadow);
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
 }
 
 .profile-hero__identity {
   display: grid;
   gap: 1rem;
+  align-items: start;
+}
+
+.profile-hero h1 {
+  font-size: clamp(2.8rem, 5.6vw, 4.2rem);
 }
 
 .profile-hero__logo-fallback {
   width: 112px;
   height: 112px;
   font-size: 2rem;
-  background: linear-gradient(135deg, rgba(227, 180, 55, 0.78), rgba(217, 162, 27, 0.55));
-  color: var(--dark-green);
+  background:
+    linear-gradient(145deg, rgba(11, 74, 36, 0.96), rgba(6, 56, 28, 0.88)),
+    var(--deep-green);
+  color: var(--white);
 }
 
 .profile-hero__subtitle,
 .profile-hero__address {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--muted);
 }
 
 .profile-hero__service-time {
   margin-top: 0.9rem;
-  color: var(--soft-gold);
+  color: var(--deep-green);
   font-weight: 700;
 }
 
@@ -998,23 +1025,27 @@ input[type="checkbox"] {
 }
 
 .profile-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(11, 74, 36, 0.08);
+  background: rgba(11, 74, 36, 0.05);
 }
 
 .profile-hero__actions .button {
-  flex: 1 1 170px;
+  width: 100%;
 }
 
 .profile-hero .button--secondary {
-  background: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(135deg, var(--deep-green), var(--dark-green));
+  color: var(--white);
 }
 
 .profile-hero .button--ghost,
 .profile-hero .button--disabled {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
+  background: rgba(11, 74, 36, 0.08);
+  color: var(--deep-green);
 }
 
 .profile-layout {
@@ -1391,48 +1422,6 @@ input[type="checkbox"] {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
   }
 
-  .site-header__inner {
-    align-items: center;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 1.5rem;
-    padding: 0.95rem 0;
-  }
-
-  .site-header__menu-button {
-    display: none;
-  }
-
-  .site-header__nav-shell {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 1rem;
-    padding: 0;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-  }
-
-  .site-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .site-nav__link {
-    padding: 0.7rem 1rem;
-    border-radius: 999px;
-  }
-
-  .site-header__brand-image {
-    width: min(100%, 228px);
-  }
-
-  .site-header__claim-link {
-    width: auto;
-    white-space: nowrap;
-  }
-
   .directory-search-panel__header {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: start;
@@ -1452,6 +1441,15 @@ input[type="checkbox"] {
     align-items: center;
   }
 
+  .profile-hero__actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+  }
+
+  .profile-hero__claim-button {
+    grid-column: 1 / -1;
+  }
+
   .admin-shell__header,
   .portal-shell__header,
   .admin-panel__header,
@@ -1468,6 +1466,50 @@ input[type="checkbox"] {
 
   .section-grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .site-header__inner {
+    align-items: center;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.35rem;
+    padding: 0.95rem 0;
+  }
+
+  .site-header__menu-button {
+    display: none;
+  }
+
+  .site-header__nav-shell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.85rem;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .site-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.45rem;
+  }
+
+  .site-nav__link {
+    padding: 0.65rem 0.9rem;
+    border-radius: 999px;
+  }
+
+  .site-header__brand-image {
+    width: min(100%, 228px);
+  }
+
+  .site-header__claim-link {
+    width: auto;
   }
 }
 

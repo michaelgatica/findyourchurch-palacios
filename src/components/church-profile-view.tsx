@@ -144,7 +144,7 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
             <ExternalActionButton href={`mailto:${church.email}`} label="Email" />
             <ExternalActionButton href={church.website} label="Visit Website" />
             <ExternalActionButton href={buildDirectionsUrl(church.address)} label="Get Directions" />
-            <Link href={claimPath} className="button button--ghost">
+            <Link href={claimPath} className="button button--ghost profile-hero__claim-button">
               Claim This Church
             </Link>
           </div>
