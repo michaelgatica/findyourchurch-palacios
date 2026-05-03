@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { submitChurchAction } from "@/lib/actions/submit-church";
@@ -36,6 +36,13 @@ function SubmitButton() {
 export function SubmitChurchForm() {
   const [state, formAction] = useActionState(submitChurchAction, emptySubmissionFormState);
   const formState = state ?? emptySubmissionFormState;
+  const [createManagerAccount, setCreateManagerAccount] = useState(
+    formState.values.createManagerAccount,
+  );
+
+  useEffect(() => {
+    setCreateManagerAccount(formState.values.createManagerAccount);
+  }, [formState.values.createManagerAccount]);
 
   return (
     <form
@@ -438,6 +445,56 @@ export function SubmitChurchForm() {
             <FieldError message={formState.errors.churchPhotos} />
           </label>
         </div>
+      </section>
+
+      <section className="form-section panel">
+        <h3>Create the future listing manager account</h3>
+        <p className="supporting-text">
+          If you would like, you can create the Find Your Church account that will manage this
+          listing after approval. The sign-in email will match the primary contact email above.
+        </p>
+
+        <label className="checkbox-field">
+          <input
+            type="checkbox"
+            name="createManagerAccount"
+            checked={createManagerAccount}
+            onChange={(event) => setCreateManagerAccount(event.target.checked)}
+          />
+          <span>Create the managing account for this church listing now</span>
+        </label>
+
+        {createManagerAccount ? (
+          <div className="form-grid" style={{ marginTop: "1rem" }}>
+            <label className="field">
+              <RequiredLabel>Account password</RequiredLabel>
+              <input
+                name="managerAccountPassword"
+                type="password"
+                autoComplete="new-password"
+                minLength={6}
+                required={createManagerAccount}
+              />
+              <span className="field__hint">
+                Use at least 6 characters. This account can sign in after the listing is
+                approved.
+              </span>
+              <FieldError message={formState.errors.managerAccountPassword} />
+            </label>
+
+            <label className="field">
+              <RequiredLabel>Confirm password</RequiredLabel>
+              <input
+                name="managerAccountPasswordConfirmation"
+                type="password"
+                autoComplete="new-password"
+                minLength={6}
+                required={createManagerAccount}
+              />
+              <FieldError message={formState.errors.managerAccountPasswordConfirmation} />
+            </label>
+          </div>
+        ) : null}
       </section>
 
       <div className="submission-form__actions">

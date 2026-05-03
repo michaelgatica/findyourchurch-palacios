@@ -17,6 +17,7 @@ import { persistSubmissionUploadsLocally } from "@/lib/repositories/local-submis
 import type {
   ChurchSubmissionRecord,
   CreateChurchSubmissionInput,
+  SubmissionManagerAccountRecord,
 } from "@/lib/types/directory";
 import type { ValidatedUploadFile } from "@/lib/validation/church-submission";
 
@@ -25,6 +26,9 @@ export async function createChurchSubmissionInFirebase(
   uploads: {
     churchLogo?: ValidatedUploadFile;
     churchPhotos: ValidatedUploadFile[];
+  },
+  options?: {
+    requestedManagerAccount?: SubmissionManagerAccountRecord;
   },
 ) {
   const firestore = getFirebaseAdminFirestore();
@@ -67,6 +71,7 @@ export async function createChurchSubmissionInFirebase(
     submitterEmail: input.primaryContactEmail,
     submitterPhone: input.primaryContactPhone || input.phone,
     submitterRole: input.primaryContactRole,
+    requestedManagerAccount: options?.requestedManagerAccount,
     internalNotes,
     createdAt,
     updatedAt: createdAt,

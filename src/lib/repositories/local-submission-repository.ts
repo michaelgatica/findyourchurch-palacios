@@ -6,6 +6,7 @@ import { buildChurchDraftFromSubmissionInput, createSlug } from "@/lib/firebase/
 import type {
   ChurchSubmissionRecord,
   CreateChurchSubmissionInput,
+  SubmissionManagerAccountRecord,
   UploadAssetRecord,
 } from "@/lib/types/directory";
 import type { ValidatedUploadFile } from "@/lib/validation/church-submission";
@@ -103,6 +104,9 @@ export async function createChurchSubmissionLocally(
     churchLogo?: ValidatedUploadFile;
     churchPhotos: ValidatedUploadFile[];
   },
+  options?: {
+    requestedManagerAccount?: SubmissionManagerAccountRecord;
+  },
 ) {
   const submissionId = randomUUID();
   const createdAt = new Date().toISOString();
@@ -118,6 +122,7 @@ export async function createChurchSubmissionLocally(
     submitterEmail: input.primaryContactEmail,
     submitterPhone: input.primaryContactPhone || input.phone,
     submitterRole: input.primaryContactRole,
+    requestedManagerAccount: options?.requestedManagerAccount,
     internalNotes: [],
     createdAt,
     updatedAt: createdAt,

@@ -240,6 +240,7 @@ export interface ChurchSubmissionRecord {
   submitterEmail: string;
   submitterPhone?: string;
   submitterRole: string;
+  requestedManagerAccount?: SubmissionManagerAccountRecord;
   adminMessage?: string;
   internalNotes: string[];
   createdAt: string;
@@ -291,6 +292,21 @@ export interface CreateChurchSubmissionInput {
   ministryTags: string[];
 }
 
+export type SubmissionManagerAccountAssignmentStatus =
+  | "pending_submission_approval"
+  | "assigned_as_primary_owner"
+  | "manual_review_required";
+
+export interface SubmissionManagerAccountRecord {
+  firebaseUid: string;
+  email: string;
+  name: string;
+  phone?: string;
+  roleTitle: string;
+  requestedAt: string;
+  assignmentStatus: SubmissionManagerAccountAssignmentStatus;
+}
+
 export interface DirectoryFilters {
   keyword: string;
   denomination: string;
@@ -334,6 +350,7 @@ export interface SubmissionFormValues {
   visitorParkingDetails: string;
   firstTimeVisitorNotes: string;
   ministryTags: string;
+  createManagerAccount: boolean;
   spanishServiceAvailable: boolean;
   livestreamAvailable: boolean;
   childrenMinistryAvailable: boolean;
@@ -344,6 +361,8 @@ export interface SubmissionFormValues {
 
 export type SubmissionFieldErrorKey =
   | keyof SubmissionFormValues
+  | "managerAccountPassword"
+  | "managerAccountPasswordConfirmation"
   | "churchLogo"
   | "churchPhotos";
 
@@ -625,6 +644,7 @@ export const emptySubmissionFormValues: SubmissionFormValues = {
   visitorParkingDetails: "",
   firstTimeVisitorNotes: "",
   ministryTags: "",
+  createManagerAccount: false,
   spanishServiceAvailable: false,
   livestreamAvailable: false,
   childrenMinistryAvailable: false,

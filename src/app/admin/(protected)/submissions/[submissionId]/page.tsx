@@ -71,6 +71,13 @@ export default async function AdminSubmissionDetailPage({
             Approving this submission creates or updates the church record in Firestore and makes
             it visible in the public directory.
           </p>
+          {submission.requestedManagerAccount ? (
+            <p className="supporting-text">
+              This submission also requested a managing account for{" "}
+              {submission.requestedManagerAccount.email}. If the church does not already have a
+              primary representative, approval will connect that account as the primary owner.
+            </p>
+          ) : null}
           <form action={approveSubmissionAction} className="field-stack">
             <input type="hidden" name="submissionId" value={submission.id} />
             <input type="hidden" name="redirectTo" value={redirectTo} />
@@ -313,6 +320,34 @@ export default async function AdminSubmissionDetailPage({
               </div>
             </div>
           </div>
+
+          {submission.requestedManagerAccount ? (
+            <div className="panel panel--gold-tint">
+              <h2>Requested manager account</h2>
+              <div className="detail-list">
+                <div className="detail-row">
+                  <dt>Name</dt>
+                  <dd>{submission.requestedManagerAccount.name}</dd>
+                </div>
+                <div className="detail-row">
+                  <dt>Email</dt>
+                  <dd>{submission.requestedManagerAccount.email}</dd>
+                </div>
+                <div className="detail-row">
+                  <dt>Phone</dt>
+                  <dd>{submission.requestedManagerAccount.phone ?? "Not provided"}</dd>
+                </div>
+                <div className="detail-row">
+                  <dt>Role / title</dt>
+                  <dd>{submission.requestedManagerAccount.roleTitle}</dd>
+                </div>
+                <div className="detail-row">
+                  <dt>Assignment status</dt>
+                  <dd>{submission.requestedManagerAccount.assignmentStatus.replace(/_/g, " ")}</dd>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <div className="panel">
             <h2>Uploads</h2>

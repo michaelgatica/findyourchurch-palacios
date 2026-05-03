@@ -17,6 +17,13 @@ function getAdminNotificationEmail() {
 export async function queueSubmissionReceivedNotification(
   submission: ChurchSubmissionRecord,
 ) {
+  const accountCreatedMessage = submission.requestedManagerAccount
+    ? [
+        "",
+        `We also created a Find Your Church account for ${submission.requestedManagerAccount.email}. Once the listing is approved, that account can be connected as the listing manager so the church can keep this page updated.`,
+      ]
+    : [];
+
   await sendTransactionalEmail({
     to: submission.submitterEmail,
     subject: "We received your church listing submission",
@@ -24,6 +31,7 @@ export async function queueSubmissionReceivedNotification(
       "Thank you for submitting your church to Find Your Church Palacios. We received your listing and will review it for accuracy before publishing. Please allow up to 24 hours for approval.",
       "",
       "If we need any clarification or edits, we will contact you.",
+      ...accountCreatedMessage,
       "",
       "Find Your Church Palacios is a ministry project powered by El Roi Digital Ministries. Our desire is to help churches be searchable, visible, and easy to connect with.",
     ].join("\n"),
@@ -46,10 +54,13 @@ export async function queueSubmissionReceivedNotification(
       `Church name: ${submission.churchDraft.name}`,
       `Submitter name: ${submission.submitterName}`,
       `Submitter email: ${submission.submitterEmail}`,
+      submission.requestedManagerAccount
+        ? `Manager account requested: ${submission.requestedManagerAccount.email}`
+        : undefined,
       `Submission time: ${submission.submittedAt ?? submission.createdAt}`,
       "",
       `Review it here: ${buildAbsoluteUrl(`/admin/submissions/${submission.id}`)}`,
-    ].join("\n"),
+    ].filter(Boolean).join("\n"),
     relatedEntityType: "churchSubmission",
     relatedEntityId: submission.id,
   });
@@ -58,6 +69,7 @@ export async function queueSubmissionReceivedNotification(
 export async function sendSubmissionApprovedNotification(input: {
   submission: ChurchSubmissionRecord;
   church: ChurchRecord;
+  managerAccountAssigned?: boolean;
 }) {
   await sendTransactionalEmail({
     to: input.submission.submitterEmail,
@@ -67,6 +79,12 @@ export async function sendSubmissionApprovedNotification(input: {
       "",
       "You can view the listing here:",
       buildAbsoluteUrl(buildChurchProfilePath(input.church.slug)),
+      ...(input.managerAccountAssigned && input.submission.requestedManagerAccount
+        ? [
+            "",
+            `The Find Your Church account for ${input.submission.requestedManagerAccount.email} can now sign in to help manage this listing.`,
+          ]
+        : []),
       "",
       "Thank you for helping us keep local church information accurate and easy to find.",
       "",

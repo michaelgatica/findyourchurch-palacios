@@ -13,6 +13,12 @@ import {
   updateChurchSubmissionInFirebase,
 } from "@/lib/repositories/firebase-submission-repository";
 import {
+  getPrimaryRepresentativeForChurch,
+  getRepresentativeForChurchUser,
+  upsertChurchRepresentative,
+} from "@/lib/repositories/firebase-representative-repository";
+import { upsertUserProfile } from "@/lib/repositories/firebase-user-repository";
+import {
   sendSubmissionApprovedNotification,
   sendSubmissionChangesRequestedNotification,
   sendSubmissionDeniedNotification,
@@ -21,6 +27,119 @@ import {
 
 function createRequiredMessageError() {
   return new Error("A message is required for this action.");
+}
+
+async function assignRequestedManagerAccountOnApproval(input: {
+  submission: NonNullable<Awaited<ReturnType<typeof getChurchSubmissionByIdFromFirebase>>>;
+  church: Awaited<ReturnType<typeof upsertChurchFromSubmissionApproval>>;
+  adminUserId: string;
+}) {
+  const requestedManagerAccount = input.submission.requestedManagerAccount;
+
+  if (!requestedManagerAccount) {
+    return {
+      church: input.church,
+      managerAccountAssigned: false,
+    };
+  }
+
+  const currentPrimaryRepresentative = await getPrimaryRepresentativeForChurch(input.church.id);
+
+  if (
+    currentPrimaryRepresentative &&
+    currentPrimaryRepresentative.userId !== requestedManagerAccount.firebaseUid
+  ) {
+    const updatedRequestedManagerAccount = {
+      ...requestedManagerAccount,
+      assignmentStatus: "manual_review_required" as const,
+    };
+
+    await updateChurchSubmissionInFirebase(input.submission.id, {
+      requestedManagerAccount: updatedRequestedManagerAccount,
+    });
+    await createAuditLogInFirebase({
+      entityType: "churchSubmission",
+      entityId: input.submission.id,
+      action: "requested_manager_account_manual_review_required",
+      actorId: input.adminUserId,
+      actorType: "admin",
+      note: "The submission requested a manager account, but the church already has an assigned primary representative.",
+      after: updatedRequestedManagerAccount,
+    });
+
+    return {
+      church: input.church,
+      managerAccountAssigned: false,
+    };
+  }
+
+  const existingRepresentative = await getRepresentativeForChurchUser(
+    input.church.id,
+    requestedManagerAccount.firebaseUid,
+  );
+  const representative = await upsertChurchRepresentative({
+    id: existingRepresentative?.id,
+    churchId: input.church.id,
+    userId: requestedManagerAccount.firebaseUid,
+    name: requestedManagerAccount.name,
+    email: requestedManagerAccount.email,
+    phone: requestedManagerAccount.phone,
+    roleTitle: requestedManagerAccount.roleTitle,
+    permissionRole: "primary_owner",
+    status: "active",
+  });
+  await upsertUserProfile({
+    firebaseUid: requestedManagerAccount.firebaseUid,
+    name: requestedManagerAccount.name,
+    email: requestedManagerAccount.email,
+    phone: requestedManagerAccount.phone,
+    role: "church_primary",
+  });
+
+  const { getFirebaseAdminFirestore } = await import("@/lib/firebase/admin");
+  const { firestoreCollectionNames } = await import("@/lib/firebase/firestore");
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    throw new Error("Firebase Firestore is not configured.");
+  }
+
+  await firestore
+    .collection(firestoreCollectionNames.churches)
+    .doc(input.church.id)
+    .set(
+      {
+        primaryRepresentativeId: representative.id,
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true },
+    );
+
+  const updatedRequestedManagerAccount = {
+    ...requestedManagerAccount,
+    assignmentStatus: "assigned_as_primary_owner" as const,
+  };
+
+  await updateChurchSubmissionInFirebase(input.submission.id, {
+    requestedManagerAccount: updatedRequestedManagerAccount,
+  });
+  await createAuditLogInFirebase({
+    entityType: "churchRepresentative",
+    entityId: representative.id,
+    action: "representative_assigned",
+    actorId: input.adminUserId,
+    actorType: "admin",
+    after: representative,
+    note: "Primary owner assigned from church submission account request.",
+  });
+
+  return {
+    church: {
+      ...input.church,
+      primaryRepresentativeId: representative.id,
+    },
+    managerAccountAssigned: true,
+  };
 }
 
 function sortByCreatedAtDescending<T extends { createdAt: string }>(records: T[]) {
@@ -162,6 +281,11 @@ export async function approveSubmission(input: {
     submissionId: submission.id,
     lastVerifiedAt: new Date().toISOString(),
   });
+  const assignmentResult = await assignRequestedManagerAccountOnApproval({
+    submission,
+    church,
+    adminUserId: input.adminUserId,
+  });
 
   await updateChurchSubmissionInFirebase(submission.id, {
     status: "approved",
@@ -175,7 +299,7 @@ export async function approveSubmission(input: {
     actorId: input.adminUserId,
     actorType: "admin",
     before: submission,
-    after: church,
+    after: assignmentResult.church,
     note: input.adminMessage?.trim() || "Church submission approved and published.",
   });
   await sendSubmissionApprovedNotification({
@@ -183,14 +307,15 @@ export async function approveSubmission(input: {
       ...submission,
       status: "approved",
     },
-    church,
+    church: assignmentResult.church,
+    managerAccountAssigned: assignmentResult.managerAccountAssigned,
   });
 
   safeRevalidatePath("/admin");
   safeRevalidatePath("/admin/submissions");
   safeRevalidatePath(`/admin/submissions/${submission.id}`);
   safeRevalidatePath("/churches");
-  safeRevalidatePath(buildChurchProfilePath(church.slug));
+  safeRevalidatePath(buildChurchProfilePath(assignmentResult.church.slug));
 }
 
 export async function denySubmission(input: {

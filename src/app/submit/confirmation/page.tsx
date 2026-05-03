@@ -13,6 +13,7 @@ export const metadata = createPageMetadata({
 interface SubmissionConfirmationPageProps {
   searchParams: Promise<{
     church?: string;
+    account?: string;
   }>;
 }
 
@@ -21,6 +22,7 @@ export default async function SubmissionConfirmationPage({
 }: SubmissionConfirmationPageProps) {
   const resolvedSearchParams = await searchParams;
   const churchName = resolvedSearchParams.church ?? "your church";
+  const managerAccountCreated = resolvedSearchParams.account === "created";
 
   return (
     <section className="shell page-section">
@@ -35,6 +37,13 @@ export default async function SubmissionConfirmationPage({
         <p className="supporting-text">
           If we need any clarification or edits, we will contact you by email.
         </p>
+        {managerAccountCreated ? (
+          <p className="supporting-text">
+            We also created your Find Your Church account. Once the listing is approved, that
+            account can be connected as the church&apos;s listing manager so you can sign in and
+            keep the page updated.
+          </p>
+        ) : null}
 
         <div className="button-row">
           <Link href="/churches" className="button button--secondary">

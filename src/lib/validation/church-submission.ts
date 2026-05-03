@@ -267,6 +267,7 @@ function createValues(formData: FormData): SubmissionFormValues {
     visitorParkingDetails: getString(formData, "visitorParkingDetails"),
     firstTimeVisitorNotes: getString(formData, "firstTimeVisitorNotes"),
     ministryTags: getString(formData, "ministryTags"),
+    createManagerAccount: getBoolean(formData, "createManagerAccount"),
     spanishServiceAvailable: getBoolean(formData, "spanishServiceAvailable"),
     livestreamAvailable: getBoolean(formData, "livestreamAvailable"),
     childrenMinistryAvailable: getBoolean(formData, "childrenMinistryAvailable"),
@@ -377,6 +378,11 @@ async function validateImageFile(
 
 export async function validateChurchSubmissionFormData(formData: FormData) {
   const values = createValues(formData);
+  const managerAccountPassword = getString(formData, "managerAccountPassword");
+  const managerAccountPasswordConfirmation = getString(
+    formData,
+    "managerAccountPasswordConfirmation",
+  );
   const schemaResult = submissionSchema.safeParse({
     churchName: values.churchName,
     addressLine1: values.addressLine1,
@@ -417,6 +423,21 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
   });
 
   const errors = schemaResult.success ? {} : createErrorMap(schemaResult.error);
+
+  if (values.createManagerAccount) {
+    if (managerAccountPassword.length < 6) {
+      errors.managerAccountPassword =
+        "Create a password with at least 6 characters.";
+    }
+
+    if (managerAccountPasswordConfirmation.length === 0) {
+      errors.managerAccountPasswordConfirmation =
+        "Please confirm the password for the new account.";
+    } else if (managerAccountPassword !== managerAccountPasswordConfirmation) {
+      errors.managerAccountPasswordConfirmation =
+        "The password confirmation does not match.";
+    }
+  }
 
   const logoCandidate = formData.get("churchLogo");
   const churchLogo =
@@ -513,6 +534,15 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
     success: true as const,
     values,
     data: parsedData,
+    accountCreationRequest: values.createManagerAccount
+      ? {
+          password: managerAccountPassword,
+          name: parsedData.primaryContactName,
+          email: parsedData.primaryContactEmail,
+          phone: parsedData.primaryContactPhone,
+          roleTitle: parsedData.primaryContactRole,
+        }
+      : null,
     uploads: {
       churchLogo: validatedLogo,
       churchPhotos: validatedPhotos,
