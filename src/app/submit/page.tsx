@@ -16,7 +16,8 @@ export default function SubmitChurchPage() {
         <h1>Share a church listing with Find Your Church Palacios</h1>
         <p>
           Use this form to submit a church listing for review. New submissions are saved as pending
-          review before they appear publicly in the directory.
+          review before they appear publicly in the directory. If we need clarification, we will
+          follow up before publishing.
         </p>
       </div>
 

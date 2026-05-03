@@ -20,9 +20,15 @@ service cloud.firestore {
       return currentUserRole() == 'admin';
     }
 
+    function isOwnerOfUserScopedRecord(fieldName) {
+      return signedIn() && resource.data[fieldName] == request.auth.uid;
+    }
+
     match /churches/{churchId} {
       allow read: if resource.data.status == 'published' || isAdmin();
       allow write: if isAdmin();
+      // Representative listing changes are handled through trusted server actions
+      // and the Firebase Admin SDK in Phase 4, so direct client writes remain disabled.
     }
 
     match /churchSubmissions/{submissionId} {
@@ -41,18 +47,33 @@ service cloud.firestore {
     }
 
     match /churchRepresentatives/{representativeId} {
-      allow read, write: if isAdmin();
-      // TODO: Scope church representative access to their own church documents in Phase 3.
+      allow read: if isAdmin() || isOwnerOfUserScopedRecord('userId');
+      allow write: if isAdmin();
+      // TODO: If representative document list queries move client-side, require
+      // query constraints that scope results to request.auth.uid.
     }
 
     match /churchClaimRequests/{claimRequestId} {
       allow create: if signedIn();
-      allow read, update, delete: if isAdmin();
+      allow read: if isAdmin() || isOwnerOfUserScopedRecord('requesterUserId');
+      allow update, delete: if isAdmin();
+    }
+
+    match /churchUpdateRequests/{updateRequestId} {
+      allow read: if isAdmin() || isOwnerOfUserScopedRecord('submittedByUserId');
+      allow write: if isAdmin();
+    }
+
+    match /ownershipTransferRequests/{transferRequestId} {
+      allow read: if isAdmin() || isOwnerOfUserScopedRecord('requestedByUserId');
+      allow write: if isAdmin();
     }
 
     match /messages/{messageId} {
-      allow read, write: if isAdmin();
-      // TODO: Allow church representatives to access only their own church threads.
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+      // Phase 4 representative message reads/writes are routed through trusted
+      // server actions, so direct client access stays disabled for now.
     }
 
     match /auditLogs/{auditLogId} {

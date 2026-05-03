@@ -22,6 +22,8 @@ export const firestoreCollectionNames = {
   users: "users",
   churchRepresentatives: "churchRepresentatives",
   churchClaimRequests: "churchClaimRequests",
+  churchUpdateRequests: "churchUpdateRequests",
+  ownershipTransferRequests: "ownershipTransferRequests",
   messages: "messages",
   auditLogs: "auditLogs",
   emailLogs: "emailLogs",
@@ -154,6 +156,40 @@ export function mapChurchDocumentToChurchRecord(churchDocument: ChurchDocument):
     publishedAt: churchDocument.publishedAt ?? null,
     primaryRepresentativeId: churchDocument.primaryRepresentativeId ?? null,
     autoPublishUpdates: churchDocument.autoPublishUpdates ?? false,
+  };
+}
+
+export function mapChurchRecordToDraft(churchRecord: ChurchRecord): ChurchListingDraft {
+  return {
+    cityId: churchRecord.cityId,
+    countyId: churchRecord.countyId,
+    stateId: churchRecord.stateId,
+    name: churchRecord.name,
+    logoSrc: churchRecord.logoSrc ?? null,
+    photos: churchRecord.photos,
+    denomination: churchRecord.denomination,
+    specificAffiliation: churchRecord.specificAffiliation,
+    clergyLabel: churchRecord.clergyLabel,
+    primaryClergyName: churchRecord.primaryClergyName,
+    additionalLeaders: churchRecord.additionalLeaders,
+    description: churchRecord.description,
+    statementOfFaith: churchRecord.statementOfFaith,
+    serviceTimes: churchRecord.serviceTimes,
+    address: churchRecord.address,
+    phone: churchRecord.phone,
+    email: churchRecord.email,
+    website: churchRecord.website,
+    socialLinks: churchRecord.socialLinks,
+    worshipStyle: churchRecord.worshipStyle,
+    languages: churchRecord.languages,
+    features: churchRecord.features,
+    accessibilityDetails: churchRecord.accessibilityDetails,
+    visitorParkingDetails: churchRecord.visitorParkingDetails,
+    firstTimeVisitorNotes: churchRecord.firstTimeVisitorNotes,
+    livestreamDetails: churchRecord.livestreamDetails,
+    onlineGivingUrl: churchRecord.onlineGivingUrl,
+    ministryTags: churchRecord.ministryTags,
+    lastVerifiedAt: churchRecord.lastVerifiedAt ?? null,
   };
 }
 

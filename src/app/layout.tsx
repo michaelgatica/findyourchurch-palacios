@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import { Fraunces, Work_Sans } from "next/font/google";
+import Script from "next/script";
 
+import { OptionalAnalytics } from "@/components/optional-analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { getSiteUrl, siteConfig } from "@/lib/config/site";
+import {
+  buildMetadataImageUrl,
+  getSiteUrl,
+  siteConfig,
+} from "@/lib/config/site";
 
 import "./globals.css";
 
@@ -22,11 +28,36 @@ const bodyFont = Work_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: "Find Your Church Palacios | Find Churches in Palacios, Texas",
-  description:
-    "Find Your Church Palacios helps residents, visitors, and families discover local churches, view service times, and connect with church communities in the Palacios area.",
+  description: siteConfig.launchDescription,
   icons: {
     icon: "/assets/logos/find-your-church-palacios-512.png",
   },
+  openGraph: {
+    title: "Find Your Church Palacios | Find Churches in Palacios, Texas",
+    description: siteConfig.launchDescription,
+    url: getSiteUrl(),
+    siteName: siteConfig.launchName,
+    type: "website",
+    images: [
+      {
+        url: buildMetadataImageUrl(),
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.launchName} branding`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Find Your Church Palacios | Find Churches in Palacios, Texas",
+    description: siteConfig.launchDescription,
+    images: [buildMetadataImageUrl()],
+  },
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? {
+        google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+      }
+    : undefined,
 };
 
 export default function RootLayout({
@@ -37,9 +68,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${headingFont.variable} ${bodyFont.variable}`}>
+        <Script
+          id="zeffy-modal-script"
+          src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"
+          strategy="beforeInteractive"
+        />
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <OptionalAnalytics />
         <div className="site-shell">
           <SiteHeader />
-          <main>{children}</main>
+          <main id="main-content">{children}</main>
           <SiteFooter />
         </div>
       </body>

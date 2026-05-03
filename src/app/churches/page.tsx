@@ -24,8 +24,8 @@ export default async function ChurchesPage() {
         <p className="eyebrow eyebrow--gold">Church Directory</p>
         <h1>Find churches near you in Palacios, Texas</h1>
         <p>
-          Browse published church listings, search by keyword, and filter by ministries, worship
-          style, language, and accessibility details.
+          Search by church name, pastor, ministry, worship style, or service time, then use the
+          filters below to narrow your results.
         </p>
       </div>
 

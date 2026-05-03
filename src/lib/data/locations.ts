@@ -43,6 +43,14 @@ export function getCountyById(countyId: string) {
   return counties.find((county) => county.id === countyId) ?? null;
 }
 
+export function findCountyByName(countyName: string) {
+  return (
+    counties.find(
+      (county) => county.name.toLowerCase() === countyName.trim().toLowerCase(),
+    ) ?? null
+  );
+}
+
 export function getCityById(cityId: string) {
   return cities.find((city) => city.id === cityId) ?? null;
 }

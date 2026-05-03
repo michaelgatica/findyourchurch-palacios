@@ -311,3 +311,40 @@ export async function uploadSubmissionAssetsToFirebaseStorage(
     }),
   );
 }
+
+export async function uploadChurchAssetsToFirebaseStorage(
+  churchId: string,
+  uploads: {
+    churchLogo?: ValidatedUploadFile;
+    churchPhotos: ValidatedUploadFile[];
+  },
+) {
+  const pendingUploads = [
+    ...(uploads.churchLogo ? [uploads.churchLogo] : []),
+    ...uploads.churchPhotos,
+  ];
+
+  if (pendingUploads.length === 0) {
+    return [];
+  }
+
+  const bucket = await getVerifiedFirebaseAdminBucket();
+
+  return Promise.all(
+    pendingUploads.map((uploadFile, index) => {
+      const { storedName, storagePath } = buildChurchStoragePath(
+        churchId,
+        uploadFile,
+        index,
+      );
+
+      return uploadBufferToFirebaseStorage(
+        bucket,
+        storagePath,
+        storedName,
+        uploadFile,
+        index,
+      );
+    }),
+  );
+}

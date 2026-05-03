@@ -40,6 +40,7 @@ export async function generateMetadata({
     title: `${church.name} | Find Your Church Palacios`,
     description: church.description,
     pathname: buildChurchProfilePath(church.slug),
+    imagePath: church.logoSrc ?? church.photos[0]?.src,
   });
 }
 

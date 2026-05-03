@@ -54,6 +54,25 @@ export const churchClaimRequestStatuses = [
 export type ChurchClaimRequestStatus =
   (typeof churchClaimRequestStatuses)[number];
 
+export const churchUpdateRequestStatuses = [
+  "pending_review",
+  "approved",
+  "denied",
+  "changes_requested",
+] as const;
+
+export type ChurchUpdateRequestStatus =
+  (typeof churchUpdateRequestStatuses)[number];
+
+export const ownershipTransferRequestStatuses = [
+  "pending_review",
+  "approved",
+  "denied",
+] as const;
+
+export type OwnershipTransferRequestStatus =
+  (typeof ownershipTransferRequestStatuses)[number];
+
 export const messageSenderTypes = [
   "admin",
   "church_rep",
@@ -402,7 +421,7 @@ export interface AppUserRecord {
 export interface ChurchRepresentativeRecord {
   id: string;
   churchId: string;
-  userId: string;
+  userId?: string | null;
   name: string;
   email: string;
   phone?: string;
@@ -447,6 +466,7 @@ export interface MessageRecord {
   churchId?: string;
   submissionId?: string;
   claimRequestId?: string;
+  updateRequestId?: string;
   senderId: string;
   senderType: MessageSenderType;
   messageBody: string;
@@ -459,6 +479,7 @@ export interface CreateMessageInput {
   churchId?: string;
   submissionId?: string;
   claimRequestId?: string;
+  updateRequestId?: string;
   senderId: string;
   senderType: MessageSenderType;
   messageBody: string;
@@ -500,6 +521,45 @@ export interface EmailLogRecord {
   relatedEntityType?: string;
   relatedEntityId?: string;
   createdAt: string;
+}
+
+export interface ChurchUpdateRequestRecord {
+  id: string;
+  churchId: string;
+  submittedByUserId: string;
+  submittedByRepresentativeId: string;
+  proposedChanges: ChurchListingDraft;
+  status: ChurchUpdateRequestStatus;
+  adminMessage?: string;
+  internalNotes: string[];
+  createdAt: string;
+  updatedAt: string;
+  approvedAt?: string | null;
+  deniedAt?: string | null;
+  requestedChangesAt?: string | null;
+  reviewedBy?: string;
+  source: "church_portal";
+  autoPublished?: boolean;
+}
+
+export interface OwnershipTransferRequestRecord {
+  id: string;
+  churchId: string;
+  requestedByUserId: string;
+  requestedByRepresentativeId: string;
+  currentOwnerRepresentativeId: string;
+  newOwnerName: string;
+  newOwnerEmail: string;
+  newOwnerPhone?: string;
+  newOwnerRoleTitle: string;
+  reasonMessage: string;
+  status: OwnershipTransferRequestStatus;
+  adminMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+  approvedAt?: string | null;
+  deniedAt?: string | null;
+  reviewedBy?: string;
 }
 
 export interface LocationRecord {

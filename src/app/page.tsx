@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { ChurchCard } from "@/components/church-card";
+import { DonationSupportActions } from "@/components/donation-support-actions";
+import { DonationSupportEmbed } from "@/components/donation-support-embed";
 import { createPageMetadata, siteConfig } from "@/lib/config/site";
 import { getPublishedChurches } from "@/lib/repositories/church-repository";
 
@@ -23,9 +25,8 @@ export default async function HomePage() {
             <p className="eyebrow eyebrow--gold">Local Church Directory</p>
             <h1>Find a Church in Palacios, Texas</h1>
             <p className="hero-section__lead">
-              Find Your Church Palacios helps residents, visitors, and families discover local
-              churches, view service times, and connect with church communities in the Palacios
-              area.
+              Find service times, contact information, and helpful details for local churches in
+              the Palacios area.
             </p>
             <div className="button-row">
               <Link href="/churches" className="button button--primary">
@@ -34,28 +35,28 @@ export default async function HomePage() {
               <Link href="/submit" className="button button--secondary">
                 Submit Your Church
               </Link>
+              <Link href="/churches" className="button button--ghost">
+                Claim a Church
+              </Link>
             </div>
           </div>
 
           <div className="hero-panel">
-            <p className="eyebrow">Our First Local Launch</p>
-            <h2>Built for Palacios now, structured for future cities later</h2>
-            <p>
-              This Phase 1 foundation supports published listings, pending submissions, and a data
-              model that can grow into county, state, and multi-city church directories over time.
-            </p>
+            <p className="eyebrow">Simple and Local</p>
+            <h2>A clear place to explore churches in the Palacios community</h2>
+            <p>{siteConfig.launchVision}</p>
             <div className="hero-panel__stats">
               <div>
                 <strong>{publishedChurches.length}</strong>
-                <span>Published starter listings</span>
+                <span>Churches listed</span>
               </div>
               <div>
-                <strong>1</strong>
-                <span>Active launch city</span>
+                <strong>Local</strong>
+                <span>Built to help residents, visitors, and families</span>
               </div>
               <div>
-                <strong>5</strong>
-                <span>Core entities prepared</span>
+                <strong>Free</strong>
+                <span>No church is required to pay to be listed</span>
               </div>
             </div>
           </div>
@@ -63,25 +64,42 @@ export default async function HomePage() {
       </section>
 
       <section className="shell section-stack">
-        <div className="section-grid">
+        <div className="panel trust-banner">
+          <p className="eyebrow eyebrow--gold">A Free Local Church Directory</p>
+          <h2>Created to help people connect with church communities</h2>
+          <p>
+            Find Your Church Palacios is a simple, ministry-focused directory created to help
+            people find churches, view service times, and connect with local congregations.
+          </p>
+        </div>
+      </section>
+
+      <section className="shell section-stack">
+        <div className="section-grid section-grid--three">
           <div className="panel">
-            <p className="eyebrow">About the Ministry</p>
-            <h2>Helping churches be visible and easy to connect with</h2>
+            <p className="eyebrow">Browse local churches</p>
+            <h3>Find service times and contact information</h3>
             <p>
-              Find Your Church is a ministry project powered by El Roi Digital Ministries. The
-              Palacios directory is our first local launch, created to help churches be searchable,
-              visible, and easy to connect with.
+              Search the directory, compare ministries, and explore local church details in one
+              place.
             </p>
           </div>
 
-          <div className="panel panel--gold-tint">
-            <p className="eyebrow">Donation-Supported</p>
-            <h2>Welcoming churches regardless of budget</h2>
+          <div className="panel">
+            <p className="eyebrow">Submit your church</p>
+            <h3>Help your church stay easy to find</h3>
             <p>
-              Find Your Church Palacios is offered as a donation-supported ministry project. We do
-              not want cost to keep a church from being searchable, visible, and easy to connect
-              with. If your church is able to support this work, donations are appreciated. If not,
-              your church is still welcome to be listed.
+              Church leaders and trusted contacts can submit a listing so the community can find
+              clear, up-to-date information.
+            </p>
+          </div>
+
+          <div className="panel">
+            <p className="eyebrow">Claim or update a listing</p>
+            <h3>Keep your church profile current</h3>
+            <p>
+              Pastors, staff members, and authorized representatives can request access to help
+              keep their listing accurate.
             </p>
           </div>
         </div>
@@ -91,10 +109,10 @@ export default async function HomePage() {
         <div className="section-heading">
           <div>
             <p className="eyebrow eyebrow--gold">Explore Local Churches</p>
-            <h2>View service times and connect with a local church</h2>
+            <h2>Start with a few churches in the Palacios area</h2>
           </div>
           <Link href="/churches" className="button button--ghost">
-            Open Directory
+            Browse All Churches
           </Link>
         </div>
 
@@ -106,18 +124,32 @@ export default async function HomePage() {
       </section>
 
       <section className="shell section-stack">
-        <div className="cta-banner">
-          <div>
-            <p className="eyebrow">Church Listing Support</p>
-            <h2>Submit or update your church listing</h2>
+        <div className="section-grid">
+          <div className="panel">
+            <p className="eyebrow">Submit or update a listing</p>
+            <h2>Help your church information stay easy to find</h2>
             <p>
-              Churches in and around {siteConfig.launchCity}, {siteConfig.launchState} can submit a
-              public listing for review.
+              Churches can submit a new listing for review or request access to an existing listing
+              to keep contact information, service times, and ministry details current.
             </p>
+            <div className="button-row">
+              <Link href="/submit" className="button button--secondary">
+                Submit Your Church
+              </Link>
+              <Link href="/churches" className="button button--ghost">
+                Claim a Church
+              </Link>
+            </div>
           </div>
-          <Link href="/submit" className="button button--primary">
-            Start a Submission
-          </Link>
+
+          <div className="panel panel--gold-tint">
+            <p className="eyebrow">Donation-Supported</p>
+            <h2>Keeping the directory free for churches</h2>
+            <p>{siteConfig.donationDescription}</p>
+            <p className="supporting-text">{siteConfig.donationFollowup}</p>
+            <DonationSupportActions />
+            <DonationSupportEmbed />
+          </div>
         </div>
       </section>
     </>

@@ -1,56 +1,110 @@
 # Find Your Church Palacios
 
-Find Your Church Palacios is the first local launch of the broader Find Your Church platform by El Roi Digital Ministries. This Phase 2B codebase keeps the public website from Phase 1 intact while moving the primary backend to Firebase so future admin approval, church ownership claims, and representative login can be layered in cleanly.
+Find Your Church Palacios is the first local launch of the broader Find Your Church vision by El Roi Digital Ministries. The platform helps residents, visitors, and families discover local churches, view service times, and connect with church communities in the Palacios area.
 
-## Phase 2 included
+Find Your Church Palacios is a ministry project powered by El Roi Digital Ministries.
 
-- Public homepage, directory, church profile pages, and church submission flow
-- Firebase Authentication foundation for future admin and church representative login
-- Firestore-backed repository layer for churches, submissions, users, claim requests, messages, and audit logs
-- Firebase Storage upload pipeline for logos and church photos when Storage is configured
-- Safe local fallback storage for uploads only in development when Firebase Storage is unavailable
-- Firestore and Storage rules starter files
-- Firebase seed scripts for launch data and the first admin user
-- Emulator configuration for Auth, Firestore, and Storage
+## Phase 7 status
 
-## Firebase services integrated
+Phase 7 prepares the project for the real production launch of FindYourChurchPalacios.org with:
 
+- polished public homepage, directory, church profiles, submit flow, and claim flow
+- protected admin portal and representative portal
+- Firebase Authentication, Cloud Firestore, Firebase Storage, and Firebase Admin SDK
+- submission review, claim review, update review, messaging, audit logs, and email logs
+- legal/trust pages
+- donation-supported ministry messaging
+- sitemap, robots, canonical metadata, Open Graph, and optional analytics hooks
+- launch-readiness docs and cleanup scripts for demo/test data
+- import tooling for real Palacios church data
+- production setup, outreach, and final launch QA support
+- live email verification safeguards
+- Zeffy donation embed and modal readiness
+
+## Main routes
+
+### Public
+
+- `/`
+- `/churches`
+- `/churches/[churchSlug]`
+- `/churches/[churchSlug]/claim`
+- `/churches/[churchSlug]/claim/confirmation`
+- `/submit`
+- `/submit/confirmation`
+- `/about`
+- `/contact`
+- `/privacy`
+- `/terms`
+- `/listing-guidelines`
+
+### Admin
+
+- `/admin/login`
+- `/admin`
+- `/admin/submissions`
+- `/admin/submissions/[submissionId]`
+- `/admin/churches`
+- `/admin/churches/[churchId]/representatives`
+- `/admin/updates`
+- `/admin/updates/[updateRequestId]`
+- `/admin/claims`
+- `/admin/claims/[claimRequestId]`
+
+### Representative portal
+
+- `/portal/login`
+- `/portal`
+- `/portal/church`
+- `/portal/church/edit`
+- `/portal/messages`
+- `/portal/team`
+- `/portal/transfer-ownership`
+- `/portal/updates`
+
+## Stack
+
+- Next.js App Router
 - Firebase Authentication
 - Cloud Firestore
 - Firebase Storage
 - Firebase Admin SDK
-- Firebase Emulator Suite configuration
+- Firebase Emulator support for local workflows
 
 ## Firestore collections
-
-The codebase is prepared around these collections:
 
 - `churches`
 - `churchSubmissions`
 - `users`
 - `churchRepresentatives`
 - `churchClaimRequests`
+- `churchUpdateRequests`
+- `ownershipTransferRequests`
 - `messages`
 - `auditLogs`
 - `emailLogs`
 - `locations`
 
-The active Firestore database for this project is `findyourchurchpal`. Set both `FIREBASE_DATABASE_ID` and `NEXT_PUBLIC_FIREBASE_DATABASE_ID` to that value when using the named database.
+The active Firestore database for this project is `findyourchurchpal`. Set both `FIREBASE_DATABASE_ID` and `NEXT_PUBLIC_FIREBASE_DATABASE_ID` when you are using the named database.
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local` and fill in the Firebase values for your project.
+Copy `.env.example` to `.env.local`.
 
 Important:
 
-- Do not commit `.env.local`.
-- Do not commit Firebase service account JSON files.
-- Keep only `.env.example` in Git.
+- Never commit `.env.local`.
+- Never commit Firebase service account JSON keys.
+- If a real key, password, or provider secret was ever committed anywhere, rotate it immediately.
 
-### Public Firebase client variables
+### Public variables
 
 ```bash
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_DONATION_URL=
+NEXT_PUBLIC_ENABLE_DONATIONS=true
+NEXT_PUBLIC_ZEFFY_FORM_PATH=/embed/donation-form/helping-churches-reach-people-through-technology
+
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=
@@ -60,11 +114,14 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=
 NEXT_PUBLIC_FIREBASE_DATABASE_ID=
 NEXT_PUBLIC_USE_FIREBASE_EMULATORS=false
+
+NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=
+NEXT_PUBLIC_GA_MEASUREMENT_ID=
 ```
 
-### Server-side Firebase Admin variables
+### Server-side Firebase variables
 
-Use either the credential triplet or a local service account file path.
+Use either a service account JSON file path locally or the project/client/private key triplet. On Firebase App Hosting or another Google-managed runtime, the app can also use default application credentials.
 
 ```bash
 FIREBASE_PROJECT_ID=
@@ -73,7 +130,32 @@ FIREBASE_PRIVATE_KEY=
 FIREBASE_STORAGE_BUCKET=
 FIREBASE_DATABASE_ID=
 FIREBASE_SERVICE_ACCOUNT_KEY_PATH=
+```
+
+### Email provider variables
+
+```bash
 ADMIN_NOTIFICATION_EMAIL=
+EMAIL_PROVIDER=console
+EMAIL_FROM=
+RESEND_API_KEY=
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASSWORD=
+```
+
+Supported providers:
+
+- `console`
+- `resend`
+- `smtp`
+
+### Optional email test variables
+
+```bash
+TEST_EMAIL_TO=
+ALLOW_REAL_EMAIL_TEST=false
 ```
 
 ### Optional admin seed variables
@@ -93,93 +175,54 @@ FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
 FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199
 ```
 
-## Firebase project setup
+## Firebase setup
 
-1. Create or open your Firebase project.
+1. Create or open the Firebase project.
 2. Enable Authentication and turn on Email/Password.
 3. Enable Firestore and create or confirm the named database `findyourchurchpal`.
-4. Enable Storage and confirm the actual bucket name shown in Firebase Console.
-5. Create a web app and copy the public config into `.env.local`.
-6. Create a service account key in Firebase Console and either:
-   - point `FIREBASE_SERVICE_ACCOUNT_KEY_PATH` to the JSON file, or
-   - map the JSON fields into `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`
-
-Important: never expose the private key to the browser. Admin credentials are only used in server-side code under `src/lib/firebase/admin.ts`.
-
-If `npm run seed:admin` fails with `auth/configuration-not-found`, Authentication has not been fully initialized in Firebase yet. Open **Authentication** in Firebase Console, complete setup, and enable the **Email/Password** provider before trying the admin seed again.
+4. Enable Storage and confirm the real bucket name shown in Firebase Console.
+5. Create the web app config and place the public values in `.env.local`.
+6. For local admin access, either:
+   - set `FIREBASE_SERVICE_ACCOUNT_KEY_PATH` to a local JSON key, or
+   - set `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`
+7. For Firebase App Hosting, set the same env vars in the backend environment settings. App Hosting can use its managed credentials when available.
+8. In Firebase Authentication, add your live domain to the authorized domains list before launch if needed.
 
 ## Firebase Storage setup
 
-The current project diagnosis shows that Firestore is working, but Firebase Storage is not fully provisioned yet. Before production uploads can succeed, confirm all of the following in Firebase Console:
+1. Open Firebase Console -> Storage.
+2. Finish the Storage setup flow if needed.
+3. Copy the bucket URL shown there, for example:
+   - `gs://PROJECT_ID.firebasestorage.app`
+   - `gs://PROJECT_ID.appspot.com`
+4. Set both:
+   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+   - `FIREBASE_STORAGE_BUCKET`
+5. Use only the bucket name in env vars, without the `gs://` prefix.
 
-1. Open **Storage** in Firebase Console.
-2. If Firebase shows **Get started**, finish the Storage setup flow.
-3. If Firebase prompts you to upgrade billing, complete the required Blaze upgrade for the project.
-4. Wait for the default bucket to be provisioned.
-5. Copy the bucket URL shown in Firebase Console, such as `gs://your-project.firebasestorage.app`.
-6. Set `FIREBASE_STORAGE_BUCKET` and `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` to the bucket name only, without `gs://`.
+Current upload behavior:
 
-Examples:
-
-- new default bucket format: `PROJECT_ID.firebasestorage.app`
-- older default bucket format: `PROJECT_ID.appspot.com`
-
-How to find the correct bucket name:
-
-- Firebase Console -> Storage -> Files
-- copy the bucket URL shown at the top of the page
-- remove the `gs://` prefix before placing it in env vars
-
-If the bucket URL is missing entirely, the default bucket has not been provisioned yet.
+- public submissions upload to `church-submissions/{submissionId}/...`
+- representative listing media uploads to `churches/{churchId}/...`
+- development can fall back to local uploads if Storage is unavailable
+- production does not silently fall back to local uploads
 
 ## Local development
 
-1. Install dependencies:
-
 ```bash
 npm install
-```
-
-2. Create `.env.local` from `.env.example` and add your Firebase values.
-3. Start the app:
-
-```bash
 npm run dev
 ```
 
-4. Open `http://localhost:3000`.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Seeding Firestore
-
-Seed the Palacios launch market and demo church records into Firestore:
-
-```bash
-npm run seed:firebase
-```
-
-Overwrite existing seeded documents if needed:
-
-```bash
-npm run seed:firebase -- --overwrite
-```
-
-The seed script loads launch data from:
-
-- `src/lib/data/churches.ts`
-- `src/lib/data/locations.ts`
-
-Those files remain the fallback source if Firebase is not configured yet.
-
-## Creating the first admin user
-
-You have two safe options.
+## Admin setup
 
 ### Option 1: Firebase Console
 
-1. Create a new Authentication user in Firebase Console.
-2. Create a Firestore user document in the `users` collection.
-3. Use the Firebase Auth UID as the document id.
-4. Set the document fields at minimum to:
+1. Create a Firebase Authentication user.
+2. Create a Firestore document in `users` using the auth UID as the document id.
+3. Set at least:
 
 ```json
 {
@@ -194,7 +237,7 @@ You have two safe options.
 
 ### Option 2: Seed script
 
-Set these values in `.env.local`:
+Set these in `.env.local`:
 
 ```bash
 FIREBASE_ADMIN_SEED_EMAIL=admin@example.org
@@ -209,109 +252,366 @@ Then run:
 npm run seed:admin
 ```
 
-This creates the Firebase Auth user if it does not exist and upserts the matching Firestore `users` record with role `admin`.
+## Representative portal access
 
-## Submission storage behavior
+- representative sign-in uses Firebase email/password
+- server access uses the HTTP-only session cookie
+- portal access requires an active `churchRepresentatives` record
+- allowed representative permission roles:
+  - `primary_owner`
+  - `editor`
+- allowed statuses:
+  - `active`
+- `suspended` and `transferred` representatives cannot edit
 
-Public church submissions are now saved primarily to Firestore in the `churchSubmissions` collection with status `pending_review`.
+Primary owner capabilities:
 
-When Firebase Storage is configured and the bucket exists:
+- edit listing
+- invite one editor
+- request ownership transfer
 
-- church logos upload to `church-submissions/{submissionId}/logo/{filename}`
-- church photos upload to `church-submissions/{submissionId}/photos/{filename}`
+Editor capabilities:
 
-If Firebase Storage is not available during development, the app safely falls back to local file preservation:
+- edit listing
+- message admin
+- view listing activity
 
-- pending submission uploads are written to `storage/uploads/<submission-id>/`
-- the Firestore submission record is still created
-- an internal note is attached so the reviewer knows local fallback was used
+## Public submission, claim, and update workflows
 
-This keeps builds and local testing from failing when Firestore is ready before Storage is fully provisioned.
+### Church submission
 
-Production behavior is stricter:
+- public form saves to `churchSubmissions`
+- initial status is `pending_review`
+- uploaded logo/photos go to Firebase Storage when configured
+- submitter confirmation email is sent or logged
+- admin notification email is sent or logged
 
-- production does not silently fall back to local uploads
-- if church images are submitted while Storage is misconfigured, the submission action fails clearly
-- the submit form returns a user-facing image upload error instead of pretending the upload succeeded
+### Submission approval
 
-## Local fallback behavior
+When approved:
 
-Firebase is the primary backend in Phase 2, but the repository layer intentionally falls back when needed:
+- submission status becomes `approved`
+- church record is created or updated in `churches`
+- church status becomes `published`
+- media URLs are preserved
+- audit and email logs are written
 
-- published churches can still load from local seed data if Firebase is not configured
-- submission uploads fall back to local file storage only in development if Firebase Storage is unavailable
-- the build does not require live Firebase credentials
+### Claim request
 
-## Firebase Emulator support
+- public church profile includes `Claim This Church`
+- signed-in user submits claim request
+- request saves to `churchClaimRequests` with `pending_review`
+- approved claim creates or updates the church representative ownership record
 
-The project includes `firebase.json` and `.firebaserc` for local emulator use.
+### Representative listing updates
 
-Start the emulators:
+`church.autoPublishUpdates` controls update behavior:
+
+- `true`: representative edits update the public church immediately and still create update history
+- `false`: representative edits create a `churchUpdateRequests` record for admin review
+
+### Editor invite
+
+- only the primary owner can invite one editor
+- invited editor signs in with the same email address
+- the invite activates after sign-in
+
+### Ownership transfer
+
+- only the primary owner can request it
+- admin reviews the request
+- approval changes the primary representative
+- denial leaves current ownership unchanged
+
+## Email behavior
+
+Email delivery flows through `src/lib/services/email-service.ts`.
+
+Every attempted email also writes an `emailLogs` record.
+
+Recommended production setup:
+
+- set `EMAIL_PROVIDER=resend` or `EMAIL_PROVIDER=smtp`
+- set `EMAIL_FROM`
+- set `ADMIN_NOTIFICATION_EMAIL`
+- verify the sender domain with your provider
+
+Development-safe behavior:
+
+- `EMAIL_PROVIDER=console` logs messages locally and still writes `emailLogs`
+
+Production-ready SMTP example using your church domain mailbox:
 
 ```bash
-npm run emulators
+EMAIL_PROVIDER=smtp
+EMAIL_FROM=support@findyourchurchpalacios.org
+ADMIN_NOTIFICATION_EMAIL=support@findyourchurchpalacios.org
+SMTP_HOST=findyourchurchpalacios.org
+SMTP_PORT=465
+SMTP_USER=support@findyourchurchpalacios.org
+SMTP_PASSWORD=<mailbox-password>
 ```
 
-Then set:
+Safe email verification:
 
 ```bash
-NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true
-FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
-FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
-FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199
+npm run test:email
 ```
 
-The Emulator UI runs at `http://127.0.0.1:4000`.
+Live email verification:
 
-## Auth foundation
+```bash
+ALLOW_REAL_EMAIL_TEST=true npm run test:email
+```
 
-Phase 2 does not include the full admin portal or church representative portal yet, but the auth structure is ready for the next phase:
+Notes:
 
-- client auth helpers live in `src/lib/firebase/auth-client.ts`
-- server token and user resolution helpers live in `src/lib/firebase/auth-server.ts`
-- role helpers live in `src/lib/firebase/auth-roles.ts`
-- Firestore user profiles live in the `users` collection
+- `EMAIL_PROVIDER=console` is the safest local default
+- `npm run test:email` will not use a live provider unless `ALLOW_REAL_EMAIL_TEST=true`
+- set `TEST_EMAIL_TO` if you want to direct a non-console test to a specific inbox
+- in production, `ADMIN_NOTIFICATION_EMAIL` should be set so admin workflow messages have a real destination
+- a successful live email test should send the message, create an `emailLogs` record, and avoid printing secrets
 
-Current app roles:
+## Zeffy donation setup
 
-- `admin`
-- `church_primary`
-- `church_editor`
-- `pending_user`
+The site now uses Zeffy in two ways:
 
-For now, role checks are driven by Firestore profile data. Custom claims can be added later once the login and session flow is finalized.
+- modal-enabled donation buttons
+- embedded donation form panels with iframe fallback
 
-## Claim-this-church foundation
+Current configuration points:
 
-The future ownership claim workflow is now prepared with:
+- default embedded form path: `src/lib/config/site.ts`
+- optional modal/button override: `NEXT_PUBLIC_DONATION_URL`
+- optional Zeffy embed path override: `NEXT_PUBLIC_ZEFFY_FORM_PATH`
+- optional donation UI toggle: `NEXT_PUBLIC_ENABLE_DONATIONS=false`
 
-- `churchClaimRequests` collection support
-- claim request validation in `src/lib/validation/church-claim-request.ts`
-- creation service in `src/lib/services/church-claim-service.ts`
-- church representative types and repository support for future ownership assignment
+Testing notes:
 
-The UI for claiming a church is intentionally deferred to Phase 3.
+- verify the donation buttons open the Zeffy modal when the script loads
+- verify the embedded form appears on the home, about, and contact pages
+- if the Zeffy embed script fails, confirm the iframe fallback still renders
+- donation wording should remain clearly optional and never gate listings
 
-## Security rules
+## Real content readiness
 
-Starter rule files are included:
+### Seed locations and sample churches
 
-- `firestore.rules`
-- `storage.rules`
+Development-friendly seed with sample churches:
 
-Current intent:
+```bash
+npm run seed:firebase
+```
 
-- public visitors can read published churches
-- public visitors cannot read pending submissions
-- only admins can read and write submissions, messages, audit logs, and email logs
-- users can read and update their own Firestore profile within role restrictions
-- church representative access still needs tighter path-based production rules in Phase 3
-- direct client uploads remain disabled until admin and church representative upload flows are finalized
-- image size and content-type constraints are prepared in `storage.rules` for the future authenticated upload paths
+Explicitly include samples in production or staging only if you truly intend to:
 
-Before a production launch, review and harden the rules with your exact auth flow, representative access scope, and Storage bucket settings.
+```bash
+npm run seed:firebase -- --include-samples
+```
 
-## Testing and verification
+Production-safe behavior:
+
+- location records are always safe to seed
+- sample churches are skipped by default in production unless `--include-samples` is used
+- public pages no longer fall back to local sample churches in production when Firebase is configured
+
+### Import real Palacios churches
+
+The repo includes a JSON import path for real launch data:
+
+- example template: `data/palacios-churches.example.json`
+- local import file: `data/palacios-churches.json`
+
+`data/palacios-churches.json` is intentionally gitignored so real working data does not get committed by accident.
+
+Suggested workflow:
+
+1. Copy `data/palacios-churches.example.json` to `data/palacios-churches.json`.
+2. Fill in the real Palacios churches.
+3. Dry-run the import:
+
+```bash
+npm run import:palacios -- --input data/palacios-churches.json --dry-run
+```
+
+4. Run the live import when the preview looks correct:
+
+```bash
+npm run import:palacios -- --input data/palacios-churches.json --confirm
+```
+
+Useful flags:
+
+- `--overwrite` updates existing matching churches instead of skipping them
+- `--confirm` is required for any real write
+- duplicate protection checks both slug and a name/address/city/state key
+- imported churches default to `status: published` unless a different status is provided in the JSON
+- imported records can also be marked `pending_review`
+- `lastVerifiedAt` is preserved if provided
+- imported records are stored with `isSeedContent: false`
+
+### Remove demo churches
+
+```bash
+npm run cleanup:demo-data -- --dry-run
+npm run cleanup:demo-data -- --confirm
+```
+
+This removes churches where `isSeedContent === true`.
+
+Safety notes:
+
+- the cleanup command now requires `--dry-run` or `--confirm`
+- always preview first before removing anything from a shared Firebase project
+
+### Remove workflow test artifacts
+
+```bash
+npm run cleanup:test-data -- --dry-run
+npm run cleanup:test-data -- --confirm
+```
+
+This is intended for cleanup after running Phase 3 and Phase 4 workflow verification against a live Firebase project. It removes the main workflow verification records from Firestore. Review the script before using it in any shared environment.
+
+It also cleans up the Firebase submission verification records created by `npm run test:firebase-submission`.
+
+### Adding a real church manually
+
+Preferred options:
+
+1. Have the church submit through the public `/submit` form and approve it in `/admin/submissions`.
+2. If you must add it directly, create the Firestore record in `churches` with:
+   - a unique `slug`
+   - `status: published`
+   - structured address fields
+   - service times
+   - contact information
+   - `updatedAt`
+   - `publishedAt`
+
+### Replacing demo listings with real listings
+
+1. Preview demo cleanup with `npm run cleanup:demo-data -- --dry-run`.
+2. Remove demo data with `npm run cleanup:demo-data -- --confirm`.
+3. Import real churches or approve real submissions from `/admin/submissions`.
+4. Confirm only real published churches appear on `/churches`.
+
+### Duplicate prevention tips
+
+- search the admin churches page before approving a new submission
+- compare church name, address, phone, and website
+- prefer updating an existing church record if the listing already exists
+- use claim access for authorized representatives instead of creating second listings
+
+### Manual church listing corrections
+
+For a real launch, prefer these correction paths in order:
+
+1. Admin review an incoming submission in `/admin/submissions`
+2. Approved representative edits through `/portal/church/edit`
+3. Admin church management views for representative and update oversight
+4. Direct Firestore editing only as a last resort, with an audit note
+
+## Legal and trust pages
+
+Phase 5 adds:
+
+- `/about`
+- `/contact`
+- `/privacy`
+- `/terms`
+- `/listing-guidelines`
+
+These pages should be reviewed before public launch so ministry wording, contact details, and legal expectations reflect your final ministry decisions.
+
+## SEO and launch polish
+
+Implemented in Phase 5:
+
+- canonical URLs from `NEXT_PUBLIC_SITE_URL`
+- Open Graph and Twitter metadata
+- metadata titles and descriptions for public pages
+- church profile titles based on church name
+- `robots.txt`
+- `sitemap.xml`
+- optional Google site verification
+- optional Google Analytics injection when `NEXT_PUBLIC_GA_MEASUREMENT_ID` is set
+
+Phase 7 launch notes:
+
+- set `NEXT_PUBLIC_SITE_URL=https://findyourchurchpalacios.org` in production
+- admin login, portal login, and confirmation pages are configured with `noIndex`
+- `robots.txt` and `sitemap.xml` both derive their production URLs from `NEXT_PUBLIC_SITE_URL`
+
+## Security notes
+
+Current hardening intent:
+
+- admin routes require authenticated users with Firestore `role: admin`
+- representative routes require an active church representative record
+- public users cannot read pending submissions, internal notes, or admin-only logs
+- representatives cannot directly edit unrelated churches
+- only primary owners can invite editors or request ownership transfer
+- direct browser uploads remain disabled in Storage rules for now
+- trusted server actions and Firebase Admin SDK perform sensitive writes
+
+Before production launch:
+
+- review `firestore.rules`
+- review `storage.rules`
+- confirm provider secrets are only server-side
+- confirm `.env.local` is ignored by Git
+- confirm `data/palacios-churches.json` is ignored by Git
+- confirm test/demo data is removed
+
+## Deployment readiness
+
+Recommended deployment path for this project:
+
+- Firebase App Hosting for the Next.js app
+
+Also workable:
+
+- Vercel, if all Firebase server env vars are configured correctly
+
+Production deployment notes:
+
+- set `NEXT_PUBLIC_SITE_URL` to the real domain
+- set the Firebase public client env vars
+- set server Firebase env vars or rely on managed credentials where supported
+- configure the Zeffy donation settings you want to use
+- set `EMAIL_PROVIDER`, `EMAIL_FROM`, and provider credentials
+- connect the custom domain for `FindYourChurchPalacios.org`
+- confirm production email with `npm run test:email`
+
+Future migration note:
+
+- the data model and path helpers are prepared so this can later expand toward `FindYourChurch.org` and broader city/state routing
+
+## Domain launch notes
+
+For `FindYourChurchPalacios.org`:
+
+1. connect the custom domain in your hosting provider
+2. update `NEXT_PUBLIC_SITE_URL`
+3. verify sitemap and robots
+4. re-check canonical tags on the live domain
+5. add the live domain to Firebase Authentication authorized domains if needed
+
+## Optional analytics and monitoring placeholders
+
+Currently optional:
+
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+- `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`
+
+Future TODOs can include:
+
+- Google Search Console
+- Firebase Analytics
+- error monitoring
+
+## Testing
 
 Helpful commands:
 
@@ -319,63 +619,59 @@ Helpful commands:
 npm run lint
 npm run build
 npm run seed:firebase -- --overwrite
+npm run seed:admin
 npm run test:firebase-submission
 npm run test:firebase-storage
+npm run test:email
+npm run test:phase3-workflows
+npm run test:phase4-workflows
+npm run import:palacios -- --input data/palacios-churches.example.json --dry-run
+npm run cleanup:test-data -- --dry-run
+npm run cleanup:demo-data -- --dry-run
 ```
 
-What the verification script does:
+Notes:
 
-- `npm run test:firebase-submission`
-  - creates a pending review submission with no images
-  - creates a pending review submission with a logo
-  - creates a pending review submission with photos
-  - confirms pending review records are written successfully
-  - uses local upload fallback only in development when Storage is not ready
-- `npm run test:firebase-storage`
-  - checks the configured bucket name
-  - queries Firebase for the default bucket state
-  - lists buckets visible to the project
-  - attempts a small upload and deletes it if successful
-  - prints a clear failure message if Storage is disabled, missing, or misconfigured
+- `test:phase3-workflows` and `test:phase4-workflows` expect `FIREBASE_ADMIN_SEED_EMAIL` or `ADMIN_NOTIFICATION_EMAIL`
+- if no matching Firebase Auth admin exists yet, the workflow scripts can create a backend-only admin profile for verification
+- a real admin login test still requires a real Firebase Authentication admin user
+- if those tests are run against a shared live Firebase project, use the cleanup scripts afterward
 
-Public verification targets:
+## Launch checklist
 
-- homepage: `/`
-- directory: `/churches`
-- church profile pages: `/churches/[church-slug]`
-- submit page: `/submit-your-church`
+See [docs/launch-checklist.md](docs/launch-checklist.md).
 
-## Where data lives now
+Additional launch docs:
 
-- Firestore published churches and locations:
-  - seeded from `src/lib/data/churches.ts` and `src/lib/data/locations.ts`
-- Firestore pending submissions:
-  - `churchSubmissions` collection
-- local upload fallback:
-  - `storage/uploads/<submission-id>/`
+- [docs/production-setup.md](docs/production-setup.md)
+- [docs/church-outreach-summary.md](docs/church-outreach-summary.md)
 
-## Secret handling
+Production checklist highlights:
 
-- `.env.local` must stay local and should never be committed.
-- Firebase service account JSON files should never be copied into the repo.
-- Public Firebase web config values are fine to expose to the browser, but admin credentials are not.
-- If a service account private key, admin seed password, or other secret was ever committed to Git history, rotate it in Firebase or Google Cloud immediately and replace the local env values afterward.
+- Firebase project configured
+- Firestore rules reviewed
+- Storage rules reviewed
+- admin user created
+- email provider configured
+- donation URL configured
+- `NEXT_PUBLIC_SITE_URL` set
+- test submission completed
+- test approval completed
+- test claim completed
+- test representative login completed
+- demo data removed or clearly labeled
+- privacy and terms reviewed
+- domain connected
+- mobile tested
+- sitemap verified
 
-## Ready for Phase 3
+## Phase 7 handoff
 
-This Phase 2 foundation is ready for:
+The remaining launch steps are operational rather than architectural:
 
-- admin approval dashboard
-- deny and request-changes workflow
-- email delivery wiring and `emailLogs`
-- claim review workflow
-- church representative invitation flow
-- ownership transfer logging
-- church editor permissions
-
-## Notes
-
-- Public directory pages only show churches with `published` status.
-- New public submissions always save as `pending_review`.
-- Address data remains structured and includes latitude/longitude placeholders for future geocoding and map search.
-- Notification delivery is still stubbed intentionally until the Phase 3 admin workflow is built.
+- enter and verify the real Palacios church data
+- connect the live production domain
+- turn on and verify the real email provider
+- confirm the live Zeffy donation modal and embed behavior
+- finish final manual UI testing on live infrastructure
+- begin outreach to Palacios churches

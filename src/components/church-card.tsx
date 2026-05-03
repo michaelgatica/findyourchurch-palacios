@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { buildChurchProfilePath } from "@/lib/config/site";
 import {
+  buildDirectionsUrl,
   formatAddress,
   getChurchCardTags,
   getChurchInitials,
@@ -32,7 +33,10 @@ export function ChurchCard({ church }: { church: ChurchRecord }) {
         )}
 
         <div className="church-card__header-copy">
-          <p className="eyebrow eyebrow--gold">{church.denomination}</p>
+          <div className="church-card__badge-row">
+            <span className="church-card__badge">{church.denomination}</span>
+            {church.isSeedContent ? <p className="church-card__sample-note">Sample listing</p> : null}
+          </div>
           <h3>{church.name}</h3>
           <p className="church-card__meta">{formatAddress(church.address)}</p>
         </div>
@@ -40,7 +44,7 @@ export function ChurchCard({ church }: { church: ChurchRecord }) {
 
       <p className="church-card__description">{church.description}</p>
 
-      <div className="church-card__detail-grid">
+      <div className="church-card__summary-grid">
         <div>
           <span className="church-card__label">Primary service</span>
           <p>{primaryServiceTime?.label ?? "Service times coming soon"}</p>
@@ -60,9 +64,29 @@ export function ChurchCard({ church }: { church: ChurchRecord }) {
         ))}
       </div>
 
-      <Link href={buildChurchProfilePath(church.slug)} className="button button--secondary">
-        View Church
-      </Link>
+      <div className="church-card__actions">
+        <Link href={buildChurchProfilePath(church.slug)} className="button button--secondary">
+          View Church
+        </Link>
+        <Link
+          href={buildDirectionsUrl(church.address)}
+          className="button button--ghost"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Directions
+        </Link>
+        {church.website ? (
+          <Link
+            href={church.website}
+            className="button button--ghost"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Website
+          </Link>
+        ) : null}
+      </div>
     </article>
   );
 }

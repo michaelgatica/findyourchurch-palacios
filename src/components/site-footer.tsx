@@ -11,26 +11,35 @@ export function SiteFooter() {
           <Image
             src="/assets/logos/find-your-church-palacios-landscape.png"
             alt="Find Your Church Palacios logo"
-            width={220}
-            height={99}
+            width={210}
+            height={95}
             className="site-footer__brand-image"
           />
-          <p>{siteConfig.organizationDescription}</p>
+          <p>Find Your Church is a ministry project powered by El Roi Digital Ministries.</p>
         </div>
 
         <div className="site-footer__links">
-          <Link href="/churches">Explore local churches</Link>
-          <Link href="/submit">Submit or update your church listing</Link>
+          <Link href="/churches">Browse Churches</Link>
+          <Link href="/submit">Submit Your Church</Link>
+          <Link href="/about">About</Link>
+          <Link href="/contact">Contact</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/listing-guidelines">Listing Guidelines</Link>
         </div>
 
         <div className="site-footer__ministry">
           <Image
             src="/assets/logos/el-roi-digital-landscape.png"
             alt="El Roi Digital Ministries logo"
-            width={173}
-            height={52}
+            width={160}
+            height={48}
+            className="site-footer__ministry-logo"
           />
-          <p>Find Your Church is a ministry project powered by El Roi Digital Ministries.</p>
+          <p className="supporting-text">
+            {siteConfig.launchName} is a free local church directory created to help people connect
+            with church communities in the Palacios area.
+          </p>
         </div>
       </div>
     </footer>

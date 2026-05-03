@@ -53,7 +53,7 @@ export const seedChurches: ChurchRecord[] = [
     serviceTimes: [
       {
         id: "grace-harbor-service-1",
-        label: "Sunday Worship • 10:30 AM",
+        label: "Sunday Worship - 10:30 AM",
         dayLabel: "Sunday",
         startTime: "10:30",
         notes: "Children's ministry check-in opens at 10:00 AM.",
@@ -61,7 +61,7 @@ export const seedChurches: ChurchRecord[] = [
       },
       {
         id: "grace-harbor-service-2",
-        label: "Wednesday Prayer • 6:30 PM",
+        label: "Wednesday Prayer - 6:30 PM",
         dayLabel: "Wednesday",
         startTime: "18:30",
       },
@@ -153,7 +153,7 @@ export const seedChurches: ChurchRecord[] = [
     serviceTimes: [
       {
         id: "st-mark-service-1",
-        label: "Sunday Holy Communion • 9:00 AM",
+        label: "Sunday Holy Communion - 9:00 AM",
         dayLabel: "Sunday",
         startTime: "09:00",
         notes: "Nursery is available on first and third Sundays.",
@@ -161,7 +161,7 @@ export const seedChurches: ChurchRecord[] = [
       },
       {
         id: "st-mark-service-2",
-        label: "Thursday Midday Prayer • 12:00 PM",
+        label: "Thursday Midday Prayer - 12:00 PM",
         dayLabel: "Thursday",
         startTime: "12:00",
       },
@@ -246,7 +246,7 @@ export const seedChurches: ChurchRecord[] = [
     serviceTimes: [
       {
         id: "esperanza-service-1",
-        label: "Servicio Dominical • 11:00 AM",
+        label: "Servicio Dominical - 11:00 AM",
         dayLabel: "Sunday",
         startTime: "11:00",
         notes: "Bilingual worship with children's classes following opening worship.",
@@ -254,7 +254,7 @@ export const seedChurches: ChurchRecord[] = [
       },
       {
         id: "esperanza-service-2",
-        label: "Noche de Oración • Friday 7:00 PM",
+        label: "Noche de Oracion - Friday 7:00 PM",
         dayLabel: "Friday",
         startTime: "19:00",
       },

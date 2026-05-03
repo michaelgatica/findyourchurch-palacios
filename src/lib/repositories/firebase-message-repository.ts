@@ -20,6 +20,7 @@ export async function createMessageInFirebase(input: CreateMessageInput) {
     churchId: input.churchId,
     submissionId: input.submissionId,
     claimRequestId: input.claimRequestId,
+    updateRequestId: input.updateRequestId,
     senderId: input.senderId,
     senderType: input.senderType,
     messageBody: input.messageBody,
@@ -47,5 +48,58 @@ export async function listMessagesForChurch(churchId: string) {
     .where("churchId", "==", churchId)
     .get();
 
-  return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as MessageRecord);
+  return snapshot.docs
+    .map((documentSnapshot) => documentSnapshot.data() as MessageRecord)
+    .sort((leftMessage, rightMessage) => leftMessage.createdAt.localeCompare(rightMessage.createdAt));
+}
+
+export async function listMessagesForSubmission(submissionId: string) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return [];
+  }
+
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.messages)
+    .where("submissionId", "==", submissionId)
+    .get();
+
+  return snapshot.docs
+    .map((documentSnapshot) => documentSnapshot.data() as MessageRecord)
+    .sort((leftMessage, rightMessage) => leftMessage.createdAt.localeCompare(rightMessage.createdAt));
+}
+
+export async function listMessagesForClaimRequest(claimRequestId: string) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return [];
+  }
+
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.messages)
+    .where("claimRequestId", "==", claimRequestId)
+    .get();
+
+  return snapshot.docs
+    .map((documentSnapshot) => documentSnapshot.data() as MessageRecord)
+    .sort((leftMessage, rightMessage) => leftMessage.createdAt.localeCompare(rightMessage.createdAt));
+}
+
+export async function listMessagesForUpdateRequest(updateRequestId: string) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return [];
+  }
+
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.messages)
+    .where("updateRequestId", "==", updateRequestId)
+    .get();
+
+  return snapshot.docs
+    .map((documentSnapshot) => documentSnapshot.data() as MessageRecord)
+    .sort((leftMessage, rightMessage) => leftMessage.createdAt.localeCompare(rightMessage.createdAt));
 }

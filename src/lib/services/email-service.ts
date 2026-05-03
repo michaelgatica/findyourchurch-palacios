@@ -1,0 +1,288 @@
+import nodemailer from "nodemailer";
+
+import { siteConfig } from "@/lib/config/site";
+import { createEmailLogInFirebase } from "@/lib/repositories/firebase-email-log-repository";
+
+export type EmailProvider = "console" | "resend" | "smtp";
+
+function normalizeOptionalValue(value?: string) {
+  const normalizedValue = value?.trim();
+  return normalizedValue ? normalizedValue : undefined;
+}
+
+function isProductionEnvironment() {
+  return process.env.NODE_ENV === "production";
+}
+
+export function getConfiguredEmailProvider(): EmailProvider {
+  const configuredProvider = normalizeOptionalValue(process.env.EMAIL_PROVIDER)?.toLowerCase();
+
+  if (
+    configuredProvider === "console" ||
+    configuredProvider === "resend" ||
+    configuredProvider === "smtp"
+  ) {
+    return configuredProvider;
+  }
+
+  return "console";
+}
+
+export function getEmailFromAddress() {
+  return normalizeOptionalValue(process.env.EMAIL_FROM) ?? siteConfig.contactEmail;
+}
+
+export function getAdminNotificationEmail() {
+  return normalizeOptionalValue(process.env.ADMIN_NOTIFICATION_EMAIL);
+}
+
+export function getEmailConfigurationProblems(provider = getConfiguredEmailProvider()) {
+  const problems: string[] = [];
+  const from = getEmailFromAddress();
+
+  if (!from) {
+    problems.push("EMAIL_FROM is missing.");
+  }
+
+  if (!getAdminNotificationEmail()) {
+    problems.push("ADMIN_NOTIFICATION_EMAIL is missing.");
+  }
+
+  if (provider === "resend" && !normalizeOptionalValue(process.env.RESEND_API_KEY)) {
+    problems.push("RESEND_API_KEY is missing for EMAIL_PROVIDER=resend.");
+  }
+
+  if (provider === "smtp") {
+    const smtpHost = normalizeOptionalValue(process.env.SMTP_HOST);
+    const smtpPort = normalizeOptionalValue(process.env.SMTP_PORT);
+    const smtpUser = normalizeOptionalValue(process.env.SMTP_USER);
+    const smtpPassword = normalizeOptionalValue(process.env.SMTP_PASSWORD);
+
+    if (!smtpHost) {
+      problems.push("SMTP_HOST is missing for EMAIL_PROVIDER=smtp.");
+    }
+
+    if (!smtpPort) {
+      problems.push("SMTP_PORT is missing for EMAIL_PROVIDER=smtp.");
+    }
+
+    if (!smtpUser) {
+      problems.push("SMTP_USER is missing for EMAIL_PROVIDER=smtp.");
+    }
+
+    if (!smtpPassword) {
+      problems.push("SMTP_PASSWORD is missing for EMAIL_PROVIDER=smtp.");
+    }
+  }
+
+  return problems;
+}
+
+function createBodyPreview(messageBody: string) {
+  return messageBody.replace(/\s+/g, " ").trim().slice(0, 240);
+}
+
+function createEmailConfigurationError(message: string) {
+  return new Error(message);
+}
+
+async function logEmailRecord(input: {
+  to: string;
+  from?: string;
+  subject: string;
+  body: string;
+  status: string;
+  provider: EmailProvider;
+  relatedEntityType?: string;
+  relatedEntityId?: string;
+}) {
+  return createEmailLogInFirebase({
+    to: input.to,
+    from: input.from,
+    subject: input.subject,
+    bodyPreview: createBodyPreview(input.body),
+    status: input.status,
+    provider: input.provider,
+    relatedEntityType: input.relatedEntityType,
+    relatedEntityId: input.relatedEntityId,
+  });
+}
+
+async function sendConsoleEmail(input: {
+  to: string;
+  from?: string;
+  subject: string;
+  body: string;
+  relatedEntityType?: string;
+  relatedEntityId?: string;
+}) {
+  console.log(
+    `[email:console] to=${input.to} subject=${input.subject}\n${input.body}`,
+  );
+
+  await logEmailRecord({
+    ...input,
+    status: "logged",
+    provider: "console",
+  });
+}
+
+async function sendResendEmail(input: {
+  to: string;
+  from: string;
+  subject: string;
+  body: string;
+  relatedEntityType?: string;
+  relatedEntityId?: string;
+}) {
+  const apiKey = normalizeOptionalValue(process.env.RESEND_API_KEY);
+
+  if (!apiKey) {
+    throw createEmailConfigurationError(
+      "EMAIL_PROVIDER is set to resend, but RESEND_API_KEY is missing.",
+    );
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: input.from,
+      to: [input.to],
+      subject: input.subject,
+      text: input.body,
+    }),
+  });
+
+  if (!response.ok) {
+    const responseBody = await response.text();
+
+    throw new Error(`Resend request failed: ${response.status} ${responseBody}`);
+  }
+
+  await logEmailRecord({
+    ...input,
+    status: "sent",
+    provider: "resend",
+  });
+}
+
+async function sendSmtpEmail(input: {
+  to: string;
+  from: string;
+  subject: string;
+  body: string;
+  relatedEntityType?: string;
+  relatedEntityId?: string;
+}) {
+  const smtpHost = normalizeOptionalValue(process.env.SMTP_HOST);
+  const smtpPort = normalizeOptionalValue(process.env.SMTP_PORT);
+  const smtpUser = normalizeOptionalValue(process.env.SMTP_USER);
+  const smtpPassword = normalizeOptionalValue(process.env.SMTP_PASSWORD);
+
+  if (!smtpHost || !smtpPort || !smtpUser || !smtpPassword) {
+    throw createEmailConfigurationError(
+      "EMAIL_PROVIDER is set to smtp, but one or more SMTP settings are missing.",
+    );
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: smtpHost,
+    port: Number(smtpPort),
+    secure: Number(smtpPort) === 465,
+    auth: {
+      user: smtpUser,
+      pass: smtpPassword,
+    },
+  });
+
+  await transporter.sendMail({
+    from: input.from,
+    to: input.to,
+    subject: input.subject,
+    text: input.body,
+  });
+
+  await logEmailRecord({
+    ...input,
+    status: "sent",
+    provider: "smtp",
+  });
+}
+
+export async function sendTransactionalEmail(input: {
+  to: string;
+  subject: string;
+  body: string;
+  relatedEntityType?: string;
+  relatedEntityId?: string;
+  required?: boolean;
+}) {
+  const provider = getConfiguredEmailProvider();
+  const from = getEmailFromAddress();
+
+  try {
+    if (provider === "console") {
+      await sendConsoleEmail({
+        to: input.to,
+        from,
+        subject: input.subject,
+        body: input.body,
+        relatedEntityType: input.relatedEntityType,
+        relatedEntityId: input.relatedEntityId,
+      });
+      return;
+    }
+
+    if (!from) {
+      throw createEmailConfigurationError(
+        "EMAIL_FROM must be configured when using a non-console email provider.",
+      );
+    }
+
+    if (provider === "resend") {
+      await sendResendEmail({
+        to: input.to,
+        from,
+        subject: input.subject,
+        body: input.body,
+        relatedEntityType: input.relatedEntityType,
+        relatedEntityId: input.relatedEntityId,
+      });
+      return;
+    }
+
+    await sendSmtpEmail({
+      to: input.to,
+      from,
+      subject: input.subject,
+      body: input.body,
+      relatedEntityType: input.relatedEntityType,
+      relatedEntityId: input.relatedEntityId,
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    await logEmailRecord({
+      to: input.to,
+      from,
+      subject: input.subject,
+      body: input.body,
+      status: "failed",
+      provider,
+      relatedEntityType: input.relatedEntityType,
+      relatedEntityId: input.relatedEntityId,
+    });
+
+    if (isProductionEnvironment() && input.required !== false) {
+      throw error instanceof Error
+        ? error
+        : new Error(`Email delivery failed. ${errorMessage}`);
+    }
+
+    console.warn(`Email delivery skipped or failed: ${errorMessage}`);
+  }
+}

@@ -5,7 +5,16 @@ import { getPublishedChurches } from "@/lib/repositories/church-repository";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const churches = await getPublishedChurches();
-  const baseRoutes = ["/", "/churches", "/submit"].map((pathname) => ({
+  const baseRoutes = [
+    "/",
+    "/churches",
+    "/submit",
+    "/about",
+    "/contact",
+    "/privacy",
+    "/terms",
+    "/listing-guidelines",
+  ].map((pathname) => ({
     url: buildAbsoluteUrl(pathname),
     changeFrequency: "weekly" as const,
     priority: pathname === "/" ? 1 : 0.8,

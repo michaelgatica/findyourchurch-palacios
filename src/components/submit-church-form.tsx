@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
@@ -13,6 +13,14 @@ function FieldError({ message }: { message?: string }) {
   }
 
   return <p className="field__error">{message}</p>;
+}
+
+function RequiredLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="field__label">
+      {children} <span className="field__required">Required</span>
+    </span>
+  );
 }
 
 function SubmitButton() {
@@ -37,11 +45,14 @@ export function SubmitChurchForm() {
       encType="multipart/form-data"
     >
       <div className="submission-form__intro panel">
-        <p className="eyebrow eyebrow--gold">Phase 1 Public Submission</p>
+        <p className="eyebrow eyebrow--gold">Church Listing Submission</p>
         <h2>Share your church listing with the Palacios directory</h2>
         <p>
           Submitted listings are saved as <strong>pending review</strong> and are not published
           automatically. Please allow up to 24 hours for approval.
+        </p>
+        <p className="supporting-text">
+          Fields marked Required are needed before we can review the listing.
         </p>
         {formState.formError ? <div className="form-alert">{formState.formError}</div> : null}
       </div>
@@ -50,13 +61,13 @@ export function SubmitChurchForm() {
         <h3>Church information</h3>
         <div className="form-grid">
           <label className="field">
-            <span className="field__label">Church name</span>
+            <RequiredLabel>Church name</RequiredLabel>
             <input name="churchName" defaultValue={formState.values.churchName} required />
             <FieldError message={formState.errors.churchName} />
           </label>
 
           <label className="field">
-            <span className="field__label">Denomination / tradition</span>
+            <RequiredLabel>Denomination / tradition</RequiredLabel>
             <select name="denomination" defaultValue={formState.values.denomination} required>
               <option value="">Choose one</option>
               {denominationOptions.map((denomination) => (
@@ -69,7 +80,7 @@ export function SubmitChurchForm() {
           </label>
 
           <label className="field field--full">
-            <span className="field__label">Short church description</span>
+            <RequiredLabel>Short church description</RequiredLabel>
             <textarea
               name="churchDescription"
               maxLength={300}
@@ -82,14 +93,14 @@ export function SubmitChurchForm() {
           </label>
 
           <label className="field field--full">
-            <span className="field__label">Service times</span>
+            <RequiredLabel>Service times</RequiredLabel>
             <textarea
               name="serviceTimes"
               defaultValue={formState.values.serviceTimes}
               placeholder="Enter one service per line"
               required
             />
-            <span className="field__hint">Example: Sunday Worship • 10:30 AM</span>
+            <span className="field__hint">Example: Sunday Worship - 10:30 AM</span>
             <FieldError message={formState.errors.serviceTimes} />
           </label>
 
@@ -136,7 +147,7 @@ export function SubmitChurchForm() {
         <h3>Location and contact</h3>
         <div className="form-grid">
           <label className="field field--full">
-            <span className="field__label">Address line 1</span>
+            <RequiredLabel>Address line 1</RequiredLabel>
             <input name="addressLine1" defaultValue={formState.values.addressLine1} required />
             <FieldError message={formState.errors.addressLine1} />
           </label>
@@ -147,13 +158,13 @@ export function SubmitChurchForm() {
           </label>
 
           <label className="field">
-            <span className="field__label">City</span>
+            <RequiredLabel>City</RequiredLabel>
             <input name="city" defaultValue={formState.values.city} required />
             <FieldError message={formState.errors.city} />
           </label>
 
           <label className="field">
-            <span className="field__label">State</span>
+            <RequiredLabel>State</RequiredLabel>
             <input
               name="stateCode"
               defaultValue={formState.values.stateCode}
@@ -165,19 +176,19 @@ export function SubmitChurchForm() {
           </label>
 
           <label className="field">
-            <span className="field__label">ZIP code</span>
+            <RequiredLabel>ZIP code</RequiredLabel>
             <input name="postalCode" defaultValue={formState.values.postalCode} required />
             <FieldError message={formState.errors.postalCode} />
           </label>
 
           <label className="field">
-            <span className="field__label">Phone number</span>
+            <RequiredLabel>Phone number</RequiredLabel>
             <input name="phone" defaultValue={formState.values.phone} required />
             <FieldError message={formState.errors.phone} />
           </label>
 
           <label className="field">
-            <span className="field__label">Email address</span>
+            <RequiredLabel>Email address</RequiredLabel>
             <input name="email" type="email" defaultValue={formState.values.email} required />
             <FieldError message={formState.errors.email} />
           </label>
@@ -300,8 +311,8 @@ export function SubmitChurchForm() {
               defaultValue={formState.values.accessibilityDetails}
             />
             <span className="field__hint">
-              TODO for future phases: connect address autocomplete and geocoding for map and
-              distance search.
+              Include anything first-time visitors should know about accessibility or getting
+              around the property.
             </span>
             <FieldError message={formState.errors.accessibilityDetails} />
           </label>
@@ -368,7 +379,7 @@ export function SubmitChurchForm() {
         <h3>Primary contact and uploads</h3>
         <div className="form-grid">
           <label className="field">
-            <span className="field__label">Primary contact name</span>
+            <RequiredLabel>Primary contact name</RequiredLabel>
             <input
               name="primaryContactName"
               defaultValue={formState.values.primaryContactName}
@@ -378,7 +389,7 @@ export function SubmitChurchForm() {
           </label>
 
           <label className="field">
-            <span className="field__label">Primary contact email</span>
+            <RequiredLabel>Primary contact email</RequiredLabel>
             <input
               name="primaryContactEmail"
               type="email"
@@ -389,7 +400,7 @@ export function SubmitChurchForm() {
           </label>
 
           <label className="field">
-            <span className="field__label">Primary contact role / title</span>
+            <RequiredLabel>Primary contact role / title</RequiredLabel>
             <input
               name="primaryContactRole"
               defaultValue={formState.values.primaryContactRole}
@@ -435,3 +446,4 @@ export function SubmitChurchForm() {
     </form>
   );
 }
+

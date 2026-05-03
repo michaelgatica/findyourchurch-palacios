@@ -61,6 +61,7 @@ function createSearchableText(church: ChurchRecord) {
     church.specificAffiliation,
     church.primaryClergyName,
     church.additionalLeaders.join(" "),
+    church.serviceTimes.map((serviceTime) => serviceTime.label).join(" "),
     church.ministryTags.map((tag) => tag.label).join(" "),
     church.worshipStyle,
     church.languages.join(" "),

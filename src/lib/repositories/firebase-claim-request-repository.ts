@@ -87,6 +87,44 @@ export async function listChurchClaimRequestsForChurch(churchId: string) {
   return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as ChurchClaimRequestRecord);
 }
 
+export async function listChurchClaimRequests(options?: {
+  status?: ChurchClaimRequestRecord["status"];
+  limit?: number;
+}) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return [];
+  }
+
+  let query: FirebaseFirestore.Query = firestore.collection(
+    firestoreCollectionNames.churchClaimRequests,
+  );
+
+  if (options?.status) {
+    query = query.where("status", "==", options.status);
+  }
+
+  const snapshot = await query.get();
+  const claimRequests = snapshot.docs
+    .map((documentSnapshot) => documentSnapshot.data() as ChurchClaimRequestRecord)
+    .map((claimRequest) => ({
+      ...claimRequest,
+      createdAt: toIsoString(claimRequest.createdAt) ?? new Date().toISOString(),
+      updatedAt: toIsoString(claimRequest.updatedAt) ?? new Date().toISOString(),
+      reviewedAt: toIsoString(claimRequest.reviewedAt),
+    }))
+    .sort((leftClaimRequest, rightClaimRequest) =>
+      rightClaimRequest.createdAt.localeCompare(leftClaimRequest.createdAt),
+    );
+
+  if (options?.limit) {
+    return claimRequests.slice(0, options.limit);
+  }
+
+  return claimRequests;
+}
+
 export async function updateChurchClaimRequestStatus(
   claimRequestId: string,
   status: ChurchClaimRequestStatus,

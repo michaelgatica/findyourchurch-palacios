@@ -83,6 +83,71 @@ export async function createChurchSubmissionInFirebase(
   return record;
 }
 
+export async function listChurchSubmissionsFromFirebase(options?: {
+  status?: ChurchSubmissionRecord["status"];
+  limit?: number;
+}) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return [];
+  }
+
+  let query: FirebaseFirestore.Query = firestore.collection(
+    firestoreCollectionNames.churchSubmissions,
+  );
+
+  if (options?.status) {
+    query = query.where("status", "==", options.status);
+  }
+
+  const snapshot = await query.get();
+  const submissions = snapshot.docs
+    .map((documentSnapshot) => documentSnapshot.data() as ChurchSubmissionRecord)
+    .map((submission) => ({
+      ...submission,
+      createdAt: toIsoString(submission.createdAt) ?? new Date().toISOString(),
+      updatedAt: toIsoString(submission.updatedAt) ?? new Date().toISOString(),
+      approvedAt: toIsoString(submission.approvedAt),
+      deniedAt: toIsoString(submission.deniedAt),
+      requestedChangesAt: toIsoString(submission.requestedChangesAt),
+      submittedAt: toIsoString(submission.submittedAt ?? submission.createdAt) ?? undefined,
+    }))
+    .sort((leftSubmission, rightSubmission) =>
+      rightSubmission.createdAt.localeCompare(leftSubmission.createdAt),
+    );
+
+  if (options?.limit) {
+    return submissions.slice(0, options.limit);
+  }
+
+  return submissions;
+}
+
+export async function updateChurchSubmissionInFirebase(
+  submissionId: string,
+  changes: Partial<ChurchSubmissionRecord>,
+) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    throw new Error("Firebase Firestore is not configured.");
+  }
+
+  const updatedAt = new Date().toISOString();
+
+  await firestore
+    .collection(firestoreCollectionNames.churchSubmissions)
+    .doc(submissionId)
+    .set(
+      stripUndefinedDeep({
+        ...changes,
+        updatedAt,
+      }),
+      { merge: true },
+    );
+}
+
 export async function getChurchSubmissionByIdFromFirebase(submissionId: string) {
   const firestore = getFirebaseAdminFirestore();
 

@@ -2,7 +2,7 @@
   "name": "find-my-church-palacios",
   "version": "1.0.0",
   "private": true,
-  "description": "Phase 1 public foundation for Find Your Church Palacios.",
+  "description": "Launch-ready church directory and ministry platform for Find Your Church Palacios.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,9 +10,17 @@
     "lint": "next lint",
     "emulators": "firebase emulators:start",
     "seed:firebase": "tsx scripts/seed-firestore.ts",
+    "import:palacios": "tsx scripts/import-palacios-churches.ts",
+    "cleanup:demo-data": "tsx scripts/remove-demo-data.ts",
+    "cleanup:demo-data:confirm": "tsx scripts/remove-demo-data.ts --confirm",
+    "cleanup:test-data": "tsx scripts/remove-workflow-test-data.ts",
+    "cleanup:test-data:confirm": "tsx scripts/remove-workflow-test-data.ts --confirm",
     "seed:admin": "tsx scripts/seed-admin-user.ts",
     "test:firebase-submission": "tsx scripts/test-firebase-submission.ts",
-    "test:firebase-storage": "tsx scripts/test-firebase-storage.ts"
+    "test:firebase-storage": "tsx scripts/test-firebase-storage.ts",
+    "test:email": "tsx scripts/test-email.ts",
+    "test:phase3-workflows": "tsx scripts/test-phase3-workflows.ts",
+    "test:phase4-workflows": "tsx scripts/test-phase4-workflows.ts"
   },
   "keywords": [
     "ministry",
@@ -27,12 +35,14 @@
     "firebase-admin": "^13.8.0",
     "image-size": "^2.0.2",
     "next": "^15.5.15",
+    "nodemailer": "^8.0.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "zod": "^4.4.2"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "@types/nodemailer": "^8.0.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.4",

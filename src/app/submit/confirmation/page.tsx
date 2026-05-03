@@ -7,6 +7,7 @@ export const metadata = createPageMetadata({
   description:
     "Your church submission has been received and is awaiting review by Find Your Church Palacios.",
   pathname: "/submit/confirmation",
+  noIndex: true,
 });
 
 interface SubmissionConfirmationPageProps {
@@ -30,6 +31,9 @@ export default async function SubmissionConfirmationPage({
           Thank you for submitting your church to Find Your Church Palacios. We received your
           listing and will review it for accuracy before publishing. Please allow up to 24 hours
           for approval.
+        </p>
+        <p className="supporting-text">
+          If we need any clarification or edits, we will contact you by email.
         </p>
 
         <div className="button-row">

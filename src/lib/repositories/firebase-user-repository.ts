@@ -31,6 +31,38 @@ export async function getUserByFirebaseUid(firebaseUid: string) {
   };
 }
 
+export async function getUserById(userId: string) {
+  return getUserByFirebaseUid(userId);
+}
+
+export async function getUserByEmail(email: string) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return null;
+  }
+
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.users)
+    .where("email", "==", email)
+    .limit(1)
+    .get();
+
+  const documentSnapshot = snapshot.docs[0];
+
+  if (!documentSnapshot) {
+    return null;
+  }
+
+  const data = documentSnapshot.data() as AppUserRecord;
+
+  return {
+    ...data,
+    createdAt: toIsoString(data.createdAt) ?? new Date().toISOString(),
+    updatedAt: toIsoString(data.updatedAt) ?? new Date().toISOString(),
+  };
+}
+
 export async function upsertUserProfile(input: {
   firebaseUid: string;
   name: string;
@@ -48,19 +80,20 @@ export async function upsertUserProfile(input: {
     .collection(firestoreCollectionNames.users)
     .doc(input.firebaseUid);
   const existingDocument = await documentReference.get();
+  const existingData = existingDocument.exists
+    ? (existingDocument.data() as Partial<AppUserRecord>)
+    : null;
   const timestamp = new Date().toISOString();
   const record: AppUserRecord = {
     id: input.firebaseUid,
     firebaseUid: input.firebaseUid,
-    name: input.name,
-    email: input.email,
-    phone: input.phone,
-    role: input.role ?? "pending_user",
+    name: input.name || existingData?.name || "Find Your Church User",
+    email: input.email || existingData?.email || "",
+    phone: input.phone ?? existingData?.phone,
+    role: input.role ?? existingData?.role ?? "pending_user",
     createdAt:
-      existingDocument.exists &&
-      existingDocument.data() &&
-      "createdAt" in existingDocument.data()!
-        ? toIsoString(existingDocument.data()!.createdAt) ?? timestamp
+      existingData?.createdAt
+        ? toIsoString(existingData.createdAt) ?? timestamp
         : timestamp,
     updatedAt: timestamp,
   };

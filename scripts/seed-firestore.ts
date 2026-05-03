@@ -30,12 +30,21 @@ async function seedLocations() {
 }
 
 async function run() {
+  const includeSeedContent =
+    process.argv.includes("--include-samples") || process.env.NODE_ENV !== "production";
+
   await seedLocations();
   await seedChurchesToFirebase({
     overwrite: process.argv.includes("--overwrite"),
+    includeSeedContent,
   });
 
-  console.log("Firebase launch data seeded successfully.");
+  if (includeSeedContent) {
+    console.log("Firebase launch data and sample churches seeded successfully.");
+    return;
+  }
+
+  console.log("Firebase launch locations seeded. Sample churches were skipped.");
 }
 
 run().catch((error) => {

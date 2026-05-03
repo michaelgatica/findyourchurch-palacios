@@ -1,0 +1,63 @@
+[
+  {
+    "name": "Example Palacios Church",
+    "status": "published",
+    "denomination": "Baptist",
+    "specificAffiliation": "Example Association",
+    "clergyLabel": "Pastor",
+    "primaryClergyName": "Pastor Example Name",
+    "additionalLeaders": [
+      "Children's Director: Example Name"
+    ],
+    "description": "A welcoming example listing template showing the structure expected by the Palacios import script.",
+    "statementOfFaith": "Jesus Christ is Lord and the Bible is our final authority for faith and practice.",
+    "serviceTimes": [
+      {
+        "label": "Sunday Worship - 10:30 AM",
+        "dayLabel": "Sunday",
+        "startTime": "10:30",
+        "isPrimary": true
+      },
+      "Wednesday Bible Study - 6:30 PM"
+    ],
+    "address": {
+      "line1": "123 Example Street",
+      "city": "Palacios",
+      "county": "Matagorda County",
+      "stateCode": "TX",
+      "postalCode": "77465"
+    },
+    "phone": "(361) 555-0100",
+    "email": "support@examplechurch.org",
+    "website": "https://www.examplechurch.org",
+    "socialLinks": {
+      "facebook": "https://facebook.com/examplechurchpalacios"
+    },
+    "worshipStyle": "Traditional",
+    "languages": [
+      "English"
+    ],
+    "ministryTags": [
+      "Prayer",
+      "Families",
+      "Bible Study"
+    ],
+    "childrenMinistry": true,
+    "youthMinistry": true,
+    "nurseryCare": true,
+    "spanishService": false,
+    "livestream": false,
+    "wheelchairAccessible": true,
+    "accessibilityDetails": "Ramp access is available at the main entrance.",
+    "visitorParkingDetails": "Visitor parking is available beside the sanctuary.",
+    "firstTimeVisitorNotes": "Greeters will help you find the sanctuary and children's check-in.",
+    "onlineGivingUrl": "https://www.examplechurch.org/give",
+    "logoUrl": "https://www.examplechurch.org/logo.png",
+    "photoUrls": [
+      "https://www.examplechurch.org/photo-1.jpg",
+      "https://www.examplechurch.org/photo-2.jpg"
+    ],
+    "autoPublishUpdates": false,
+    "lastVerifiedAt": "2026-05-03"
+  }
+]

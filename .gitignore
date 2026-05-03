@@ -9,7 +9,9 @@ coverage
 npm-debug.log*
 firebase-debug.log
 .firebase
+.playwright-mcp
 *firebase-adminsdk*.json
 serviceAccountKey*.json
 storage/uploads/*
 !storage/uploads/.gitkeep
+data/palacios-churches.json
