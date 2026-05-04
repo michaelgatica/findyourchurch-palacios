@@ -4,6 +4,7 @@ import {
   getDirectoryFilterOptions,
   getPublishedChurches,
 } from "@/lib/repositories/church-repository";
+import { resolveChurchesForDirectoryMap } from "@/lib/services/church-map-service";
 
 export const metadata = createPageMetadata({
   title: "Church Directory | Find Your Church Palacios",
@@ -17,6 +18,7 @@ export default async function ChurchesPage() {
     getPublishedChurches(),
     getDirectoryFilterOptions(),
   ]);
+  const churchesWithMapCoordinates = await resolveChurchesForDirectoryMap(churches);
 
   return (
     <section className="shell page-section">
@@ -25,11 +27,11 @@ export default async function ChurchesPage() {
         <h1>Find churches near you in Palacios, Texas</h1>
         <p>
           Search by church name, pastor, ministry, worship style, or service time, then use the
-          filters below to narrow your results.
+          map and filters below to narrow your results.
         </p>
       </div>
 
-      <DirectoryBrowser churches={churches} filterOptions={filterOptions} />
+      <DirectoryBrowser churches={churchesWithMapCoordinates} filterOptions={filterOptions} />
     </section>
   );
 }

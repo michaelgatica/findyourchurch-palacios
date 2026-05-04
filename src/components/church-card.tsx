@@ -11,12 +11,20 @@ import {
 } from "@/lib/church-utils";
 import type { ChurchRecord } from "@/lib/types/directory";
 
-export function ChurchCard({ church }: { church: ChurchRecord }) {
+export function ChurchCard({
+  church,
+  distanceMiles,
+  isHighlighted = false,
+}: {
+  church: ChurchRecord;
+  distanceMiles?: number | null;
+  isHighlighted?: boolean;
+}) {
   const primaryServiceTime = getPrimaryServiceTime(church);
   const keyTags = getChurchCardTags(church);
 
   return (
-    <article className="church-card">
+    <article className={`church-card${isHighlighted ? " church-card--highlighted" : ""}`}>
       <div className="church-card__header">
         {church.logoSrc ? (
           <Image
@@ -39,6 +47,9 @@ export function ChurchCard({ church }: { church: ChurchRecord }) {
           </div>
           <h3>{church.name}</h3>
           <p className="church-card__meta">{formatAddress(church.address)}</p>
+          {typeof distanceMiles === "number" ? (
+            <p className="church-card__distance">{distanceMiles.toFixed(1)} miles away</p>
+          ) : null}
         </div>
       </div>
 

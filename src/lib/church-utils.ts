@@ -1,5 +1,10 @@
 import type { ChurchRecord, DirectoryFilters, StructuredAddress } from "@/lib/types/directory";
 
+export interface GeoPoint {
+  latitude: number;
+  longitude: number;
+}
+
 export function formatAddress(address: StructuredAddress) {
   return [
     address.line1,
@@ -16,6 +21,33 @@ export function getPrimaryServiceTime(church: ChurchRecord) {
 
 export function buildDirectionsUrl(address: StructuredAddress) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formatAddress(address))}`;
+}
+
+export function getChurchCoordinates(church: ChurchRecord): GeoPoint | null {
+  const { latitude, longitude } = church.address;
+
+  if (typeof latitude !== "number" || typeof longitude !== "number") {
+    return null;
+  }
+
+  return { latitude, longitude };
+}
+
+export function calculateDistanceMiles(from: GeoPoint, to: GeoPoint) {
+  const earthRadiusMiles = 3958.8;
+  const latitudeDelta = degreesToRadians(to.latitude - from.latitude);
+  const longitudeDelta = degreesToRadians(to.longitude - from.longitude);
+  const fromLatitude = degreesToRadians(from.latitude);
+  const toLatitude = degreesToRadians(to.latitude);
+  const haversineDistance =
+    Math.sin(latitudeDelta / 2) ** 2 +
+    Math.cos(fromLatitude) * Math.cos(toLatitude) * Math.sin(longitudeDelta / 2) ** 2;
+
+  return 2 * earthRadiusMiles * Math.asin(Math.sqrt(haversineDistance));
+}
+
+function degreesToRadians(value: number) {
+  return (value * Math.PI) / 180;
 }
 
 export function getChurchInitials(churchName: string) {
