@@ -836,6 +836,14 @@ input[type="checkbox"] {
   background: rgba(255, 255, 255, 0.68);
 }
 
+.checkbox-field--stacked {
+  align-items: start;
+}
+
+.checkbox-field--stacked span {
+  line-height: 1.55;
+}
+
 .toggle-field span {
   color: var(--ink);
   font-weight: 600;

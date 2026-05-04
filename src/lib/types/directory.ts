@@ -262,6 +262,9 @@ export interface ChurchSubmissionRecord {
   submitterEmail: string;
   submitterPhone?: string;
   submitterRole: string;
+  communicationConsentAcceptedAt: string;
+  termsAcceptedAt: string;
+  followUpEmailOptIn: boolean;
   requestedManagerAccount?: SubmissionManagerAccountRecord;
   adminMessage?: string;
   internalNotes: string[];
@@ -313,6 +316,9 @@ export interface CreateChurchSubmissionInput {
   visitorParkingDetails?: string;
   firstTimeVisitorNotes?: string;
   ministryTags: string[];
+  communicationConsent: boolean;
+  termsAccepted: boolean;
+  followUpEmailOptIn: boolean;
 }
 
 export type SubmissionManagerAccountAssignmentStatus =
@@ -375,6 +381,9 @@ export interface SubmissionFormValues {
   firstTimeVisitorNotes: string;
   ministryTags: string;
   createManagerAccount: boolean;
+  communicationConsent: boolean;
+  termsAccepted: boolean;
+  followUpEmailOptIn: boolean;
   spanishServiceAvailable: boolean;
   livestreamAvailable: boolean;
   childrenMinistryAvailable: boolean;
@@ -496,6 +505,9 @@ export interface ChurchClaimRequestRecord {
   requesterRoleTitle: string;
   relationshipToChurch: string;
   proofOrExplanation: string;
+  communicationConsentAcceptedAt: string;
+  termsAcceptedAt: string;
+  followUpEmailOptIn: boolean;
   status: ChurchClaimRequestStatus;
   adminMessage?: string;
   reviewedBy?: string;
@@ -513,6 +525,9 @@ export interface CreateChurchClaimRequestInput {
   requesterRoleTitle: string;
   relationshipToChurch: string;
   proofOrExplanation: string;
+  communicationConsent: boolean;
+  termsAccepted: boolean;
+  followUpEmailOptIn: boolean;
 }
 
 export interface MessageRecord {
@@ -681,6 +696,9 @@ export const emptySubmissionFormValues: SubmissionFormValues = {
   firstTimeVisitorNotes: "",
   ministryTags: "",
   createManagerAccount: false,
+  communicationConsent: false,
+  termsAccepted: false,
+  followUpEmailOptIn: false,
   spanishServiceAvailable: false,
   livestreamAvailable: false,
   childrenMinistryAvailable: false,

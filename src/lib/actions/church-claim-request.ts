@@ -12,6 +12,10 @@ function readFormValue(formData: FormData, fieldName: keyof ClaimRequestFormValu
   return typeof value === "string" ? value.trim() : "";
 }
 
+function readFormCheckboxValue(formData: FormData, fieldName: keyof ClaimRequestFormValues) {
+  return formData.get(fieldName) === "on";
+}
+
 function isValidEmailAddress(value: string) {
   return /\S+@\S+\.\S+/.test(value);
 }
@@ -30,6 +34,9 @@ export async function submitChurchClaimRequestAction(
     requesterRoleTitle: readFormValue(formData, "requesterRoleTitle"),
     relationshipToChurch: readFormValue(formData, "relationshipToChurch"),
     proofOrExplanation: readFormValue(formData, "proofOrExplanation"),
+    communicationConsent: readFormCheckboxValue(formData, "communicationConsent"),
+    termsAccepted: readFormCheckboxValue(formData, "termsAccepted"),
+    followUpEmailOptIn: readFormCheckboxValue(formData, "followUpEmailOptIn"),
   };
   const authenticatedUser = await getServerAuthenticatedUserFromSessionCookie();
 
@@ -73,6 +80,15 @@ export async function submitChurchClaimRequestAction(
       "Please provide enough detail for the ministry team to review the request.";
   }
 
+  if (!values.communicationConsent) {
+    errors.communicationConsent =
+      "Please confirm that we may email you about this request and review process.";
+  }
+
+  if (!values.termsAccepted) {
+    errors.termsAccepted = "Please agree to the Terms and Privacy Policy before submitting.";
+  }
+
   if (!values.churchId || !values.churchSlug || !values.churchName) {
     return {
       status: "error",
@@ -101,6 +117,9 @@ export async function submitChurchClaimRequestAction(
       requesterRoleTitle: values.requesterRoleTitle,
       relationshipToChurch: values.relationshipToChurch,
       proofOrExplanation: values.proofOrExplanation,
+      communicationConsent: values.communicationConsent,
+      termsAccepted: values.termsAccepted,
+      followUpEmailOptIn: values.followUpEmailOptIn,
     });
   } catch (error) {
     console.error("Failed to create church claim request", error);

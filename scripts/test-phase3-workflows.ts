@@ -126,6 +126,9 @@ async function createWorkflowSubmission(label: string) {
       primaryContactEmail: `submitter-${timestampSuffix}@example.org`,
       primaryContactRole: "Church Administrator",
       primaryContactPhone: "(361) 555-0144",
+      communicationConsent: true,
+      termsAccepted: true,
+      followUpEmailOptIn: false,
       languages: ["English"],
       additionalLeaders: [],
       ministryTags: ["Workflow"],
@@ -198,6 +201,9 @@ async function run() {
     relationshipToChurch: "Lead pastor and primary ministry contact for this church.",
     proofOrExplanation:
       "I oversee this church location and can provide additional verification on request.",
+    communicationConsent: true,
+    termsAccepted: true,
+    followUpEmailOptIn: false,
   });
   await approveClaimRequest({
     claimRequestId: approvedClaimRequest.id,
@@ -215,6 +221,9 @@ async function run() {
     relationshipToChurch: "Weekly staff member helping coordinate the office and visitor follow-up.",
     proofOrExplanation:
       "I help manage front office communication, but I may need to share more verification details.",
+    communicationConsent: true,
+    termsAccepted: true,
+    followUpEmailOptIn: false,
   });
   await requestClaimMoreInfo({
     claimRequestId: moreInfoClaimRequest.id,
@@ -233,6 +242,9 @@ async function run() {
     relationshipToChurch: "Volunteer helping with occasional events and weekend setup.",
     proofOrExplanation:
       "I sometimes help at the church, but I am not the main contact for ownership and updates.",
+    communicationConsent: true,
+    termsAccepted: true,
+    followUpEmailOptIn: false,
   });
   await denyClaimRequest({
     claimRequestId: deniedClaimRequest.id,

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useMemo, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 
@@ -179,6 +180,54 @@ function AuthenticatedClaimForm(props: {
               required
             />
             <FieldError message={formState.errors.proofOrExplanation} />
+          </label>
+        </div>
+
+        <div className="field-stack">
+          <label className="checkbox-field checkbox-field--stacked">
+            <input
+              type="checkbox"
+              name="communicationConsent"
+              defaultChecked={formState.values.communicationConsent}
+            />
+            <span>
+              I understand that Find Your Church Palacios may email me about this request,
+              account access, and review updates.
+            </span>
+          </label>
+          <FieldError message={formState.errors.communicationConsent} />
+
+          <label className="checkbox-field checkbox-field--stacked">
+            <input
+              type="checkbox"
+              name="termsAccepted"
+              defaultChecked={formState.values.termsAccepted}
+            />
+            <span>
+              I agree to the{" "}
+              <Link href="/terms" className="inline-link">
+                Terms and Conditions
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="inline-link">
+                Privacy Policy
+              </Link>
+              .
+            </span>
+          </label>
+          <FieldError message={formState.errors.termsAccepted} />
+
+          <label className="checkbox-field checkbox-field--stacked">
+            <input
+              type="checkbox"
+              name="followUpEmailOptIn"
+              defaultChecked={formState.values.followUpEmailOptIn}
+            />
+            <span>
+              Optional: You may email me occasional non-essential follow-up messages about the
+              directory, restoration help, or ministry support updates. You can opt out later by
+              contacting support@findyourchurchpalacios.org.
+            </span>
           </label>
         </div>
 

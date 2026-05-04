@@ -26,6 +26,7 @@ export function SiteFooter() {
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/listing-guidelines">Listing Guidelines</Link>
+          <Link href="/admin">Admin Dashboard</Link>
         </div>
 
         <div className="site-footer__ministry">

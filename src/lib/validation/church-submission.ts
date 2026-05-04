@@ -189,6 +189,15 @@ const submissionSchema = z.object({
   visitorParkingDetails: optionalTrimmedText,
   firstTimeVisitorNotes: optionalTrimmedText,
   ministryTags: z.array(z.string()).default([]),
+  communicationConsent: z.boolean().refine(
+    (value) => value,
+    "Please confirm that we may email you about this listing and review process.",
+  ),
+  termsAccepted: z.boolean().refine(
+    (value) => value,
+    "Please agree to the Terms and Privacy Policy before submitting.",
+  ),
+  followUpEmailOptIn: z.boolean(),
 });
 
 function getString(formData: FormData, fieldName: string) {
@@ -274,6 +283,9 @@ function createValues(formData: FormData): SubmissionFormValues {
     firstTimeVisitorNotes: getString(formData, "firstTimeVisitorNotes"),
     ministryTags: getString(formData, "ministryTags"),
     createManagerAccount: getBoolean(formData, "createManagerAccount"),
+    communicationConsent: getBoolean(formData, "communicationConsent"),
+    termsAccepted: getBoolean(formData, "termsAccepted"),
+    followUpEmailOptIn: getBoolean(formData, "followUpEmailOptIn"),
     spanishServiceAvailable: getBoolean(formData, "spanishServiceAvailable"),
     livestreamAvailable: getBoolean(formData, "livestreamAvailable"),
     childrenMinistryAvailable: getBoolean(formData, "childrenMinistryAvailable"),
@@ -427,6 +439,9 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
     visitorParkingDetails: values.visitorParkingDetails,
     firstTimeVisitorNotes: values.firstTimeVisitorNotes,
     ministryTags: splitCommaSeparatedValues(values.ministryTags),
+    communicationConsent: values.communicationConsent,
+    termsAccepted: values.termsAccepted,
+    followUpEmailOptIn: values.followUpEmailOptIn,
   });
 
   const errors = schemaResult.success ? {} : createErrorMap(schemaResult.error);
@@ -545,6 +560,9 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
     visitorParkingDetails: schemaResult.data.visitorParkingDetails,
     firstTimeVisitorNotes: schemaResult.data.firstTimeVisitorNotes,
     ministryTags: schemaResult.data.ministryTags,
+    communicationConsent: schemaResult.data.communicationConsent,
+    termsAccepted: schemaResult.data.termsAccepted,
+    followUpEmailOptIn: schemaResult.data.followUpEmailOptIn,
   };
 
   return {

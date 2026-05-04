@@ -144,6 +144,9 @@ async function createWorkflowSubmission(label: string) {
       primaryContactEmail: `submitter-${timestampSuffix}@example.org`,
       primaryContactRole: "Church Administrator",
       primaryContactPhone: "(361) 555-0249",
+      communicationConsent: true,
+      termsAccepted: true,
+      followUpEmailOptIn: false,
       languages: ["English"],
       additionalLeaders: [],
       ministryTags: ["Verification"],
@@ -252,6 +255,9 @@ async function run() {
     requesterRoleTitle: "Pastor",
     relationshipToChurch: "Lead pastor and primary church contact for this listing.",
     proofOrExplanation: "I oversee this church and approve directory information updates.",
+    communicationConsent: true,
+    termsAccepted: true,
+    followUpEmailOptIn: false,
   });
   await approveClaimRequest({
     claimRequestId: primaryClaim.id,

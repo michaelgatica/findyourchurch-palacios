@@ -14,6 +14,9 @@ export async function createPendingChurchClaimRequest(input: {
   requesterRoleTitle: string;
   relationshipToChurch: string;
   proofOrExplanation: string;
+  communicationConsent: boolean;
+  termsAccepted: boolean;
+  followUpEmailOptIn: boolean;
 }) {
   const validatedInput = validateChurchClaimRequestInput(input);
   const church = await getChurchByIdFromFirebase(validatedInput.churchId);

@@ -19,6 +19,15 @@ export const churchClaimRequestSchema = z.object({
   proofOrExplanation: z
     .string()
     .min(20, "Please provide enough detail for the ministry team to review the request."),
+  communicationConsent: z.boolean().refine(
+    (value) => value,
+    "Please confirm that we may email you about this request and review process.",
+  ),
+  termsAccepted: z.boolean().refine(
+    (value) => value,
+    "Please agree to the Terms and Privacy Policy before submitting.",
+  ),
+  followUpEmailOptIn: z.boolean(),
 });
 
 export function validateChurchClaimRequestInput(input: CreateChurchClaimRequestInput) {

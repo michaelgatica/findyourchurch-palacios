@@ -8,6 +8,9 @@ export interface ClaimRequestFormValues {
   requesterRoleTitle: string;
   relationshipToChurch: string;
   proofOrExplanation: string;
+  communicationConsent: boolean;
+  termsAccepted: boolean;
+  followUpEmailOptIn: boolean;
 }
 
 export type ClaimRequestFieldName =
@@ -16,7 +19,9 @@ export type ClaimRequestFieldName =
   | "requesterPhone"
   | "requesterRoleTitle"
   | "relationshipToChurch"
-  | "proofOrExplanation";
+  | "proofOrExplanation"
+  | "communicationConsent"
+  | "termsAccepted";
 
 export interface ClaimRequestFormState {
   status: "idle" | "error";
@@ -41,6 +46,9 @@ export function createClaimRequestFormState(
       requesterRoleTitle: values?.requesterRoleTitle ?? "",
       relationshipToChurch: values?.relationshipToChurch ?? "",
       proofOrExplanation: values?.proofOrExplanation ?? "",
+      communicationConsent: values?.communicationConsent ?? false,
+      termsAccepted: values?.termsAccepted ?? false,
+      followUpEmailOptIn: values?.followUpEmailOptIn ?? false,
     },
   };
 }
