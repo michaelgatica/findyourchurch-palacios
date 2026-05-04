@@ -147,6 +147,12 @@ SMTP_PASSWORD=
 LISTING_VERIFICATION_CRON_SECRET=
 ```
 
+`ADMIN_NOTIFICATION_EMAIL` can be a single inbox or a comma-separated list, for example:
+
+```bash
+ADMIN_NOTIFICATION_EMAIL=support@findyourchurchpalacios.org,support@elroidigital.org
+```
+
 Supported providers:
 
 - `console`
@@ -365,6 +371,7 @@ Recommended production setup:
 - set `EMAIL_PROVIDER=resend` or `EMAIL_PROVIDER=smtp`
 - set `EMAIL_FROM`
 - set `ADMIN_NOTIFICATION_EMAIL`
+- if you want multiple admin inboxes copied on workflow alerts, use a comma-separated `ADMIN_NOTIFICATION_EMAIL`
 - verify the sender domain with your provider
 
 Development-safe behavior:

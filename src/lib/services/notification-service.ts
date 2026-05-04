@@ -9,9 +9,31 @@ import type {
 } from "@/lib/types/directory";
 
 import { sendTransactionalEmail } from "@/lib/services/email-service";
+import { getAdminNotificationEmails } from "@/lib/services/email-service";
 
-function getAdminNotificationEmail() {
-  return process.env.ADMIN_NOTIFICATION_EMAIL?.trim() || null;
+async function sendAdminNotificationEmail(input: {
+  subject: string;
+  body: string;
+  relatedEntityType?: string;
+  relatedEntityId?: string;
+}) {
+  const recipients = getAdminNotificationEmails();
+
+  if (recipients.length === 0) {
+    return;
+  }
+
+  await Promise.all(
+    recipients.map((recipientEmail) =>
+      sendTransactionalEmail({
+        to: recipientEmail,
+        subject: input.subject,
+        body: input.body,
+        relatedEntityType: input.relatedEntityType,
+        relatedEntityId: input.relatedEntityId,
+      }),
+    ),
+  );
 }
 
 export async function queueSubmissionReceivedNotification(
@@ -39,14 +61,7 @@ export async function queueSubmissionReceivedNotification(
     relatedEntityId: submission.id,
   });
 
-  const adminNotificationEmail = getAdminNotificationEmail();
-
-  if (!adminNotificationEmail) {
-    return;
-  }
-
-  await sendTransactionalEmail({
-    to: adminNotificationEmail,
+  await sendAdminNotificationEmail({
     subject: "New church listing pending approval",
     body: [
       "A new church listing has been submitted and is waiting for review in the Find Your Church admin portal.",
@@ -181,14 +196,7 @@ export async function sendClaimReceivedNotification(input: {
     relatedEntityId: input.claimRequest.id,
   });
 
-  const adminNotificationEmail = getAdminNotificationEmail();
-
-  if (!adminNotificationEmail) {
-    return;
-  }
-
-  await sendTransactionalEmail({
-    to: adminNotificationEmail,
+  await sendAdminNotificationEmail({
     subject: "New church claim request pending review",
     body: [
       "A church claim request is waiting for review in the Find Your Church admin portal.",
@@ -307,14 +315,7 @@ export async function sendRepresentativeUpdateSubmittedNotification(input: {
     relatedEntityId: input.updateRequest.id,
   });
 
-  const adminNotificationEmail = getAdminNotificationEmail();
-
-  if (!adminNotificationEmail) {
-    return;
-  }
-
-  await sendTransactionalEmail({
-    to: adminNotificationEmail,
+  await sendAdminNotificationEmail({
     subject: "Church listing updates pending approval",
     body: [
       "A church representative submitted listing updates that are waiting for review.",
@@ -350,14 +351,7 @@ export async function sendRepresentativeUpdateAutoPublishedNotification(input: {
     relatedEntityId: input.updateRequest.id,
   });
 
-  const adminNotificationEmail = getAdminNotificationEmail();
-
-  if (!adminNotificationEmail) {
-    return;
-  }
-
-  await sendTransactionalEmail({
-    to: adminNotificationEmail,
+  await sendAdminNotificationEmail({
     subject: "Church listing updates were auto-published",
     body: [
       "A church representative updated a listing that is configured to auto-publish.",
@@ -487,14 +481,7 @@ export async function sendOwnershipTransferRequestedNotification(input: {
   church: ChurchRecord;
   transferRequest: OwnershipTransferRequestRecord;
 }) {
-  const adminNotificationEmail = getAdminNotificationEmail();
-
-  if (!adminNotificationEmail) {
-    return;
-  }
-
-  await sendTransactionalEmail({
-    to: adminNotificationEmail,
+  await sendAdminNotificationEmail({
     subject: "Primary ownership transfer request pending review",
     body: [
       "A primary ownership transfer request was submitted from the representative portal.",
@@ -557,14 +544,7 @@ export async function sendRepresentativeChurchMessageNotification(input: {
   senderEmail: string;
   messageBody: string;
 }) {
-  const adminNotificationEmail = getAdminNotificationEmail();
-
-  if (!adminNotificationEmail) {
-    return;
-  }
-
-  await sendTransactionalEmail({
-    to: adminNotificationEmail,
+  await sendAdminNotificationEmail({
     subject: "New church representative message",
     body: [
       `A church representative sent a new message about ${input.church.name}.`,

@@ -32,8 +32,25 @@ export function getEmailFromAddress() {
   return normalizeOptionalValue(process.env.EMAIL_FROM) ?? siteConfig.contactEmail;
 }
 
+export function getAdminNotificationEmails() {
+  const rawValue = normalizeOptionalValue(process.env.ADMIN_NOTIFICATION_EMAIL);
+
+  if (!rawValue) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      rawValue
+        .split(/[;,]/)
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
 export function getAdminNotificationEmail() {
-  return normalizeOptionalValue(process.env.ADMIN_NOTIFICATION_EMAIL);
+  return getAdminNotificationEmails()[0];
 }
 
 export function getEmailConfigurationProblems(provider = getConfiguredEmailProvider()) {
@@ -44,7 +61,7 @@ export function getEmailConfigurationProblems(provider = getConfiguredEmailProvi
     problems.push("EMAIL_FROM is missing.");
   }
 
-  if (!getAdminNotificationEmail()) {
+  if (getAdminNotificationEmails().length === 0) {
     problems.push("ADMIN_NOTIFICATION_EMAIL is missing.");
   }
 
