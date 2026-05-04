@@ -37,6 +37,7 @@ Phase 7 prepares the project for the real production launch of FindYourChurchPal
 - `/privacy`
 - `/terms`
 - `/listing-guidelines`
+- `/listing-acknowledge`
 
 ### Admin
 
@@ -143,6 +144,7 @@ SMTP_HOST=
 SMTP_PORT=
 SMTP_USER=
 SMTP_PASSWORD=
+LISTING_VERIFICATION_CRON_SECRET=
 ```
 
 Supported providers:
@@ -309,6 +311,32 @@ When approved:
 
 - `true`: representative edits update the public church immediately and still create update history
 - `false`: representative edits create a `churchUpdateRequests` record for admin review
+
+### Annual listing verification
+
+Published church listings now support a lightweight annual verification cycle to help keep the directory accurate.
+
+- the cycle looks for the latest real listing activity:
+  - representative portal access
+  - listing acknowledgement from email
+  - listing update approval / verification
+- after one year without activity, the system emails a one-click acknowledgement link
+- if there is no response, a 14-day grace period begins
+- reminder emails go out with 7 days remaining and 3 days remaining
+- if there is still no acknowledgement, the listing is archived instead of hard-deleted
+
+Helpful paths and commands:
+
+- public acknowledgement page: `/listing-acknowledge?token=...`
+- manual dry run: `npm run process:listing-verifications -- --dry-run`
+- live run: `npm run process:listing-verifications -- --confirm`
+- scheduled job route: `POST /api/jobs/listing-verifications`
+
+Recommended production setup:
+
+- set `LISTING_VERIFICATION_CRON_SECRET`
+- have your scheduler call the job route daily with `x-cron-secret: <secret>`
+- run a dry run first before letting the live job archive anything
 
 ### Editor invite
 
@@ -623,6 +651,7 @@ npm run seed:admin
 npm run test:firebase-submission
 npm run test:firebase-storage
 npm run test:email
+npm run process:listing-verifications -- --dry-run
 npm run test:phase3-workflows
 npm run test:phase4-workflows
 npm run import:palacios -- --input data/palacios-churches.example.json --dry-run

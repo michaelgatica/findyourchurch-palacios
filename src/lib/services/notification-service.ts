@@ -599,3 +599,93 @@ export async function sendAdminChurchMessageNotification(input: {
     relatedEntityId: input.church.id,
   });
 }
+
+export async function sendAnnualListingVerificationNotification(input: {
+  church: ChurchRecord;
+  recipientEmail: string;
+  acknowledgementUrl: string;
+}) {
+  await sendTransactionalEmail({
+    to: input.recipientEmail,
+    subject: "Please confirm your church listing is still active",
+    body: [
+      `We want to help keep the listing for ${input.church.name} accurate and active on Find Your Church Palacios.`,
+      "",
+      "If this listing is still active, please confirm it here:",
+      input.acknowledgementUrl,
+      "",
+      "You do not need to make any edits unless something has changed. A simple confirmation lets us know the church is still active.",
+      "",
+      "If we do not receive a confirmation, we will begin a 14-day grace period before archiving the listing from the public directory.",
+      "",
+      "Find Your Church Palacios is a ministry project powered by El Roi Digital Ministries.",
+    ].join("\n"),
+    relatedEntityType: "church",
+    relatedEntityId: input.church.id,
+  });
+}
+
+export async function sendAnnualListingVerificationReminder7Notification(input: {
+  church: ChurchRecord;
+  recipientEmail: string;
+  acknowledgementUrl: string;
+}) {
+  await sendTransactionalEmail({
+    to: input.recipientEmail,
+    subject: "Reminder: please confirm your church listing within 7 days",
+    body: [
+      `This is a reminder to confirm that the listing for ${input.church.name} is still active on Find Your Church Palacios.`,
+      "",
+      "Please confirm the listing here:",
+      input.acknowledgementUrl,
+      "",
+      "If we do not hear back, the listing will be archived from the public directory in 7 days.",
+      "",
+      "Find Your Church Palacios is a ministry project powered by El Roi Digital Ministries.",
+    ].join("\n"),
+    relatedEntityType: "church",
+    relatedEntityId: input.church.id,
+  });
+}
+
+export async function sendAnnualListingVerificationReminder3Notification(input: {
+  church: ChurchRecord;
+  recipientEmail: string;
+  acknowledgementUrl: string;
+}) {
+  await sendTransactionalEmail({
+    to: input.recipientEmail,
+    subject: "Final reminder: your church listing will be archived in 3 days",
+    body: [
+      `This is a final reminder for ${input.church.name}.`,
+      "",
+      "Please confirm the listing is still active here:",
+      input.acknowledgementUrl,
+      "",
+      "If we do not receive a confirmation within 3 days, the listing will be archived from the public directory until it is reviewed again.",
+      "",
+      "Find Your Church Palacios is a ministry project powered by El Roi Digital Ministries.",
+    ].join("\n"),
+    relatedEntityType: "church",
+    relatedEntityId: input.church.id,
+  });
+}
+
+export async function sendAnnualListingArchivedNotification(input: {
+  church: ChurchRecord;
+  recipientEmail: string;
+}) {
+  await sendTransactionalEmail({
+    to: input.recipientEmail,
+    subject: "Your church listing has been archived",
+    body: [
+      `The listing for ${input.church.name} has been archived from the public directory because we did not receive an annual confirmation.`,
+      "",
+      "If the church is still active and you would like the listing restored, please contact us or submit a new update request through Find Your Church Palacios.",
+      "",
+      "Find Your Church Palacios is a ministry project powered by El Roi Digital Ministries.",
+    ].join("\n"),
+    relatedEntityType: "church",
+    relatedEntityId: input.church.id,
+  });
+}

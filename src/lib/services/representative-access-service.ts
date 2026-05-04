@@ -18,6 +18,8 @@ import type {
   ChurchRepresentativeRecord,
 } from "@/lib/types/directory";
 
+import { touchChurchListingRepresentativeActivity } from "@/lib/services/listing-verification-service";
+
 function sortRepresentativesByPriority(
   representatives: ChurchRepresentativeRecord[],
 ) {
@@ -180,9 +182,15 @@ export async function getRepresentativePortalContext(): Promise<RepresentativePo
     (await listChurchRepresentativesForUser(profile.id)).filter(isRepresentativeActive),
   );
   const representative = allRepresentatives[0] ?? null;
-  const church = representative
+  const resolvedChurch = representative
     ? await getChurchByIdFromFirebase(representative.churchId)
     : null;
+  const touchedChurch = resolvedChurch
+    ? await touchChurchListingRepresentativeActivity({
+        churchId: resolvedChurch.id,
+      })
+    : null;
+  const church = touchedChurch?.church ?? resolvedChurch;
   const churchTeam = church
     ? await listChurchRepresentativesForChurch(church.id)
     : [];

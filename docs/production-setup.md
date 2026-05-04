@@ -68,6 +68,7 @@ SMTP_HOST=findyourchurchpalacios.org
 SMTP_PORT=465
 SMTP_USER=support@findyourchurchpalacios.org
 SMTP_PASSWORD=
+LISTING_VERIFICATION_CRON_SECRET=
 ```
 
 ### Admin seed
@@ -134,6 +135,25 @@ Expected result:
 - the configured recipient receives the email
 - an `emailLogs` record is created
 - no SMTP secrets are printed
+
+## Annual listing verification job
+
+To help keep church listings accurate, production can run a lightweight yearly verification flow.
+
+What it does:
+
+- checks the last meaningful listing activity once per run
+- sends a one-click acknowledgement email after one year of inactivity
+- starts a 14-day grace period
+- sends reminder emails with 7 days remaining and 3 days remaining
+- archives the listing if no acknowledgement is received
+
+Recommended setup:
+
+1. Set `LISTING_VERIFICATION_CRON_SECRET` in production.
+2. Schedule a daily `POST` request to `/api/jobs/listing-verifications`.
+3. Pass the secret in the `x-cron-secret` header.
+4. Run `npm run process:listing-verifications -- --dry-run` locally first so you know what the job will do.
 
 ## Domain connection checklist
 

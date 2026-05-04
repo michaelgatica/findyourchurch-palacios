@@ -2,11 +2,22 @@ export const churchStatuses = [
   "draft",
   "pending_review",
   "published",
+  "archived",
   "denied",
   "changes_requested",
 ] as const;
 
 export type ChurchStatus = (typeof churchStatuses)[number];
+
+export const churchListingVerificationStatuses = [
+  "current",
+  "acknowledgement_due",
+  "grace_period",
+  "archived",
+] as const;
+
+export type ChurchListingVerificationStatus =
+  (typeof churchListingVerificationStatuses)[number];
 
 export const churchSubmissionStatuses = [
   "pending_review",
@@ -205,6 +216,16 @@ export interface ChurchRecord extends ChurchListingDraft {
   id: string;
   slug: string;
   status: ChurchStatus;
+  listingVerificationStatus?: ChurchListingVerificationStatus;
+  lastListingAcknowledgedAt?: string | null;
+  lastRepresentativeActivityAt?: string | null;
+  listingVerificationRequestedAt?: string | null;
+  listingVerificationGraceEndsAt?: string | null;
+  listingVerificationReminder7SentAt?: string | null;
+  listingVerificationReminder3SentAt?: string | null;
+  listingVerificationToken?: string | null;
+  archivedAt?: string | null;
+  archivedReason?: string | null;
   createdAt?: string;
   updatedAt: string;
   publishedAt?: string | null;
@@ -383,6 +404,16 @@ export interface ChurchDocument {
   slug: string;
   name: string;
   status: ChurchStatus;
+  listingVerificationStatus?: ChurchListingVerificationStatus;
+  lastListingAcknowledgedAt?: string | null;
+  lastRepresentativeActivityAt?: string | null;
+  listingVerificationRequestedAt?: string | null;
+  listingVerificationGraceEndsAt?: string | null;
+  listingVerificationReminder7SentAt?: string | null;
+  listingVerificationReminder3SentAt?: string | null;
+  listingVerificationToken?: string | null;
+  archivedAt?: string | null;
+  archivedReason?: string | null;
   logoUrl?: string | null;
   photoUrls: string[];
   photoGallery?: ChurchPhoto[];

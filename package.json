@@ -19,6 +19,7 @@
     "test:firebase-submission": "tsx scripts/test-firebase-submission.ts",
     "test:firebase-storage": "tsx scripts/test-firebase-storage.ts",
     "test:email": "tsx scripts/test-email.ts",
+    "process:listing-verifications": "tsx scripts/process-listing-verifications.ts",
     "test:phase3-workflows": "tsx scripts/test-phase3-workflows.ts",
     "test:phase4-workflows": "tsx scripts/test-phase4-workflows.ts"
   },

@@ -161,6 +161,14 @@ export async function submitRepresentativeChurchUpdate(input: {
       churchDocument.autoPublishUpdates ?? false;
     updatedChurchDocument.publishedAt = churchDocument.publishedAt ?? now;
     updatedChurchDocument.lastVerifiedAt = now;
+    updatedChurchDocument.lastRepresentativeActivityAt = now;
+    updatedChurchDocument.listingVerificationStatus = "current";
+    updatedChurchDocument.listingVerificationRequestedAt = null;
+    updatedChurchDocument.listingVerificationGraceEndsAt = null;
+    updatedChurchDocument.listingVerificationReminder7SentAt = null;
+    updatedChurchDocument.listingVerificationReminder3SentAt = null;
+    updatedChurchDocument.archivedAt = null;
+    updatedChurchDocument.archivedReason = null;
 
     const updatedChurch = await saveChurchDocumentToFirebase(updatedChurchDocument);
     const updateRequest = await createChurchUpdateRequestInFirebase({
@@ -272,6 +280,13 @@ export async function buildApprovedChurchRecordFromDraft(input: {
   updatedDocument.autoPublishUpdates = churchDocument.autoPublishUpdates ?? false;
   updatedDocument.publishedAt = churchDocument.publishedAt ?? updatedAt;
   updatedDocument.lastVerifiedAt = updatedAt;
+  updatedDocument.listingVerificationStatus = "current";
+  updatedDocument.listingVerificationRequestedAt = null;
+  updatedDocument.listingVerificationGraceEndsAt = null;
+  updatedDocument.listingVerificationReminder7SentAt = null;
+  updatedDocument.listingVerificationReminder3SentAt = null;
+  updatedDocument.archivedAt = null;
+  updatedDocument.archivedReason = null;
 
   await saveChurchDocumentToFirebase(updatedDocument);
 

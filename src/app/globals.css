@@ -1208,6 +1208,11 @@ input[type="checkbox"] {
   color: var(--deep-green);
 }
 
+.status-badge--archived {
+  background: rgba(89, 104, 114, 0.14);
+  color: #4d5d68;
+}
+
 .status-badge--denied,
 .status-badge--suspended,
 .status-badge--transferred {

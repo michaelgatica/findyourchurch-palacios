@@ -46,7 +46,11 @@ export async function getChurchBySlugFromFirebase(churchSlug: string) {
 
   const churchDocument = snapshot.docs[0]?.data() as ChurchDocument | undefined;
 
-  return churchDocument ? mapChurchDocumentToChurchRecord(churchDocument) : null;
+  if (!churchDocument || churchDocument.status !== "published") {
+    return null;
+  }
+
+  return mapChurchDocumentToChurchRecord(churchDocument);
 }
 
 export async function getChurchByIdFromFirebase(churchId: string) {
@@ -66,6 +70,26 @@ export async function getChurchByIdFromFirebase(churchId: string) {
   }
 
   return mapChurchDocumentToChurchRecord(documentSnapshot.data() as ChurchDocument);
+}
+
+export async function getChurchByVerificationTokenFromFirebase(
+  listingVerificationToken: string,
+) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return null;
+  }
+
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.churches)
+    .where("listingVerificationToken", "==", listingVerificationToken)
+    .limit(1)
+    .get();
+
+  const churchDocument = snapshot.docs[0]?.data() as ChurchDocument | undefined;
+
+  return churchDocument ? mapChurchDocumentToChurchRecord(churchDocument) : null;
 }
 
 export async function getChurchDocumentByIdFromFirebase(churchId: string) {
@@ -148,6 +172,13 @@ export async function upsertChurchFromSubmissionApproval(options: {
   churchDocument.primaryRepresentativeId = existingChurch?.primaryRepresentativeId ?? null;
   churchDocument.autoPublishUpdates = existingChurch?.autoPublishUpdates ?? false;
   churchDocument.lastVerifiedAt = options.lastVerifiedAt ?? now;
+  churchDocument.listingVerificationStatus = "current";
+  churchDocument.listingVerificationRequestedAt = null;
+  churchDocument.listingVerificationGraceEndsAt = null;
+  churchDocument.listingVerificationReminder7SentAt = null;
+  churchDocument.listingVerificationReminder3SentAt = null;
+  churchDocument.archivedAt = null;
+  churchDocument.archivedReason = null;
 
   await firestore
     .collection(firestoreCollectionNames.churches)
