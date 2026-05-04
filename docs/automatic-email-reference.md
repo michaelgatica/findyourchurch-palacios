@@ -32,24 +32,18 @@ Avoid wording that sounds like:
 
 ## Recommended shared ministry note
 
-Use this full version when space allows:
+Use this standard church-facing mission note in most public emails:
 
 ```text
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries as part of our mission to equip churches, ministries, and believers with practical digital support that strengthens communication, outreach, discipleship, and ministry effectiveness.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 
-There is no required cost for churches that cannot afford another tool or subscription. Our desire is to help churches remain searchable, visible, and easy to connect with. Because there are ongoing costs to operate and maintain this site, donations are welcomed and deeply appreciated from those who are able to give.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
-Use this shorter version for routine update emails:
+Use this donation note only in selected confirmation, approval, update, and annual verification emails:
 
 ```text
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 Use this admin-only version for internal notification emails:
@@ -57,6 +51,25 @@ Use this admin-only version for internal notification emails:
 ```text
 Find Your Church Palacios is a ministry project created and maintained by El Roi Digital Ministries.
 ```
+
+Donation note usage:
+
+- Include both the mission note and the donation note in:
+  - submission received confirmation
+  - submission approved
+  - claim received confirmation
+  - claim approved
+  - representative update received confirmation
+  - representative update auto-published confirmation
+  - representative update approved
+  - annual verification request
+  - annual verification reminders
+- Use only the mission note in:
+  - denial emails
+  - changes requested emails
+  - routine message/reply emails
+  - ownership transfer emails
+  - archived listing notices
 
 ---
 
@@ -79,12 +92,9 @@ We received the listing for [Church Name] and will review it for accuracy before
 [Optional paragraph if a manager account was created:]
 We also created a Find Your Church account for [Manager Email]. Once the listing is approved, that account can be connected as the listing manager so your church can help keep this page updated.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries as part of our mission to equip churches, ministries, and believers with practical digital support that strengthens communication, outreach, discipleship, and ministry effectiveness.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 
-There is no required cost for churches that cannot afford another tool or subscription. Our desire is to help churches remain searchable, visible, and easy to connect with. Because there are ongoing costs to operate and maintain this site, donations are welcomed and deeply appreciated from those who are able to give.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 ### 1.2 New church listing pending approval
@@ -132,10 +142,9 @@ The Find Your Church account for [Manager Email] can now sign in to help manage 
 
 Thank you for helping keep local church information accurate, helpful, and easy to find for residents, visitors, and families in the Palacios area.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 ### 1.4 Submission denied
@@ -157,7 +166,9 @@ Message from the review team:
 
 If you believe this was in error or would like to submit corrected information, please contact us or submit a new request. We are glad to help keep church information accurate and useful for the community.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries as part of our mission to equip churches, ministries, and believers with practical digital support that strengthens communication, outreach, discipleship, and ministry effectiveness.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
+
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 ### 1.5 Submission changes requested
@@ -179,10 +190,9 @@ Message from the review team:
 
 Please respond with the needed information or submit an updated request. Once the information is complete, we will review it again as soon as possible.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 ### 1.6 Submission message notification
@@ -202,10 +212,9 @@ Message:
 
 Please respond if additional information is needed.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 ---
@@ -226,12 +235,9 @@ Thank you for requesting access to help manage the listing for [Church Name].
 
 Your request has been received and will be reviewed for accuracy and authorization. Please allow up to 24 hours for review. We will notify you by email when the request is approved, denied, or if we need any additional information.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries as part of our mission to equip churches, ministries, and believers with practical digital support that strengthens communication, outreach, discipleship, and ministry effectiveness.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 
-There is no required cost for churches that cannot afford another tool or subscription. Our desire is to help churches remain searchable, visible, and easy to connect with. Because there are ongoing costs to operate and maintain this site, donations are welcomed and deeply appreciated from those who are able to give.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 ### 2.2 New church claim request pending review
@@ -276,10 +282,7 @@ Portal:
 
 Thank you for helping make local church information easier to find and trust.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ### 2.4 Claim denied
@@ -301,7 +304,7 @@ Message from the review team:
 
 If you believe this was in error or have additional information that may help verify your connection to the church, please contact us or submit a new request.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries as part of our mission to equip churches, ministries, and believers with practical digital support that strengthens communication, outreach, discipleship, and ministry effectiveness.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ### 2.5 Claim more information requested
@@ -323,10 +326,7 @@ Message from the review team:
 
 Please respond with the requested information so we can continue reviewing your request.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ### 2.6 Claim message notification
@@ -346,10 +346,7 @@ Message:
 
 Please respond if additional information is needed.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ---
@@ -372,10 +369,7 @@ The updates have been submitted for review. Please allow up to 24 hours for appr
 
 Thank you for helping keep this church listing accurate for residents, visitors, and families looking for a church community.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ### 3.2 Church listing updates pending approval
@@ -417,10 +411,7 @@ You can view the latest public listing here:
 
 Thank you for helping keep local church information accurate and easy to find.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ### 3.4 Church listing updates were auto-published
@@ -461,10 +452,7 @@ You can view the listing here:
 
 Thank you for helping keep your church information accurate and helpful for the community.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ### 3.6 Representative update denied
@@ -486,7 +474,7 @@ Message from the review team:
 
 If you believe this was in error or would like to submit corrected information, please respond or submit a new update request.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries as part of our mission to equip churches, ministries, and believers with practical digital support that strengthens communication, outreach, discipleship, and ministry effectiveness.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ### 3.7 Representative update changes requested
@@ -508,10 +496,7 @@ Message from the review team:
 
 Please respond with the needed information or submit an updated request. Once the information is complete, we will review it again as soon as possible.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ### 3.8 Representative update message notification
@@ -531,10 +516,7 @@ Message:
 
 Please respond if additional information is needed.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ---
@@ -558,10 +540,7 @@ Please sign in using this email address to accept access:
 
 Once accepted, you can help keep the church listing accurate and up to date.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ### 4.2 Ownership transfer requested
@@ -591,25 +570,43 @@ Find Your Church Palacios is a ministry project created and maintained by El Roi
 - Trigger: when an admin approves an ownership transfer request
 - From: `EMAIL_FROM`
 - To: the approved new owner email
-- Subject: `Your church listing access has been approved`
+- Subject: `Primary listing management access has been approved`
 
 Revised body:
 
 ```text
-Primary listing access for [Church Name] has been approved for your account.
+Primary listing management access for [Church Name] has been transferred to your account.
+
+You are now the primary representative responsible for helping keep this church listing accurate.
 
 You can now sign in to the church representative portal to help keep this listing accurate and up to date.
 
 Portal:
 [Portal URL]
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
-### 4.4 Ownership transfer denied
+### 4.4 Previous primary owner notified of approved transfer
+
+- Trigger: when an admin approves an ownership transfer request
+- From: `EMAIL_FROM`
+- To: the previous primary owner email
+- Subject: `Primary listing management access has been transferred`
+
+Revised body:
+
+```text
+Hello [Previous Owner Name],
+
+Primary listing management access for [Church Name] has been transferred to [New Owner Name] ([New Owner Email]).
+
+If this change was made in error or you need help, please contact support@findyourchurchpalacios.org.
+
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
+```
+
+### 4.5 Ownership transfer denied
 
 - Trigger: when an admin denies an ownership transfer request
 - From: `EMAIL_FROM`
@@ -626,7 +623,7 @@ Message from the review team:
 
 If you believe this was in error or would like to provide additional information, please contact us.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries as part of our mission to equip churches, ministries, and believers with practical digital support that strengthens communication, outreach, discipleship, and ministry effectiveness.
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ---
@@ -674,10 +671,7 @@ Message:
 Please sign in to the church representative portal if a response or update is needed:
 [Portal URL]
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ---
@@ -703,10 +697,11 @@ You do not need to make edits unless something has changed. A simple confirmatio
 
 If we do not receive a confirmation, we will begin a 14-day grace period before archiving the listing from the public directory.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
+If your listing is archived by mistake or you need help restoring it, please contact support@findyourchurchpalacios.org.
 
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
+
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 ### 6.2 7-day annual verification reminder
@@ -726,10 +721,11 @@ Please confirm the listing here:
 
 If we do not receive confirmation, the listing will be archived from the public directory in 7 days. Archiving helps us avoid showing outdated information to people looking for a local church.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
+If your listing is archived by mistake or you need help restoring it, please contact support@findyourchurchpalacios.org.
 
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
+
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 ### 6.3 3-day annual verification reminder
@@ -749,10 +745,11 @@ Please confirm the listing here:
 
 If we do not receive confirmation within 3 days, the listing will be archived from the public directory until it is reviewed again. This helps keep the directory accurate for residents, visitors, and families looking for a church community.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
+If your listing is archived by mistake or you need help restoring it, please contact support@findyourchurchpalacios.org.
 
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
+
+Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit www.elroidigital.org/donate.html.
 ```
 
 ### 6.4 Listing archived
@@ -767,12 +764,9 @@ Revised body:
 ```text
 The listing for [Church Name] has been archived from the public directory because we did not receive an annual confirmation.
 
-If the church is still active and you would like the listing restored, please contact us or submit a new update request through Find Your Church Palacios. We will be glad to review and restore accurate information.
+If the church is still active and you would like the listing restored, please contact support@findyourchurchpalacios.org or submit a new update request through Find Your Church Palacios. We will be glad to review and restore accurate information.
 
-Find Your Church Palacios was created and is maintained by El Roi Digital Ministries at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.
-
-Support this ministry:
-www.elroidigital.org/donate.html
+Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.
 ```
 
 ---

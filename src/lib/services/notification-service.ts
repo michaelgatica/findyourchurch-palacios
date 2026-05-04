@@ -19,23 +19,15 @@ function getPortalUrl() {
   return buildAbsoluteUrl("/portal");
 }
 
-function getFullMinistryNote() {
+function getMissionNote() {
   return [
-    `Find Your Church Palacios was created and is maintained by ${siteConfig.ministryName} as part of our mission to equip churches, ministries, and believers with practical digital support that strengthens communication, outreach, discipleship, and ministry effectiveness.`,
-    "",
-    "There is no required cost for churches that cannot afford another tool or subscription. Our desire is to help churches remain searchable, visible, and easy to connect with. Because there are ongoing costs to operate and maintain this site, donations are welcomed and deeply appreciated from those who are able to give.",
-    "",
-    "Support this ministry:",
-    siteConfig.ministryDonationUrl,
+    `Find Your Church Palacios is a ministry project created by ${siteConfig.ministryName} to help churches be searchable, visible, and easier to connect with. ${siteConfig.ministryName} exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.`,
   ];
 }
 
-function getShortMinistryNote() {
+function getDonationNote() {
   return [
-    `Find Your Church Palacios was created and is maintained by ${siteConfig.ministryName} at no required cost to churches that cannot afford another tool or subscription. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site.`,
-    "",
-    "Support this ministry:",
-    siteConfig.ministryDonationUrl,
+    `Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit ${siteConfig.ministryDonationUrl}.`,
   ];
 }
 
@@ -43,6 +35,10 @@ function getAdminOnlyMinistryNote() {
   return [
     `Find Your Church Palacios is a ministry project created and maintained by ${siteConfig.ministryName}.`,
   ];
+}
+
+function getMissionAndDonationNote() {
+  return [...getMissionNote(), "", ...getDonationNote()];
 }
 
 async function sendAdminNotificationEmail(input: {
@@ -89,7 +85,7 @@ export async function queueSubmissionReceivedNotification(
       `We received the listing for ${submission.churchDraft.name} and will review it for accuracy before it is published. Please allow up to 24 hours for review. If we need clarification or suggested edits, we will contact you using the information provided.`,
       ...accountCreatedMessage,
       "",
-      ...getFullMinistryNote(),
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "churchSubmission",
     relatedEntityId: submission.id,
@@ -142,7 +138,7 @@ export async function sendSubmissionApprovedNotification(input: {
       "",
       "Thank you for helping keep local church information accurate, helpful, and easy to find for residents, visitors, and families in the Palacios area.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "churchSubmission",
     relatedEntityId: input.submission.id,
@@ -166,7 +162,7 @@ export async function sendSubmissionDeniedNotification(input: {
       "",
       "If you believe this was in error or would like to submit corrected information, please contact us or submit a new request. We are glad to help keep church information accurate and useful for the community.",
       "",
-      ...getFullMinistryNote().slice(0, 1),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchSubmission",
     relatedEntityId: input.submission.id,
@@ -190,7 +186,7 @@ export async function sendSubmissionChangesRequestedNotification(input: {
       "",
       "Please respond with the needed information or submit an updated request. Once the information is complete, we will review it again as soon as possible.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchSubmission",
     relatedEntityId: input.submission.id,
@@ -212,7 +208,7 @@ export async function sendSubmissionMessageNotification(input: {
       "",
       "Please respond if additional information is needed.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchSubmission",
     relatedEntityId: input.submission.id,
@@ -231,7 +227,7 @@ export async function sendClaimReceivedNotification(input: {
       "",
       "Your request has been received and will be reviewed for accuracy and authorization. Please allow up to 24 hours for review. We will notify you by email when the request is approved, denied, or if we need any additional information.",
       "",
-      ...getFullMinistryNote(),
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "churchClaimRequest",
     relatedEntityId: input.claimRequest.id,
@@ -274,7 +270,7 @@ export async function sendClaimApprovedNotification(input: {
       "",
       "Thank you for helping make local church information easier to find and trust.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "churchClaimRequest",
     relatedEntityId: input.claimRequest.id,
@@ -299,7 +295,7 @@ export async function sendClaimDeniedNotification(input: {
       "",
       "If you believe this was in error or have additional information that may help verify your connection to the church, please contact us or submit a new request.",
       "",
-      ...getFullMinistryNote().slice(0, 1),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchClaimRequest",
     relatedEntityId: input.claimRequest.id,
@@ -324,7 +320,7 @@ export async function sendClaimMoreInfoNotification(input: {
       "",
       "Please respond with the requested information so we can continue reviewing your request.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchClaimRequest",
     relatedEntityId: input.claimRequest.id,
@@ -347,7 +343,7 @@ export async function sendClaimMessageNotification(input: {
       "",
       "Please respond if additional information is needed.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchClaimRequest",
     relatedEntityId: input.claimRequest.id,
@@ -369,7 +365,7 @@ export async function sendRepresentativeUpdateSubmittedNotification(input: {
       "",
       "Thank you for helping keep this church listing accurate for residents, visitors, and families looking for a church community.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "churchUpdateRequest",
     relatedEntityId: input.updateRequest.id,
@@ -410,7 +406,7 @@ export async function sendRepresentativeUpdateAutoPublishedNotification(input: {
       "",
       "Thank you for helping keep local church information accurate and easy to find.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "churchUpdateRequest",
     relatedEntityId: input.updateRequest.id,
@@ -450,7 +446,7 @@ export async function sendRepresentativeUpdateApprovedNotification(input: {
       "",
       "Thank you for helping keep your church information accurate and helpful for the community.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "churchUpdateRequest",
     relatedEntityId: input.updateRequest.id,
@@ -476,7 +472,7 @@ export async function sendRepresentativeUpdateDeniedNotification(input: {
       "",
       "If you believe this was in error or would like to submit corrected information, please respond or submit a new update request.",
       "",
-      ...getFullMinistryNote().slice(0, 1),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchUpdateRequest",
     relatedEntityId: input.updateRequest.id,
@@ -502,7 +498,7 @@ export async function sendRepresentativeUpdateChangesRequestedNotification(input
       "",
       "Please respond with the needed information or submit an updated request. Once the information is complete, we will review it again as soon as possible.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchUpdateRequest",
     relatedEntityId: input.updateRequest.id,
@@ -526,7 +522,7 @@ export async function sendRepresentativeUpdateMessageNotification(input: {
       "",
       "Please respond if additional information is needed.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchUpdateRequest",
     relatedEntityId: input.updateRequest.id,
@@ -548,7 +544,7 @@ export async function sendEditorInviteNotification(input: {
       "",
       "Once accepted, you can help keep the church listing accurate and up to date.",
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "churchRepresentative",
     relatedEntityId: input.representative.id,
@@ -584,16 +580,43 @@ export async function sendOwnershipTransferApprovedNotification(input: {
 }) {
   await sendTransactionalEmail({
     to: input.transferRequest.newOwnerEmail,
-    subject: "Your church listing access has been approved",
+    subject: "Primary listing management access has been approved",
     body: [
-      `Primary listing access for ${input.church.name} has been approved for your account.`,
+      `Primary listing management access for ${input.church.name} has been transferred to your account.`,
+      "",
+      "You are now the primary representative responsible for helping keep this church listing accurate.",
       "",
       "You can now sign in to the church representative portal to help keep this listing accurate and up to date.",
       "",
       "Portal:",
       getPortalUrl(),
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
+    ].join("\n"),
+    relatedEntityType: "ownershipTransferRequest",
+    relatedEntityId: input.transferRequest.id,
+  });
+}
+
+export async function sendOwnershipTransferPreviousOwnerNotification(input: {
+  church: ChurchRecord;
+  previousOwnerEmail: string;
+  previousOwnerName?: string;
+  transferRequest: OwnershipTransferRequestRecord;
+}) {
+  await sendTransactionalEmail({
+    to: input.previousOwnerEmail,
+    subject: "Primary listing management access has been transferred",
+    body: [
+      input.previousOwnerName
+        ? `Hello ${input.previousOwnerName},`
+        : "Hello,",
+      "",
+      `Primary listing management access for ${input.church.name} has been transferred to ${input.transferRequest.newOwnerName} (${input.transferRequest.newOwnerEmail}).`,
+      "",
+      `If this change was made in error or you need help, please contact ${siteConfig.contactEmail}.`,
+      "",
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "ownershipTransferRequest",
     relatedEntityId: input.transferRequest.id,
@@ -617,7 +640,7 @@ export async function sendOwnershipTransferDeniedNotification(input: {
       "",
       "If you believe this was in error or would like to provide additional information, please contact us.",
       "",
-      ...getFullMinistryNote().slice(0, 1),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "ownershipTransferRequest",
     relatedEntityId: input.transferRequest.id,
@@ -667,7 +690,7 @@ export async function sendAdminChurchMessageNotification(input: {
       "Please sign in to the church representative portal if a response or update is needed:",
       getPortalUrl(),
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "church",
     relatedEntityId: input.church.id,
@@ -692,7 +715,9 @@ export async function sendAnnualListingVerificationNotification(input: {
       "",
       "If we do not receive a confirmation, we will begin a 14-day grace period before archiving the listing from the public directory.",
       "",
-      ...getShortMinistryNote(),
+      `If your listing is archived by mistake or you need help restoring it, please contact ${siteConfig.contactEmail}.`,
+      "",
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "church",
     relatedEntityId: input.church.id,
@@ -715,7 +740,9 @@ export async function sendAnnualListingVerificationReminder7Notification(input: 
       "",
       "If we do not receive confirmation, the listing will be archived from the public directory in 7 days. Archiving helps us avoid showing outdated information to people looking for a local church.",
       "",
-      ...getShortMinistryNote(),
+      `If your listing is archived by mistake or you need help restoring it, please contact ${siteConfig.contactEmail}.`,
+      "",
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "church",
     relatedEntityId: input.church.id,
@@ -738,7 +765,9 @@ export async function sendAnnualListingVerificationReminder3Notification(input: 
       "",
       "If we do not receive confirmation within 3 days, the listing will be archived from the public directory until it is reviewed again. This helps keep the directory accurate for residents, visitors, and families looking for a church community.",
       "",
-      ...getShortMinistryNote(),
+      `If your listing is archived by mistake or you need help restoring it, please contact ${siteConfig.contactEmail}.`,
+      "",
+      ...getMissionAndDonationNote(),
     ].join("\n"),
     relatedEntityType: "church",
     relatedEntityId: input.church.id,
@@ -755,9 +784,9 @@ export async function sendAnnualListingArchivedNotification(input: {
     body: [
       `The listing for ${input.church.name} has been archived from the public directory because we did not receive an annual confirmation.`,
       "",
-      "If the church is still active and you would like the listing restored, please contact us or submit a new update request through Find Your Church Palacios. We will be glad to review and restore accurate information.",
+      `If the church is still active and you would like the listing restored, please contact ${siteConfig.contactEmail} or submit a new update request through Find Your Church Palacios. We will be glad to review and restore accurate information.`,
       "",
-      ...getShortMinistryNote(),
+      ...getMissionNote(),
     ].join("\n"),
     relatedEntityType: "church",
     relatedEntityId: input.church.id,

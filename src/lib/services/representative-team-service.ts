@@ -25,6 +25,7 @@ import {
   sendEditorInviteNotification,
   sendOwnershipTransferApprovedNotification,
   sendOwnershipTransferDeniedNotification,
+  sendOwnershipTransferPreviousOwnerNotification,
   sendOwnershipTransferRequestedNotification,
 } from "@/lib/services/notification-service";
 
@@ -262,6 +263,21 @@ export async function approveOwnershipTransferRequest(input: {
       approvedAt,
     },
   });
+  if (
+    updatedCurrentOwner?.email &&
+    updatedCurrentOwner.email.toLowerCase() !== transferRequest.newOwnerEmail.toLowerCase()
+  ) {
+    await sendOwnershipTransferPreviousOwnerNotification({
+      church: updatedChurch,
+      previousOwnerEmail: updatedCurrentOwner.email,
+      previousOwnerName: updatedCurrentOwner.name,
+      transferRequest: {
+        ...transferRequest,
+        status: "approved",
+        approvedAt,
+      },
+    });
+  }
 
   safeRevalidatePath("/portal/team");
   safeRevalidatePath("/portal/transfer-ownership");
