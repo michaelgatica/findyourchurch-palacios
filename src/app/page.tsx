@@ -6,6 +6,8 @@ import { DonationSupportEmbed } from "@/components/donation-support-embed";
 import { createPageMetadata, siteConfig } from "@/lib/config/site";
 import { getPublishedChurches } from "@/lib/repositories/church-repository";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = createPageMetadata({
   title: "Find Your Church Palacios | Find Churches in Palacios, Texas",
   description:
@@ -13,9 +15,20 @@ export const metadata = createPageMetadata({
   pathname: "/",
 });
 
+function pickRandomChurchPreview<T>(items: T[], count: number) {
+  const shuffled = [...items];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+
+  return shuffled.slice(0, count);
+}
+
 export default async function HomePage() {
   const publishedChurches = await getPublishedChurches();
-  const churchPreview = publishedChurches.slice(0, 3);
+  const churchPreview = pickRandomChurchPreview(publishedChurches, 3);
 
   return (
     <>
@@ -118,7 +131,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="church-grid">
+        <div className="church-grid church-grid--stacked">
           {churchPreview.map((church) => (
             <ChurchCard key={church.id} church={church} />
           ))}

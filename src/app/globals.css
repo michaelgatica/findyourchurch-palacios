@@ -522,6 +522,12 @@ select:focus-visible {
   gap: 1.2rem;
 }
 
+.church-grid--stacked {
+  grid-template-columns: 1fr;
+  max-width: 60rem;
+  margin-inline: auto;
+}
+
 .church-card {
   display: flex;
   flex-direction: column;
@@ -1536,6 +1542,10 @@ input[type="checkbox"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .church-grid--stacked {
+    grid-template-columns: 1fr;
+  }
+
   .field--full {
     grid-column: 1 / -1;
   }
@@ -1675,6 +1685,10 @@ input[type="checkbox"] {
 
   .church-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .church-grid--stacked {
+    grid-template-columns: 1fr;
   }
 
   .church-card__summary-grid {
