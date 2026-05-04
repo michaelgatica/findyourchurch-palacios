@@ -155,6 +155,13 @@ Recommended setup:
 3. Pass the secret in the `x-cron-secret` header.
 4. Run `npm run process:listing-verifications -- --dry-run` locally first so you know what the job will do.
 
+GitHub Actions option:
+
+1. This repo includes `.github/workflows/listing-verification-cron.yml`.
+2. Add GitHub repository secret `LISTING_VERIFICATION_CRON_SECRET` with the same value used in App Hosting.
+3. Optional: add repository variable `LISTING_VERIFICATION_SITE_URL` if you need the workflow to target a different domain than `https://findyourchurchpalacios.org`.
+4. The workflow runs daily at `14:00 UTC` and can also be started manually from the GitHub Actions tab.
+
 ## Domain connection checklist
 
 For `FindYourChurchPalacios.org`:

@@ -336,6 +336,9 @@ Recommended production setup:
 
 - set `LISTING_VERIFICATION_CRON_SECRET`
 - have your scheduler call the job route daily with `x-cron-secret: <secret>`
+- this repo now includes a GitHub Actions workflow at `.github/workflows/listing-verification-cron.yml`
+- add the same `LISTING_VERIFICATION_CRON_SECRET` value to GitHub repository secrets
+- optional: add repository variable `LISTING_VERIFICATION_SITE_URL` if you ever want the workflow to target a different domain
 - run a dry run first before letting the live job archive anything
 
 ### Editor invite

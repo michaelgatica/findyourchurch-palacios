@@ -1,0 +1,35 @@
+name: Annual Listing Verification
+
+on:
+  schedule:
+    - cron: "0 14 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-listing-verification:
+    runs-on: ubuntu-latest
+    env:
+      LISTING_VERIFICATION_SITE_URL: ${{ vars.LISTING_VERIFICATION_SITE_URL || 'https://findyourchurchpalacios.org' }}
+      LISTING_VERIFICATION_CRON_SECRET: ${{ secrets.LISTING_VERIFICATION_CRON_SECRET }}
+    steps:
+      - name: Validate configuration
+        run: |
+          if [ -z "${LISTING_VERIFICATION_CRON_SECRET}" ]; then
+            echo "LISTING_VERIFICATION_CRON_SECRET is not configured in GitHub Actions secrets."
+            exit 1
+          fi
+
+          if [ -z "${LISTING_VERIFICATION_SITE_URL}" ]; then
+            echo "LISTING_VERIFICATION_SITE_URL is not configured."
+            exit 1
+          fi
+
+      - name: Trigger listing verification job
+        run: |
+          curl --fail-with-body \
+            --request POST \
+            --header "x-cron-secret: ${LISTING_VERIFICATION_CRON_SECRET}" \
+            "${LISTING_VERIFICATION_SITE_URL}/api/jobs/listing-verifications"
