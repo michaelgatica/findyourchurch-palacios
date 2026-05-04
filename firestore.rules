@@ -37,13 +37,10 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isAdmin() || (signedIn() && userId == request.auth.uid);
-      allow create: if isAdmin() || (signedIn() && userId == request.auth.uid);
-      allow update: if isAdmin() || (
-        signedIn() &&
-        userId == request.auth.uid &&
-        request.resource.data.role == resource.data.role
-      );
+      allow create, update: if isAdmin();
       allow delete: if isAdmin();
+      // User profile creation and sync are handled through trusted server routes
+      // and the Firebase Admin SDK to prevent self-assigned role escalation.
     }
 
     match /churchRepresentatives/{representativeId} {
@@ -54,9 +51,11 @@ service cloud.firestore {
     }
 
     match /churchClaimRequests/{claimRequestId} {
-      allow create: if signedIn();
+      allow create: if isAdmin();
       allow read: if isAdmin() || isOwnerOfUserScopedRecord('requesterUserId');
       allow update, delete: if isAdmin();
+      // Public claim submissions are routed through trusted server actions
+      // and the Firebase Admin SDK, so direct client writes stay disabled.
     }
 
     match /churchUpdateRequests/{updateRequestId} {

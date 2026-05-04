@@ -9,14 +9,7 @@ function getConfiguredCronSecret() {
 }
 
 function readProvidedSecret(request: Request) {
-  const headerSecret = request.headers.get("x-cron-secret")?.trim();
-
-  if (headerSecret) {
-    return headerSecret;
-  }
-
-  const requestUrl = new URL(request.url);
-  return requestUrl.searchParams.get("secret")?.trim() ?? null;
+  return request.headers.get("x-cron-secret")?.trim() ?? null;
 }
 
 export async function POST(request: Request) {
