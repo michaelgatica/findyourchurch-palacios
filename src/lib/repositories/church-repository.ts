@@ -1,9 +1,13 @@
 import {
+  getChurchByCustomShareSlugFromFirebase,
+  getChurchByRouteFromFirebase,
   getDirectoryFilterOptionsFromFirebase,
   getChurchBySlugFromFirebase,
   getPublishedChurchesFromFirebase,
 } from "@/lib/repositories/firebase-church-repository";
 import {
+  getChurchByCustomShareSlugLocally,
+  getChurchByRouteLocally,
   getDirectoryFilterOptionsLocally,
   getChurchBySlugLocally,
   getLaunchContextLocally,
@@ -45,6 +49,42 @@ export async function getChurchBySlug(churchSlug: string) {
   }
 
   return getChurchBySlugLocally(churchSlug);
+}
+
+export async function getChurchByCustomShareSlug(customShareSlug: string) {
+  if (getRepositoryMode() === "firebase") {
+    const church = await getChurchByCustomShareSlugFromFirebase(customShareSlug);
+
+    if (church || !canUseLocalSeedFallback()) {
+      return church;
+    }
+  }
+
+  if (!canUseLocalSeedFallback()) {
+    return null;
+  }
+
+  return getChurchByCustomShareSlugLocally(customShareSlug);
+}
+
+export async function getChurchByRoute(input: {
+  stateCode: string;
+  citySlug: string;
+  churchSlug: string;
+}) {
+  if (getRepositoryMode() === "firebase") {
+    const church = await getChurchByRouteFromFirebase(input);
+
+    if (church || !canUseLocalSeedFallback()) {
+      return church;
+    }
+  }
+
+  if (!canUseLocalSeedFallback()) {
+    return null;
+  }
+
+  return getChurchByRouteLocally(input);
 }
 
 export async function getDirectoryFilterOptions() {

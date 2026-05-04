@@ -2,7 +2,10 @@
 
 import { redirect } from "next/navigation";
 
-import { getChurchByIdFromFirebase } from "@/lib/repositories/firebase-church-repository";
+import {
+  getChurchByCustomShareSlugFromFirebase,
+  getChurchByIdFromFirebase,
+} from "@/lib/repositories/firebase-church-repository";
 import { getServerAuthenticatedUserFromSessionCookie } from "@/lib/firebase/session";
 import type { ChurchListingFormState } from "@/lib/portal-church-form-state";
 import { sendRepresentativeChurchMessage } from "@/lib/services/church-messaging-service";
@@ -64,6 +67,24 @@ export async function updateChurchListingAction(
     };
   }
 
+  if (validationResult.data.customShareSlug) {
+    const existingChurch = await getChurchByCustomShareSlugFromFirebase(
+      validationResult.data.customShareSlug,
+    );
+
+    if (existingChurch && existingChurch.id !== churchId) {
+      return {
+        status: "error",
+        formError: "Please choose a different custom share link.",
+        errors: {
+          customShareSlug:
+            "That custom share link is already being used by another church.",
+        },
+        values: validationResult.values,
+      };
+    }
+  }
+
   try {
     const actor = await requirePortalActor();
     const access = await requireRepresentativeChurchAccess({
@@ -95,7 +116,12 @@ export async function updateChurchListingAction(
         error instanceof Error
           ? error.message
           : "We could not save your church listing changes right now.",
-      errors: {},
+      errors:
+        error instanceof Error && error.message.toLowerCase().includes("custom share link")
+          ? {
+              customShareSlug: error.message,
+            }
+          : {},
       values: validationResult.values,
     };
   }

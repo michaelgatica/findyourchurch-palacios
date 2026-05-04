@@ -185,6 +185,7 @@ export interface ChurchListingDraft {
   countyId: string | null;
   stateId: string | null;
   name: string;
+  customShareSlug?: string | null;
   logoSrc?: string | null;
   photos: ChurchPhoto[];
   denomination: string;
@@ -276,6 +277,7 @@ export interface ChurchSubmissionRecord {
 
 export interface CreateChurchSubmissionInput {
   churchName: string;
+  customShareSlug?: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -342,6 +344,7 @@ export interface DirectoryFilters {
 
 export interface SubmissionFormValues {
   churchName: string;
+  customShareSlug: string;
   addressLine1: string;
   addressLine2: string;
   city: string;
@@ -403,6 +406,7 @@ export interface ChurchDocument {
   id: string;
   slug: string;
   name: string;
+  customShareSlug?: string | null;
   status: ChurchStatus;
   listingVerificationStatus?: ChurchListingVerificationStatus;
   lastListingAcknowledgedAt?: string | null;
@@ -646,6 +650,7 @@ export const emptyDirectoryFilters: DirectoryFilters = {
 
 export const emptySubmissionFormValues: SubmissionFormValues = {
   churchName: "",
+  customShareSlug: "",
   addressLine1: "",
   addressLine2: "",
   city: "Palacios",

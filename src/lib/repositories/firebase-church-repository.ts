@@ -6,9 +6,59 @@ import {
   mapChurchRecordToChurchDocument,
   stripUndefinedDeep,
 } from "@/lib/firebase/firestore";
+import {
+  buildChurchProfilePath,
+  isReservedChurchShareSlug,
+  normalizeChurchShareSlug,
+} from "@/lib/config/site";
 import { seedChurches } from "@/lib/data/churches";
 import { getChurchSubmissionByIdFromFirebase } from "@/lib/repositories/firebase-submission-repository";
 import type { ChurchDocument, ChurchRecord, DirectoryFilterOptions } from "@/lib/types/directory";
+
+async function findChurchDocumentByCustomShareSlug(
+  customShareSlug: string,
+) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return null;
+  }
+
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.churches)
+    .where("customShareSlug", "==", customShareSlug)
+    .limit(1)
+    .get();
+
+  const churchDocument = snapshot.docs[0]?.data() as ChurchDocument | undefined;
+
+  return churchDocument ?? null;
+}
+
+async function assertCustomShareSlugAvailable(input: {
+  customShareSlug?: string | null;
+  churchId?: string;
+}) {
+  const normalizedCustomShareSlug = normalizeChurchShareSlug(input.customShareSlug);
+
+  if (!normalizedCustomShareSlug) {
+    return null;
+  }
+
+  if (isReservedChurchShareSlug(normalizedCustomShareSlug)) {
+    throw new Error("That custom share link is reserved. Please choose another.");
+  }
+
+  const existingChurchDocument = await findChurchDocumentByCustomShareSlug(
+    normalizedCustomShareSlug,
+  );
+
+  if (existingChurchDocument && existingChurchDocument.id !== input.churchId) {
+    throw new Error("That custom share link is already being used by another church.");
+  }
+
+  return normalizedCustomShareSlug;
+}
 
 export async function getPublishedChurchesFromFirebase() {
   const firestore = getFirebaseAdminFirestore();
@@ -51,6 +101,52 @@ export async function getChurchBySlugFromFirebase(churchSlug: string) {
   }
 
   return mapChurchDocumentToChurchRecord(churchDocument);
+}
+
+export async function getChurchByCustomShareSlugFromFirebase(customShareSlug: string) {
+  const normalizedCustomShareSlug = normalizeChurchShareSlug(customShareSlug);
+
+  if (!normalizedCustomShareSlug) {
+    return null;
+  }
+
+  const churchDocument = await findChurchDocumentByCustomShareSlug(normalizedCustomShareSlug);
+
+  if (!churchDocument || churchDocument.status !== "published") {
+    return null;
+  }
+
+  return mapChurchDocumentToChurchRecord(churchDocument);
+}
+
+export async function getChurchByRouteFromFirebase(input: {
+  stateCode: string;
+  citySlug: string;
+  churchSlug: string;
+}) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return null;
+  }
+
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.churches)
+    .where("slug", "==", input.churchSlug)
+    .get();
+
+  const churches = snapshot.docs
+    .map((documentSnapshot) =>
+      mapChurchDocumentToChurchRecord(documentSnapshot.data() as ChurchDocument),
+    )
+    .filter((church) => church.status === "published");
+
+  return (
+    churches.find((church) =>
+      buildChurchProfilePath(church).toLowerCase() ===
+      `/${input.stateCode}/${input.citySlug}/${input.churchSlug}`.toLowerCase(),
+    ) ?? null
+  );
 }
 
 export async function getChurchByIdFromFirebase(churchId: string) {
@@ -179,13 +275,12 @@ export async function upsertChurchFromSubmissionApproval(options: {
   churchDocument.listingVerificationReminder3SentAt = null;
   churchDocument.archivedAt = null;
   churchDocument.archivedReason = null;
+  churchDocument.customShareSlug = await assertCustomShareSlugAvailable({
+    customShareSlug: churchDocument.customShareSlug ?? null,
+    churchId,
+  });
 
-  await firestore
-    .collection(firestoreCollectionNames.churches)
-    .doc(churchId)
-    .set(stripUndefinedDeep(churchDocument), { merge: true });
-
-  return mapChurchDocumentToChurchRecord(churchDocument);
+  return saveChurchDocumentToFirebase(churchDocument);
 }
 
 export async function saveChurchDocumentToFirebase(churchDocument: ChurchDocument) {
@@ -195,12 +290,21 @@ export async function saveChurchDocumentToFirebase(churchDocument: ChurchDocumen
     throw new Error("Firebase Firestore is not configured.");
   }
 
+  const normalizedCustomShareSlug = await assertCustomShareSlugAvailable({
+    customShareSlug: churchDocument.customShareSlug ?? null,
+    churchId: churchDocument.id,
+  });
+  const documentToSave: ChurchDocument = {
+    ...churchDocument,
+    customShareSlug: normalizedCustomShareSlug,
+  };
+
   await firestore
     .collection(firestoreCollectionNames.churches)
     .doc(churchDocument.id)
-    .set(stripUndefinedDeep(churchDocument), { merge: true });
+    .set(stripUndefinedDeep(documentToSave), { merge: true });
 
-  return mapChurchDocumentToChurchRecord(churchDocument);
+  return mapChurchDocumentToChurchRecord(documentToSave);
 }
 
 export async function updateChurchAutoPublishSetting(

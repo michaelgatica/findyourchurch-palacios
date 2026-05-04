@@ -388,7 +388,11 @@ export default async function AdminSubmissionDetailPage({
                 Once approved, this church appears in the public directory at the profile below.
               </p>
               <Link
-                href={buildChurchProfilePath(submission.slug)}
+                href={buildChurchProfilePath({
+                  slug: submission.slug,
+                  cityId: submission.churchDraft.cityId,
+                  address: submission.churchDraft.address,
+                })}
                 className="button button--primary"
               >
                 Open public profile

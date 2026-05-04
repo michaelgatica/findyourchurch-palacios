@@ -315,7 +315,7 @@ export async function approveSubmission(input: {
   safeRevalidatePath("/admin/submissions");
   safeRevalidatePath(`/admin/submissions/${submission.id}`);
   safeRevalidatePath("/churches");
-  safeRevalidatePath(buildChurchProfilePath(assignmentResult.church.slug));
+  safeRevalidatePath(buildChurchProfilePath(assignmentResult.church));
 }
 
 export async function denySubmission(input: {

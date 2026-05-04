@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { buildChurchProfilePath } from "@/lib/config/site";
+import { buildChurchProfilePath, buildChurchSharePath, buildAbsoluteUrl } from "@/lib/config/site";
 import { formatDate } from "@/lib/formatting";
 import { getRepresentativePortalContext } from "@/lib/services/representative-access-service";
 
@@ -12,6 +12,7 @@ export default async function PortalChurchPage() {
   }
 
   const church = context.church;
+  const customSharePath = buildChurchSharePath(church.customShareSlug);
 
   return (
     <div className="admin-content">
@@ -26,7 +27,7 @@ export default async function PortalChurchPage() {
           <Link href="/portal/church/edit" className="button button--primary">
             Edit listing
           </Link>
-          <Link href={buildChurchProfilePath(church.slug)} className="button button--ghost">
+          <Link href={buildChurchProfilePath(church)} className="button button--ghost">
             View public profile
           </Link>
         </div>
@@ -65,6 +66,18 @@ export default async function PortalChurchPage() {
             <div className="detail-row">
               <dt>Update mode</dt>
               <dd>{church.autoPublishUpdates ? "Auto publish" : "Admin review required"}</dd>
+            </div>
+            <div className="detail-row">
+              <dt>Custom share link</dt>
+              <dd>
+                {customSharePath ? (
+                  <Link href={customSharePath} className="text-link">
+                    {buildAbsoluteUrl(customSharePath)}
+                  </Link>
+                ) : (
+                  "Not set yet"
+                )}
+              </dd>
             </div>
           </div>
         </div>

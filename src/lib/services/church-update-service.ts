@@ -64,6 +64,7 @@ function buildChurchDraftFromUpdateInput(input: {
     countyId: input.validatedInput.countyId,
     stateId: input.validatedInput.stateId,
     name: input.validatedInput.churchName,
+    customShareSlug: input.validatedInput.customShareSlug ?? null,
     logoSrc:
       logoUpload?.downloadUrl ??
       logoUpload?.relativePath ??
@@ -204,7 +205,7 @@ export async function submitRepresentativeChurchUpdate(input: {
     safeRevalidatePath("/admin");
     safeRevalidatePath("/admin/updates");
     safeRevalidatePath("/churches");
-    safeRevalidatePath(buildChurchProfilePath(updatedChurch.slug));
+    safeRevalidatePath(buildChurchProfilePath(updatedChurch));
 
     return {
       mode: "auto_published" as const,

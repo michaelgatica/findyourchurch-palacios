@@ -1,3 +1,4 @@
+import { buildChurchProfilePath } from "@/lib/config/site";
 import { getActiveLaunchCity, counties, states } from "@/lib/data/locations";
 import { seedChurches } from "@/lib/data/churches";
 import type { DirectoryFilterOptions } from "@/lib/types/directory";
@@ -12,6 +13,29 @@ export async function getChurchBySlugLocally(churchSlug: string) {
   const publishedChurches = await getPublishedChurchesLocally();
 
   return publishedChurches.find((church) => church.slug === churchSlug) ?? null;
+}
+
+export async function getChurchByCustomShareSlugLocally(customShareSlug: string) {
+  const publishedChurches = await getPublishedChurchesLocally();
+
+  return (
+    publishedChurches.find((church) => church.customShareSlug === customShareSlug) ?? null
+  );
+}
+
+export async function getChurchByRouteLocally(input: {
+  stateCode: string;
+  citySlug: string;
+  churchSlug: string;
+}) {
+  const publishedChurches = await getPublishedChurchesLocally();
+
+  return (
+    publishedChurches.find((church) =>
+      buildChurchProfilePath(church).toLowerCase() ===
+      `/${input.stateCode}/${input.citySlug}/${input.churchSlug}`.toLowerCase(),
+    ) ?? null
+  );
 }
 
 export async function getDirectoryFilterOptionsLocally(): Promise<DirectoryFilterOptions> {

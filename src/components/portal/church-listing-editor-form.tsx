@@ -76,6 +76,21 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
             <FieldError message={formState.errors.denomination} />
           </label>
 
+          <label className="field">
+            <span className="field__label">Custom share link</span>
+            <input
+              name="customShareSlug"
+              defaultValue={formState.values.customShareSlug}
+              placeholder="first-baptist-palacios"
+            />
+            <span className="field__hint">
+              Optional. This can create a short share link like
+              {" "}
+              <strong>/first-baptist-palacios</strong>.
+            </span>
+            <FieldError message={formState.errors.customShareSlug} />
+          </label>
+
           <label className="field field--full">
             <span className="field__label">Short church description</span>
             <textarea

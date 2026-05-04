@@ -71,8 +71,8 @@ function BooleanFeature({ enabled, label }: { enabled: boolean; label: string })
 
 export function ChurchProfileView({ church }: { church: ChurchRecord }) {
   const primaryServiceTime = getPrimaryServiceTime(church);
-  const canonicalPath = buildChurchProfilePath(church.slug);
-  const claimPath = buildChurchClaimPath(church.slug);
+  const canonicalPath = buildChurchProfilePath(church);
+  const claimPath = buildChurchClaimPath(church);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Church",

@@ -2,6 +2,10 @@ import { imageSize } from "image-size";
 import { z } from "zod";
 
 import { denominationOptions, worshipStyleOptions } from "@/lib/data/options";
+import {
+  isReservedChurchShareSlug,
+  normalizeChurchShareSlug,
+} from "@/lib/config/site";
 import type {
   CreateChurchSubmissionInput,
   SubmissionFieldErrorKey,
@@ -108,6 +112,7 @@ const optionalPhone = z.preprocess(
 
 const submissionSchema = z.object({
   churchName: z.string().min(2, "Enter the church name."),
+  customShareSlug: optionalTrimmedText,
   addressLine1: z.string().min(4, "Enter the church address."),
   addressLine2: optionalTrimmedText,
   city: z.string().min(2, "Enter the city."),
@@ -238,6 +243,7 @@ function deriveUploadExtension(fileName: string, mimeType: string) {
 function createValues(formData: FormData): SubmissionFormValues {
   return {
     churchName: getString(formData, "churchName"),
+    customShareSlug: getString(formData, "customShareSlug"),
     addressLine1: getString(formData, "addressLine1"),
     addressLine2: getString(formData, "addressLine2"),
     city: getString(formData, "city"),
@@ -385,6 +391,7 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
   );
   const schemaResult = submissionSchema.safeParse({
     churchName: values.churchName,
+    customShareSlug: values.customShareSlug,
     addressLine1: values.addressLine1,
     addressLine2: values.addressLine2,
     city: values.city,
@@ -423,6 +430,15 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
   });
 
   const errors = schemaResult.success ? {} : createErrorMap(schemaResult.error);
+  const normalizedCustomShareSlug = normalizeChurchShareSlug(values.customShareSlug);
+
+  if (values.customShareSlug && !normalizedCustomShareSlug) {
+    errors.customShareSlug = "Enter a valid custom share link using letters, numbers, or hyphens.";
+  } else if (normalizedCustomShareSlug && normalizedCustomShareSlug.length < 3) {
+    errors.customShareSlug = "Use at least 3 characters for a custom share link.";
+  } else if (normalizedCustomShareSlug && isReservedChurchShareSlug(normalizedCustomShareSlug)) {
+    errors.customShareSlug = "That custom share link is reserved. Please choose another.";
+  }
 
   if (values.createManagerAccount) {
     if (managerAccountPassword.length < 6) {
@@ -493,6 +509,7 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
 
   const parsedData: CreateChurchSubmissionInput = {
     churchName: schemaResult.data.churchName,
+    customShareSlug: normalizedCustomShareSlug ?? undefined,
     addressLine1: schemaResult.data.addressLine1,
     addressLine2: schemaResult.data.addressLine2,
     city: schemaResult.data.city,

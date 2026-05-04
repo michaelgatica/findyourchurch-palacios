@@ -37,7 +37,7 @@ export default async function ListingAcknowledgePage({
           </p>
           <div className="button-row">
             <Link
-              href={buildChurchProfilePath(result.church.slug)}
+              href={buildChurchProfilePath(result.church)}
               className="button button--primary"
             >
               View church listing

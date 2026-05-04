@@ -235,7 +235,7 @@ export async function approveUpdateRequest(input: {
   safeRevalidatePath("/portal");
   safeRevalidatePath("/portal/updates");
   safeRevalidatePath("/churches");
-  safeRevalidatePath(buildChurchProfilePath(updatedChurch.slug));
+  safeRevalidatePath(buildChurchProfilePath(updatedChurch));
 }
 
 export async function denyUpdateRequest(input: {

@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
 
+export {
+  buildChurchClaimPath,
+  buildChurchProfilePath,
+  buildChurchSharePath,
+  isReservedChurchShareSlug,
+  normalizeChurchShareSlug,
+} from "@/lib/church-routing";
+
 export const siteConfig = {
   projectName: "Find Your Church",
   launchName: "Find Your Church Palacios",
@@ -118,15 +126,6 @@ export function getGoogleAnalyticsMeasurementId() {
 
 export function getGoogleSiteVerificationToken() {
   return process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || null;
-}
-
-export function buildChurchProfilePath(churchSlug: string) {
-  // TODO: Expand this helper for state/city scoped URLs in Phase 2.
-  return `/churches/${churchSlug}`;
-}
-
-export function buildChurchClaimPath(churchSlug: string) {
-  return `${buildChurchProfilePath(churchSlug)}/claim`;
 }
 
 export function createPageMetadata({

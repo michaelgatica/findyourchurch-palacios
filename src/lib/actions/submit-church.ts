@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { createChurchSubmission } from "@/lib/repositories/submission-repository";
 import { isFirebaseStorageConfigurationError } from "@/lib/firebase/storage";
+import { getChurchByCustomShareSlugFromFirebase } from "@/lib/repositories/firebase-church-repository";
 import { queueSubmissionReceivedNotification } from "@/lib/services/notification-service";
 import {
   createSubmissionManagerAccount,
@@ -25,6 +26,24 @@ export async function submitChurchAction(
       errors: validationResult.errors,
       values: validationResult.values,
     };
+  }
+
+  if (validationResult.data.customShareSlug) {
+    const existingChurch = await getChurchByCustomShareSlugFromFirebase(
+      validationResult.data.customShareSlug,
+    );
+
+    if (existingChurch) {
+      return {
+        status: "error",
+        formError: "Please choose a different custom share link.",
+        errors: {
+          customShareSlug:
+            "That custom share link is already being used by another church.",
+        },
+        values: validationResult.values,
+      };
+    }
   }
 
   let requestedManagerAccount:
@@ -66,7 +85,12 @@ export async function submitChurchAction(
           : isFirebaseStorageConfigurationError(error)
             ? "We could not upload the church images right now. Please try again in a moment, or submit without images."
             : "We could not save your submission right now. Please try again in a moment.",
-      errors: {},
+      errors:
+        error instanceof Error && error.message.toLowerCase().includes("custom share link")
+          ? {
+              customShareSlug: error.message,
+            }
+          : {},
       values: validationResult.values,
     };
   }

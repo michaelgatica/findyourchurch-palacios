@@ -4,6 +4,7 @@ export interface ChurchListingFormValues {
   churchId: string;
   churchSlug: string;
   churchName: string;
+  customShareSlug: string;
   addressLine1: string;
   addressLine2: string;
   city: string;
@@ -59,6 +60,7 @@ export function createChurchListingFormValues(
     churchId: overrides?.churchId ?? church.id,
     churchSlug: overrides?.churchSlug ?? church.slug,
     churchName: overrides?.churchName ?? church.name,
+    customShareSlug: overrides?.customShareSlug ?? church.customShareSlug ?? "",
     addressLine1: overrides?.addressLine1 ?? church.address.line1,
     addressLine2: overrides?.addressLine2 ?? church.address.line2 ?? "",
     city: overrides?.city ?? church.address.city,

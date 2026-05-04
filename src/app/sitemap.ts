@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const churchRoutes = churches.map((church) => ({
-    url: buildAbsoluteUrl(buildChurchProfilePath(church.slug)),
+    url: buildAbsoluteUrl(buildChurchProfilePath(church)),
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));

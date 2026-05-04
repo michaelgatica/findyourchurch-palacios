@@ -140,7 +140,7 @@ export function DirectoryMap({
                     </p>
                   ) : null}
                   <div className="directory-map__popup-actions">
-                    <Link href={buildChurchProfilePath(church.slug)}>View church</Link>
+                    <Link href={buildChurchProfilePath(church)}>View church</Link>
                     <Link
                       href={buildDirectionsUrl(church.address)}
                       target="_blank"

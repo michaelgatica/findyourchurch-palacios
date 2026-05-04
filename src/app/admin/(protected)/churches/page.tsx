@@ -61,12 +61,12 @@ export default async function AdminChurchesPage() {
                 </div>
                 <div>
                   <strong>Public profile</strong>
-                  <p>{buildChurchProfilePath(church.slug)}</p>
+                  <p>{buildChurchProfilePath(church)}</p>
                 </div>
               </div>
 
               <div className="button-row">
-                <Link href={buildChurchProfilePath(church.slug)} className="button button--ghost">
+                <Link href={buildChurchProfilePath(church)} className="button button--ghost">
                   View public page
                 </Link>
                 <Link

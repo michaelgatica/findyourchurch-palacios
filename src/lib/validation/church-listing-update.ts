@@ -3,6 +3,10 @@ import { z } from "zod";
 
 import { denominationOptions, worshipStyleOptions } from "@/lib/data/options";
 import {
+  isReservedChurchShareSlug,
+  normalizeChurchShareSlug,
+} from "@/lib/config/site";
+import {
   findCityByNameAndStateCode,
   findCountyByName,
   getStateByCode,
@@ -118,6 +122,7 @@ const listingSchema = z.object({
   churchId: z.string().min(1),
   churchSlug: z.string().min(1),
   churchName: z.string().min(2, "Enter the church name."),
+  customShareSlug: optionalTrimmedText,
   addressLine1: z.string().min(4, "Enter the church address."),
   addressLine2: optionalTrimmedText,
   city: z.string().min(2, "Enter the city."),
@@ -248,6 +253,7 @@ function createValues(formData: FormData, currentChurch: ChurchRecord): ChurchLi
     churchId: getString(formData, "churchId") || currentChurch.id,
     churchSlug: getString(formData, "churchSlug") || currentChurch.slug,
     churchName: getString(formData, "churchName"),
+    customShareSlug: getString(formData, "customShareSlug"),
     addressLine1: getString(formData, "addressLine1"),
     addressLine2: getString(formData, "addressLine2"),
     city: getString(formData, "city"),
@@ -406,6 +412,7 @@ export interface ValidatedChurchListingUpdateInput {
   churchId: string;
   churchSlug: string;
   churchName: string;
+  customShareSlug?: string | null;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -454,6 +461,7 @@ export async function validateChurchListingUpdateFormData(
     churchId: values.churchId,
     churchSlug: values.churchSlug,
     churchName: values.churchName,
+    customShareSlug: values.customShareSlug,
     addressLine1: values.addressLine1,
     addressLine2: values.addressLine2,
     city: values.city,
@@ -490,6 +498,15 @@ export async function validateChurchListingUpdateFormData(
   });
 
   const errors = schemaResult.success ? {} : createErrorMap(schemaResult.error);
+  const normalizedCustomShareSlug = normalizeChurchShareSlug(values.customShareSlug);
+
+  if (values.customShareSlug && !normalizedCustomShareSlug) {
+    errors.customShareSlug = "Enter a valid custom share link using letters, numbers, or hyphens.";
+  } else if (normalizedCustomShareSlug && normalizedCustomShareSlug.length < 3) {
+    errors.customShareSlug = "Use at least 3 characters for a custom share link.";
+  } else if (normalizedCustomShareSlug && isReservedChurchShareSlug(normalizedCustomShareSlug)) {
+    errors.customShareSlug = "That custom share link is reserved. Please choose another.";
+  }
   const selectedExistingPhotos = getSelectedExistingPhotos(formData, currentChurch);
   const logoCandidate = formData.get("churchLogo");
   const churchLogo =
@@ -559,6 +576,7 @@ export async function validateChurchListingUpdateFormData(
       churchId: schemaResult.data.churchId,
       churchSlug: schemaResult.data.churchSlug,
       churchName: schemaResult.data.churchName,
+      customShareSlug: normalizedCustomShareSlug,
       addressLine1: schemaResult.data.addressLine1,
       addressLine2: schemaResult.data.addressLine2,
       city: schemaResult.data.city,

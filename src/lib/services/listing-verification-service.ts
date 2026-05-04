@@ -338,7 +338,7 @@ export async function acknowledgeChurchListingByToken(listingVerificationToken: 
 
   safeRevalidatePath("/");
   safeRevalidatePath("/churches");
-  safeRevalidatePath(buildChurchProfilePath(church.slug));
+  safeRevalidatePath(buildChurchProfilePath(church));
 
   return {
     status: "acknowledged" as const,
@@ -495,7 +495,7 @@ export async function processAnnualListingVerifications(options?: {
         if (!dryRun) {
           safeRevalidatePath("/");
           safeRevalidatePath("/churches");
-          safeRevalidatePath(buildChurchProfilePath(church.slug));
+          safeRevalidatePath(buildChurchProfilePath(church));
         }
 
         summary.archived += 1;

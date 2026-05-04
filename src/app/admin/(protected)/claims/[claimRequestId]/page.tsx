@@ -51,7 +51,7 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
             Back to claims
           </Link>
           {church ? (
-            <Link href={buildChurchProfilePath(church.slug)} className="button button--ghost">
+            <Link href={buildChurchProfilePath(church)} className="button button--ghost">
               View public church page
             </Link>
           ) : null}

@@ -76,7 +76,7 @@ export function ChurchCard({
       </div>
 
       <div className="church-card__actions">
-        <Link href={buildChurchProfilePath(church.slug)} className="button button--secondary">
+        <Link href={buildChurchProfilePath(church)} className="button button--secondary">
           View Church
         </Link>
         <Link

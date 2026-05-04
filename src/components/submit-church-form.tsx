@@ -86,6 +86,21 @@ export function SubmitChurchForm() {
             <FieldError message={formState.errors.denomination} />
           </label>
 
+          <label className="field">
+            <span className="field__label">Custom share link</span>
+            <input
+              name="customShareSlug"
+              defaultValue={formState.values.customShareSlug}
+              placeholder="first-baptist-palacios"
+            />
+            <span className="field__hint">
+              Optional. If approved, this can create a short church link like
+              {" "}
+              <strong>/first-baptist-palacios</strong>.
+            </span>
+            <FieldError message={formState.errors.customShareSlug} />
+          </label>
+
           <label className="field field--full">
             <RequiredLabel>Short church description</RequiredLabel>
             <textarea

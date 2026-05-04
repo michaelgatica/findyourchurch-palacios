@@ -643,6 +643,18 @@ select:focus-visible {
   color: var(--muted);
 }
 
+.text-link {
+  color: var(--deep-green);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+.text-link:hover,
+.text-link:focus-visible {
+  color: var(--dark-green);
+}
+
 .church-card__description {
   min-height: 0;
   font-size: 1rem;
