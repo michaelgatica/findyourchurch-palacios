@@ -684,6 +684,7 @@ Additional launch docs:
 
 - [docs/production-setup.md](docs/production-setup.md)
 - [docs/church-outreach-summary.md](docs/church-outreach-summary.md)
+- [docs/automatic-email-reference.md](docs/automatic-email-reference.md)
 
 Production checklist highlights:
 
