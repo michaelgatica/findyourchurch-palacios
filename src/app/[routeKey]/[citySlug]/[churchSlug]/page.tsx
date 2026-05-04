@@ -7,7 +7,7 @@ import { getPublishedChurches, getChurchByRoute } from "@/lib/repositories/churc
 
 interface CanonicalChurchProfilePageProps {
   params: Promise<{
-    stateCode: string;
+    routeKey: string;
     citySlug: string;
     churchSlug: string;
   }>;
@@ -20,7 +20,7 @@ export async function generateStaticParams() {
     const path = buildChurchProfilePath(church).split("/").filter(Boolean);
 
     return {
-      stateCode: path[0],
+      routeKey: path[0],
       citySlug: path[1],
       churchSlug: path[2],
     };
@@ -31,8 +31,12 @@ export async function generateMetadata({
   params,
 }: CanonicalChurchProfilePageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const church = await getChurchByRoute(resolvedParams);
-  const requestedPath = `/${resolvedParams.stateCode}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}`;
+  const church = await getChurchByRoute({
+    stateCode: resolvedParams.routeKey,
+    citySlug: resolvedParams.citySlug,
+    churchSlug: resolvedParams.churchSlug,
+  });
+  const requestedPath = `/${resolvedParams.routeKey}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}`;
 
   if (!church) {
     return createPageMetadata({
@@ -54,14 +58,18 @@ export default async function CanonicalChurchProfilePage({
   params,
 }: CanonicalChurchProfilePageProps) {
   const resolvedParams = await params;
-  const church = await getChurchByRoute(resolvedParams);
+  const church = await getChurchByRoute({
+    stateCode: resolvedParams.routeKey,
+    citySlug: resolvedParams.citySlug,
+    churchSlug: resolvedParams.churchSlug,
+  });
 
   if (!church) {
     notFound();
   }
 
   const canonicalPath = buildChurchProfilePath(church);
-  const requestedPath = `/${resolvedParams.stateCode}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}`;
+  const requestedPath = `/${resolvedParams.routeKey}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}`;
 
   if (canonicalPath.toLowerCase() !== requestedPath.toLowerCase()) {
     redirect(canonicalPath);
@@ -69,3 +77,4 @@ export default async function CanonicalChurchProfilePage({
 
   return <ChurchProfileView church={church} />;
 }
+

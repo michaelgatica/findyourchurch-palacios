@@ -7,7 +7,7 @@ import { getChurchByRoute } from "@/lib/repositories/church-repository";
 
 interface CanonicalChurchClaimPageProps {
   params: Promise<{
-    stateCode: string;
+    routeKey: string;
     citySlug: string;
     churchSlug: string;
   }>;
@@ -17,8 +17,12 @@ export async function generateMetadata({
   params,
 }: CanonicalChurchClaimPageProps) {
   const resolvedParams = await params;
-  const church = await getChurchByRoute(resolvedParams);
-  const requestedPath = `/${resolvedParams.stateCode}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}/claim`;
+  const church = await getChurchByRoute({
+    stateCode: resolvedParams.routeKey,
+    citySlug: resolvedParams.citySlug,
+    churchSlug: resolvedParams.churchSlug,
+  });
+  const requestedPath = `/${resolvedParams.routeKey}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}/claim`;
 
   if (!church) {
     return createPageMetadata({
@@ -41,7 +45,11 @@ export default async function CanonicalChurchClaimPage({
 }: CanonicalChurchClaimPageProps) {
   const resolvedParams = await params;
   const [church, authenticatedUser] = await Promise.all([
-    getChurchByRoute(resolvedParams),
+    getChurchByRoute({
+      stateCode: resolvedParams.routeKey,
+      citySlug: resolvedParams.citySlug,
+      churchSlug: resolvedParams.churchSlug,
+    }),
     getServerAuthenticatedUserFromSessionCookie(),
   ]);
 
@@ -50,7 +58,7 @@ export default async function CanonicalChurchClaimPage({
   }
 
   const canonicalPath = buildChurchClaimPath(church);
-  const requestedPath = `/${resolvedParams.stateCode}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}/claim`;
+  const requestedPath = `/${resolvedParams.routeKey}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}/claim`;
 
   if (canonicalPath.toLowerCase() !== requestedPath.toLowerCase()) {
     redirect(canonicalPath);
@@ -76,3 +84,4 @@ export default async function CanonicalChurchClaimPage({
     </section>
   );
 }
+
