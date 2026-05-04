@@ -125,7 +125,7 @@ function buildCurrentVerificationDocument(
     listingVerificationGraceEndsAt: null,
     listingVerificationReminder7SentAt: null,
     listingVerificationReminder3SentAt: null,
-    listingVerificationToken: churchDocument.listingVerificationToken ?? null,
+    listingVerificationToken: null,
     archivedAt: churchDocument.status === "archived" ? churchDocument.archivedAt ?? null : null,
     archivedReason:
       churchDocument.status === "archived" ? churchDocument.archivedReason ?? null : null,
