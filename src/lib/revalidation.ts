@@ -4,13 +4,9 @@ export function safeRevalidatePath(path: string) {
   try {
     revalidatePath(path);
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message.includes("static generation store missing")
-    ) {
-      return;
-    }
+    const message = error instanceof Error ? error.message : String(error);
 
-    throw error;
+    // Revalidation is helpful, but it should never break a user-facing workflow.
+    console.warn(`Skipping revalidatePath for "${path}": ${message}`);
   }
 }
