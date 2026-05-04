@@ -173,6 +173,7 @@ export async function sendClaimReceivedNotification(input: {
       `Thank you for requesting access to help manage the listing for ${input.church.name}.`,
       "",
       "Your request has been received. Please allow up to 24 hours for review.",
+      "We will notify you by email as soon as the review team approves the request or if we need any additional information.",
       "",
       "Find Your Church Palacios is a ministry project powered by El Roi Digital Ministries.",
     ].join("\n"),
