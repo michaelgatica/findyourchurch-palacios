@@ -54,6 +54,8 @@ async function run() {
       `Recipient: ${testRecipient}`,
       "",
       "If you received this unexpectedly, please review the email provider configuration before launch.",
+      "",
+      "Find Your Church Palacios is a ministry project created and maintained by El Roi Digital Ministries.",
     ].join("\n"),
     relatedEntityType: "emailTest",
     relatedEntityId: new Date().toISOString(),

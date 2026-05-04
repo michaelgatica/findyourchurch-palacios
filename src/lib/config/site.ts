@@ -30,6 +30,7 @@ export const siteConfig = {
     "Find Your Church Palacios is offered as a donation-supported ministry project. Many church directory and ministry technology platforms charge monthly or yearly fees for enhanced listings, directory tools, or visibility. Our desire is different: we do not want cost to keep a church from being searchable, visible, and easy to connect with.",
   donationFollowup:
     "If your church is able to support this work with a donation, it would be deeply appreciated and will help us continue serving churches and expanding this ministry. If your church is unable to give at this time, we completely understand. Your church can still be listed. We believe God will provide through those who are able.",
+  ministryDonationUrl: "www.elroidigital.org/donate.html",
   brandColors: {
     deepGreen: "#0B4A24",
     darkGreen: "#06381C",
