@@ -373,13 +373,14 @@ export function ChurchClaimRequestForm({
                 autoComplete={authMode === "create" ? "new-password" : "current-password"}
                 required
               />
-              <span className="field__hint">
-                {authMode === "create"
-                  ? "Firebase email/password accounts require at least 6 characters."
-                  : "Use the password for your Find Your Church account."}
-              </span>
             </label>
           </div>
+
+          {authMode === "create" ? (
+            <p className="form-grid__note">
+              Passwords for Find Your Church accounts must be at least 6 characters.
+            </p>
+          ) : null}
 
           {authErrorMessage ? <div className="form-alert">{authErrorMessage}</div> : null}
 
