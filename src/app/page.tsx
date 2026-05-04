@@ -24,10 +24,11 @@ export default async function HomePage() {
           <div className="hero-section__copy">
             <p className="eyebrow eyebrow--gold">Local Church Directory</p>
             <h1>Find a Church in Palacios, Texas</h1>
-            <p className="hero-section__lead">
-              Find service times, contact information, and helpful details for local churches in
-              the Palacios area.
-            </p>
+          <p className="hero-section__lead">
+            Find service times, contact information, and helpful details for local churches in
+            the Palacios area.
+          </p>
+          <p className="supporting-text hero-section__scope-note">{siteConfig.currentListingScope}</p>
             <div className="button-row">
               <Link href="/churches" className="button button--primary">
                 Browse Churches
@@ -92,6 +93,7 @@ export default async function HomePage() {
               Church leaders and trusted contacts can submit a listing so the community can find
               clear, up-to-date information.
             </p>
+            <p className="supporting-text">{siteConfig.currentListingScope}</p>
           </div>
 
           <div className="panel">
@@ -132,6 +134,7 @@ export default async function HomePage() {
               Churches can submit a new listing for review or request access to an existing listing
               to keep contact information, service times, and ministry details current.
             </p>
+            <p className="supporting-text">{siteConfig.currentListingScope}</p>
             <div className="button-row">
               <Link href="/submit" className="button button--secondary">
                 Submit Your Church

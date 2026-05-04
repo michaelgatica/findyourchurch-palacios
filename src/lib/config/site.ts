@@ -14,6 +14,8 @@ export const siteConfig = {
     "Find Your Church Palacios helps residents, visitors, and families discover local churches, view service times, and connect with church communities in the Palacios area.",
   directoryDescription:
     "Browse published church listings in Palacios, Texas, compare service times, and connect with local church communities.",
+  currentListingScope:
+    "We are currently accepting church listings in Palacios, Texas and within a 20-mile radius.",
   launchVision:
     "Palacios is our first local launch. Our long-term vision is to help more communities make local church information easy to find, accurate, and accessible.",
   donationDescription:

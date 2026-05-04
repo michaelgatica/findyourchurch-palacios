@@ -1,5 +1,5 @@
 import { SubmitChurchForm } from "@/components/submit-church-form";
-import { createPageMetadata } from "@/lib/config/site";
+import { createPageMetadata, siteConfig } from "@/lib/config/site";
 
 export const metadata = createPageMetadata({
   title: "Submit Your Church | Find Your Church Palacios",
@@ -19,6 +19,7 @@ export default function SubmitChurchPage() {
           review before they appear publicly in the directory. If we need clarification, we will
           follow up before publishing.
         </p>
+        <p className="supporting-text">{siteConfig.currentListingScope}</p>
       </div>
 
       <SubmitChurchForm />

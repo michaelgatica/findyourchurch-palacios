@@ -28,6 +28,7 @@ export default function ListingGuidelinesPage() {
             Submitted listings should include clear church information, accurate service times,
             contact details, and a respectful description of the church and its ministry.
           </p>
+          <p className="supporting-text">{siteConfig.currentListingScope}</p>
         </div>
 
         <div className="panel content-card">

@@ -141,7 +141,10 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
 
           <div className="profile-hero__actions">
             <ExternalActionButton href={`tel:${church.phone.replace(/\s+/g, "")}`} label="Call" />
-            <ExternalActionButton href={`mailto:${church.email}`} label="Email" />
+            <ExternalActionButton
+              href={church.email ? `mailto:${church.email}` : undefined}
+              label="Email"
+            />
             <ExternalActionButton href={church.website} label="Visit Website" />
             <ExternalActionButton href={buildDirectionsUrl(church.address)} label="Get Directions" />
             <Link href={claimPath} className="button button--ghost profile-hero__claim-button">

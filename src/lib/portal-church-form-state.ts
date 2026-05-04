@@ -66,7 +66,7 @@ export function createChurchListingFormValues(
     stateCode: overrides?.stateCode ?? church.address.stateCode,
     postalCode: overrides?.postalCode ?? church.address.postalCode,
     phone: overrides?.phone ?? church.phone,
-    email: overrides?.email ?? church.email,
+    email: overrides?.email ?? church.email ?? "",
     websiteUrl: overrides?.websiteUrl ?? church.website ?? "",
     facebookUrl: overrides?.facebookUrl ?? church.socialLinks.facebook ?? "",
     youtubeUrl: overrides?.youtubeUrl ?? church.socialLinks.youtube ?? "",

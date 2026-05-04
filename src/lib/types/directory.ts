@@ -197,7 +197,7 @@ export interface ChurchListingDraft {
   serviceTimes: ServiceTime[];
   address: StructuredAddress;
   phone: string;
-  email: string;
+  email?: string;
   website?: string;
   socialLinks: SocialLinks;
   worshipStyle?: string;
@@ -425,7 +425,7 @@ export interface ChurchDocument {
   latitude: number | null;
   longitude: number | null;
   phone: string;
-  email: string;
+  email?: string;
   website?: string;
   socialLinks: SocialLinks;
   pastorName?: string;

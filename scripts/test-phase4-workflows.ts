@@ -189,7 +189,7 @@ function buildValidatedInput(church: ChurchRecord, overrides?: Partial<{
     stateCode: church.address.stateCode,
     postalCode: church.address.postalCode,
     phone: church.phone,
-    email: church.email,
+    email: church.email ?? "",
     websiteUrl: church.website,
     facebookUrl: church.socialLinks.facebook,
     youtubeUrl: church.socialLinks.youtube,

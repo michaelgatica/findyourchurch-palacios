@@ -11,6 +11,7 @@ const testPrefixes = [
   "phase-3-workflow-church-",
   "phase-4-workflow-church-",
   "repository-test-church-",
+  "annual-verification-test-church",
 ] as const;
 
 function isWorkflowSlug(value?: string | null) {
@@ -71,7 +72,8 @@ async function run() {
       isWorkflowSlug(String(data.slug ?? "")) ||
       String(data.name ?? "").startsWith("Phase 3 Workflow Church") ||
       String(data.name ?? "").startsWith("Phase 4 Workflow Church") ||
-      String(data.name ?? "").startsWith("Repository Test Church")
+      String(data.name ?? "").startsWith("Repository Test Church") ||
+      String(data.name ?? "").startsWith("Annual Verification Test Church")
     );
   });
   const churchIds = new Set(churchDocs.map((documentSnapshot) => documentSnapshot.id));

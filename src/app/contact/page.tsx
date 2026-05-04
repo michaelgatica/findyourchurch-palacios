@@ -33,6 +33,7 @@ export default function ContactPage() {
             </Link>
             .
           </p>
+          <p className="supporting-text">{siteConfig.currentListingScope}</p>
         </div>
 
         <div className="panel content-card">

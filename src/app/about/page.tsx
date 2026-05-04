@@ -37,6 +37,7 @@ export default function AboutPage() {
             service times, and connect with church communities without confusion or unnecessary
             barriers.
           </p>
+          <p className="supporting-text">{siteConfig.currentListingScope}</p>
         </div>
 
         <div className="panel content-card">
