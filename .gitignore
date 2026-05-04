@@ -8,6 +8,7 @@ coverage
 .env.production.local
 npm-debug.log*
 firebase-debug.log
+.next-start*.log
 .firebase
 .playwright-mcp
 *firebase-adminsdk*.json
