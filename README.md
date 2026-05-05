@@ -685,6 +685,7 @@ Additional launch docs:
 - [docs/production-setup.md](docs/production-setup.md)
 - [docs/church-outreach-summary.md](docs/church-outreach-summary.md)
 - [docs/automatic-email-reference.md](docs/automatic-email-reference.md)
+- [docs/claude-deployment-handoff.md](docs/claude-deployment-handoff.md)
 
 Production checklist highlights:
 
