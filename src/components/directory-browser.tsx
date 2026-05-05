@@ -221,189 +221,191 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
 
   return (
     <div className="directory-layout">
-      <div className="panel directory-search-panel">
-        <div className="directory-search-panel__header">
-          <div>
-            <p className="eyebrow eyebrow--gold">Search Churches</p>
-            <h2 className="directory-search-panel__title">
-              <span>Search by ministry,</span>
-              <span>then explore the map</span>
-            </h2>
-            <p className="supporting-text">
-              Search by church name, pastor, ministry, worship style, or keyword, then search near
-              a Palacios address, ZIP code, or your current location.
-            </p>
+      <div className="directory-search-stack">
+        <div className="panel directory-search-panel">
+          <div className="directory-search-panel__header">
+            <div>
+              <p className="eyebrow eyebrow--gold">Search Churches</p>
+              <h2 className="directory-search-panel__title">
+                <span>Search by ministry,</span>
+                <span>then explore the map</span>
+              </h2>
+              <p className="supporting-text">
+                Search by church name, pastor, ministry, worship style, or keyword, then search near
+                a Palacios address, ZIP code, or your current location.
+              </p>
+            </div>
+            <span className="directory-results__count">
+              {visibleChurchRecords.length}{" "}
+              {visibleChurchRecords.length === 1 ? "church" : "churches"} found
+            </span>
           </div>
-          <span className="directory-results__count">
-            {visibleChurchRecords.length}{" "}
-            {visibleChurchRecords.length === 1 ? "church" : "churches"} found
-          </span>
-        </div>
 
-        <label className="field field--full directory-search-panel__search-field">
-          <span className="field__label">Search by keyword</span>
-          <input
-            type="search"
-            name="keyword"
-            value={filters.keyword}
-            onChange={(event) => updateFilter("keyword", event.target.value)}
-            placeholder="Search by church name, pastor, ministry, worship style, or keyword"
-          />
-        </label>
-
-        <div className="directory-location-grid">
-          <label className="field directory-location-grid__search">
-            <span className="field__label">Search near a location</span>
+          <label className="field field--full directory-search-panel__search-field">
+            <span className="field__label">Search by keyword</span>
             <input
               type="search"
-              name="locationQuery"
-              value={locationQuery}
-              onChange={(event) => setLocationQuery(event.target.value)}
-              placeholder="Palacios address, city, or ZIP code"
+              name="keyword"
+              value={filters.keyword}
+              onChange={(event) => updateFilter("keyword", event.target.value)}
+              placeholder="Search by church name, pastor, ministry, worship style, or keyword"
             />
           </label>
 
-          <label className="field directory-location-grid__radius">
-            <span className="field__label">Distance</span>
-            <select
-              name="locationRadiusMiles"
-              value={locationRadiusMiles}
-              onChange={(event) => setLocationRadiusMiles(Number(event.target.value))}
-            >
-              {radiusOptions.map((radiusOption) => (
-                <option key={radiusOption} value={radiusOption}>
-                  Within {radiusOption} miles
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="directory-location-grid">
+            <label className="field directory-location-grid__search">
+              <span className="field__label">Search near a location</span>
+              <input
+                type="search"
+                name="locationQuery"
+                value={locationQuery}
+                onChange={(event) => setLocationQuery(event.target.value)}
+                placeholder="Palacios address, city, or ZIP code"
+              />
+            </label>
 
-          <div className="directory-location-grid__actions">
-            <button
-              type="button"
-              className="button button--secondary"
-              onClick={runLocationSearch}
-              disabled={locationStatus !== "idle"}
-            >
-              {locationStatus === "searching" ? "Searching..." : "Search area"}
+            <label className="field directory-location-grid__radius">
+              <span className="field__label">Distance</span>
+              <select
+                name="locationRadiusMiles"
+                value={locationRadiusMiles}
+                onChange={(event) => setLocationRadiusMiles(Number(event.target.value))}
+              >
+                {radiusOptions.map((radiusOption) => (
+                  <option key={radiusOption} value={radiusOption}>
+                    Within {radiusOption} miles
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="directory-location-grid__actions">
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={runLocationSearch}
+                disabled={locationStatus !== "idle"}
+              >
+                {locationStatus === "searching" ? "Searching..." : "Search area"}
+              </button>
+              <button
+                type="button"
+                className="button button--ghost"
+                onClick={useCurrentLocation}
+                disabled={locationStatus !== "idle"}
+              >
+                {locationStatus === "locating" ? "Locating..." : "Use my location"}
+              </button>
+            </div>
+          </div>
+
+          {locationMessage ? (
+            <p className="supporting-text directory-search-panel__location-message">
+              {locationMessage}
+            </p>
+          ) : null}
+
+          <div className="directory-filter-grid">
+            <label className="field">
+              <span className="field__label">Denomination / tradition</span>
+              <select
+                name="denomination"
+                value={filters.denomination}
+                onChange={(event) => updateFilter("denomination", event.target.value)}
+              >
+                <option value="">All traditions</option>
+                {filterOptions.denominations.map((denomination) => (
+                  <option key={denomination} value={denomination}>
+                    {denomination}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="field">
+              <span className="field__label">Worship style</span>
+              <select
+                name="worshipStyle"
+                value={filters.worshipStyle}
+                onChange={(event) => updateFilter("worshipStyle", event.target.value)}
+              >
+                <option value="">All worship styles</option>
+                {filterOptions.worshipStyles.map((worshipStyle) => (
+                  <option key={worshipStyle} value={worshipStyle}>
+                    {worshipStyle}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="directory-toggle-grid">
+            <label className="toggle-field">
+              <input
+                type="checkbox"
+                checked={filters.childrenMinistry}
+                onChange={(event) => updateFilter("childrenMinistry", event.target.checked)}
+              />
+              <span>Children&apos;s ministry</span>
+            </label>
+
+            <label className="toggle-field">
+              <input
+                type="checkbox"
+                checked={filters.youthMinistry}
+                onChange={(event) => updateFilter("youthMinistry", event.target.checked)}
+              />
+              <span>Youth ministry</span>
+            </label>
+
+            <label className="toggle-field">
+              <input
+                type="checkbox"
+                checked={filters.nurseryCare}
+                onChange={(event) => updateFilter("nurseryCare", event.target.checked)}
+              />
+              <span>Nursery care</span>
+            </label>
+
+            <label className="toggle-field">
+              <input
+                type="checkbox"
+                checked={filters.spanishService}
+                onChange={(event) => updateFilter("spanishService", event.target.checked)}
+              />
+              <span>Spanish service</span>
+            </label>
+
+            <label className="toggle-field">
+              <input
+                type="checkbox"
+                checked={filters.livestream}
+                onChange={(event) => updateFilter("livestream", event.target.checked)}
+              />
+              <span>Livestream</span>
+            </label>
+
+            <label className="toggle-field">
+              <input
+                type="checkbox"
+                checked={filters.wheelchairAccessible}
+                onChange={(event) => updateFilter("wheelchairAccessible", event.target.checked)}
+              />
+              <span>Wheelchair accessible</span>
+            </label>
+          </div>
+
+          <div className="directory-search-panel__actions">
+            <button type="button" className="button button--ghost" onClick={resetFilters}>
+              Clear filters
             </button>
-            <button
-              type="button"
-              className="button button--ghost"
-              onClick={useCurrentLocation}
-              disabled={locationStatus !== "idle"}
-            >
-              {locationStatus === "locating" ? "Locating..." : "Use my location"}
-            </button>
+            <p className="supporting-text">
+              Results update as you type, and map search narrows churches by distance.
+            </p>
           </div>
         </div>
 
-        {locationMessage ? (
-          <p className="supporting-text directory-search-panel__location-message">
-            {locationMessage}
-          </p>
-        ) : null}
-
-        <div className="directory-filter-grid">
-          <label className="field">
-            <span className="field__label">Denomination / tradition</span>
-            <select
-              name="denomination"
-              value={filters.denomination}
-              onChange={(event) => updateFilter("denomination", event.target.value)}
-            >
-              <option value="">All traditions</option>
-              {filterOptions.denominations.map((denomination) => (
-                <option key={denomination} value={denomination}>
-                  {denomination}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="field">
-            <span className="field__label">Worship style</span>
-            <select
-              name="worshipStyle"
-              value={filters.worshipStyle}
-              onChange={(event) => updateFilter("worshipStyle", event.target.value)}
-            >
-              <option value="">All worship styles</option>
-              {filterOptions.worshipStyles.map((worshipStyle) => (
-                <option key={worshipStyle} value={worshipStyle}>
-                  {worshipStyle}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <div className="directory-toggle-grid">
-          <label className="toggle-field">
-            <input
-              type="checkbox"
-              checked={filters.childrenMinistry}
-              onChange={(event) => updateFilter("childrenMinistry", event.target.checked)}
-            />
-            <span>Children&apos;s ministry</span>
-          </label>
-
-          <label className="toggle-field">
-            <input
-              type="checkbox"
-              checked={filters.youthMinistry}
-              onChange={(event) => updateFilter("youthMinistry", event.target.checked)}
-            />
-            <span>Youth ministry</span>
-          </label>
-
-          <label className="toggle-field">
-            <input
-              type="checkbox"
-              checked={filters.nurseryCare}
-              onChange={(event) => updateFilter("nurseryCare", event.target.checked)}
-            />
-            <span>Nursery care</span>
-          </label>
-
-          <label className="toggle-field">
-            <input
-              type="checkbox"
-              checked={filters.spanishService}
-              onChange={(event) => updateFilter("spanishService", event.target.checked)}
-            />
-            <span>Spanish service</span>
-          </label>
-
-          <label className="toggle-field">
-            <input
-              type="checkbox"
-              checked={filters.livestream}
-              onChange={(event) => updateFilter("livestream", event.target.checked)}
-            />
-            <span>Livestream</span>
-          </label>
-
-          <label className="toggle-field">
-            <input
-              type="checkbox"
-              checked={filters.wheelchairAccessible}
-              onChange={(event) => updateFilter("wheelchairAccessible", event.target.checked)}
-            />
-            <span>Wheelchair accessible</span>
-          </label>
-        </div>
-
-        <div className="directory-search-panel__actions">
-          <button type="button" className="button button--ghost" onClick={resetFilters}>
-            Clear filters
-          </button>
-          <p className="supporting-text">
-            Results update as you type, and map search narrows churches by distance.
-          </p>
-        </div>
-
-        <div className="directory-map-panel">
+        <div className="panel directory-map-panel">
           <div className="directory-map-panel__header">
             <div>
               <h3>Map results</h3>
