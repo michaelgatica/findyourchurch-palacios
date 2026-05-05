@@ -53,7 +53,7 @@ export default async function PortalChurchPage() {
             </div>
             <div className="detail-row">
               <dt>Phone</dt>
-              <dd>{church.phone}</dd>
+              <dd>{church.phone || "Not listed yet"}</dd>
             </div>
             <div className="detail-row">
               <dt>Email</dt>

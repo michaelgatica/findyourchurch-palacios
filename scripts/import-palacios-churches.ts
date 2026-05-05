@@ -88,7 +88,7 @@ const importedChurchSchema = z.object({
     latitude: z.number().nullable().optional(),
     longitude: z.number().nullable().optional(),
   }),
-  phone: z.string().min(1),
+  phone: z.string().optional().default(""),
   email: z.email().optional(),
   website: z.url().optional(),
   socialLinks: z
@@ -243,7 +243,7 @@ function buildChurchRecord(
       latitude: importedChurch.address.latitude ?? existingChurch?.address.latitude ?? null,
       longitude: importedChurch.address.longitude ?? existingChurch?.address.longitude ?? null,
     },
-    phone: importedChurch.phone,
+    phone: importedChurch.phone.trim() || existingChurch?.phone || "",
     email: importedChurch.email ?? existingChurch?.email,
     website: importedChurch.website,
     socialLinks: importedChurch.socialLinks,

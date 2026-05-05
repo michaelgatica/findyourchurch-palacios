@@ -1,9 +1,12 @@
 import {
+  cities,
+  counties,
   findCityByNameAndStateCode,
   getCityById,
   getCountyById,
   getStateByCode,
   getStateById,
+  states,
 } from "@/lib/data/locations";
 import type {
   ChurchDocument,
@@ -417,18 +420,21 @@ export function mapDraftToChurchDocument(
 export function buildLocationRecords() {
   const now = new Date().toISOString();
 
-  return [
-    {
-      id: "palacios-texas",
-      city: "Palacios",
-      county: "Matagorda County",
-      state: "Texas",
-      stateSlug: "texas",
-      citySlug: "palacios",
-      countySlug: "matagorda-county",
-      isActiveLaunchMarket: true,
+  return cities.map((city) => {
+    const county = counties.find((candidateCounty) => candidateCounty.id === city.countyId);
+    const state = states.find((candidateState) => candidateState.id === city.stateId);
+
+    return {
+      id: city.id,
+      city: city.name,
+      county: county?.name ?? "Matagorda County",
+      state: state?.name ?? "Texas",
+      stateSlug: state?.slug ?? "texas",
+      citySlug: city.slug,
+      countySlug: county?.slug ?? "matagorda-county",
+      isActiveLaunchMarket: city.id === "palacios-texas",
       createdAt: now,
       updatedAt: now,
-    },
-  ] satisfies LocationRecord[];
+    } satisfies LocationRecord;
+  });
 }

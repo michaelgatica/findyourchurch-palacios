@@ -19,11 +19,11 @@ export const siteConfig = {
   organizationDescription:
     "Find Your Church is a ministry project powered by El Roi Digital Ministries.",
   launchDescription:
-    "Find Your Church Palacios helps residents, visitors, and families discover local churches, view service times, and connect with church communities in the Palacios area.",
+    "Find Your Church Palacios helps residents, visitors, and families discover local churches, view service times, and connect with church communities in Palacios and nearby communities.",
   directoryDescription:
-    "Browse published church listings in Palacios, Texas, compare service times, and connect with local church communities.",
+    "Browse published church listings in Palacios, Texas and nearby communities, compare service times, and connect with local church communities.",
   currentListingScope:
-    "We are currently accepting church listings in Palacios, Texas and within a 20-mile radius.",
+    "We are currently accepting church listings in Palacios, Texas and nearby communities within a 20-mile radius, including Blessing, Collegeport, Markham, Matagorda, Olivia, and Wadsworth.",
   launchVision:
     "Palacios is our first local launch. Our long-term vision is to help more communities make local church information easy to find, accurate, and accessible.",
   donationDescription:

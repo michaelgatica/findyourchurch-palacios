@@ -16,6 +16,12 @@ export const counties: CountyRegion[] = [
     slug: "matagorda-county",
     stateId: "texas",
   },
+  {
+    id: "calhoun-county",
+    name: "Calhoun County",
+    slug: "calhoun-county",
+    stateId: "texas",
+  },
 ];
 
 export const cities: CityRegion[] = [
@@ -26,6 +32,54 @@ export const cities: CityRegion[] = [
     stateCode: "TX",
     stateId: "texas",
     countyId: "matagorda-county",
+  },
+  {
+    id: "blessing-texas",
+    name: "Blessing",
+    slug: "blessing",
+    stateCode: "TX",
+    stateId: "texas",
+    countyId: "matagorda-county",
+  },
+  {
+    id: "collegeport-texas",
+    name: "Collegeport",
+    slug: "collegeport",
+    stateCode: "TX",
+    stateId: "texas",
+    countyId: "matagorda-county",
+  },
+  {
+    id: "markham-texas",
+    name: "Markham",
+    slug: "markham",
+    stateCode: "TX",
+    stateId: "texas",
+    countyId: "matagorda-county",
+  },
+  {
+    id: "matagorda-texas",
+    name: "Matagorda",
+    slug: "matagorda",
+    stateCode: "TX",
+    stateId: "texas",
+    countyId: "matagorda-county",
+  },
+  {
+    id: "wadsworth-texas",
+    name: "Wadsworth",
+    slug: "wadsworth",
+    stateCode: "TX",
+    stateId: "texas",
+    countyId: "matagorda-county",
+  },
+  {
+    id: "olivia-texas",
+    name: "Olivia",
+    slug: "olivia",
+    stateCode: "TX",
+    stateId: "texas",
+    countyId: "calhoun-county",
   },
 ];
 

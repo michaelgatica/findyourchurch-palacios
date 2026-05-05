@@ -73,13 +73,14 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
   const primaryServiceTime = getPrimaryServiceTime(church);
   const canonicalPath = buildChurchProfilePath(church);
   const claimPath = buildChurchClaimPath(church);
+  const phoneNumber = church.phone.trim();
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Church",
     name: church.name,
     description: church.description,
     url: buildAbsoluteUrl(canonicalPath),
-    telephone: church.phone,
+    telephone: phoneNumber || undefined,
     email: church.email,
     address: {
       "@type": "PostalAddress",
@@ -140,7 +141,10 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
           </div>
 
           <div className="profile-hero__actions">
-            <ExternalActionButton href={`tel:${church.phone.replace(/\s+/g, "")}`} label="Call" />
+            <ExternalActionButton
+              href={phoneNumber ? `tel:${phoneNumber.replace(/\s+/g, "")}` : undefined}
+              label="Call"
+            />
             <ExternalActionButton
               href={church.email ? `mailto:${church.email}` : undefined}
               label="Email"
