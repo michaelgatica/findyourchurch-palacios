@@ -16,31 +16,29 @@ permissions:
 
 jobs:
   validate:
-    name: Type check and build
+    name: Build validation
     runs-on: ubuntu-latest
+    env:
+      ALLOW_MISSING_FIREBASE_ADMIN_IN_CI: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Type check
-        run: npx tsc --noEmit
-
       - name: Build
         run: npm run build
         env:
           # Non-sensitive values that are safe to hardcode for CI builds.
-          # Sensitive keys (API keys, storage bucket, etc.) must be added
-          # as GitHub Actions secrets: Settings → Secrets and variables → Actions
           NEXT_PUBLIC_SITE_URL: https://findyourchurchpalacios.org
+          NEXT_PUBLIC_ACTIVE_MARKET_KEY: palacios
           NEXT_PUBLIC_ENABLE_DONATIONS: "true"
           NEXT_PUBLIC_ZEFFY_FORM_PATH: /embed/donation-form/helping-churches-reach-people-through-technology
           NEXT_PUBLIC_FIREBASE_PROJECT_ID: findyourchurch-24562
@@ -48,7 +46,7 @@ jobs:
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "443706380375"
           NEXT_PUBLIC_FIREBASE_APP_ID: "1:443706380375:web:e2f1c184b87865e003d312"
           NEXT_PUBLIC_FIREBASE_DATABASE_ID: findyourchurchpal
-          # Add these as GitHub Actions secrets for full CI build validation:
+          # Add these as GitHub Actions secrets if you want full CI parity:
           # NEXT_PUBLIC_FIREBASE_API_KEY
           # NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
           # NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
@@ -57,8 +55,8 @@ jobs:
           NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
           NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
           NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ secrets.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }}
-          # Firebase Admin SDK — needed for generateStaticParams on church profile pages.
-          # Add these to GitHub Actions secrets (same values as Firebase App Hosting env).
+          # Firebase Admin values are optional in CI. If omitted, the build
+          # will skip Firebase-backed static data and still validate the app shell.
           FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
           FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
           FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}

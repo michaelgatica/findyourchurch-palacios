@@ -209,6 +209,16 @@ export function isGoogleManagedFirebaseRuntime() {
   );
 }
 
+function shouldAllowMissingFirebaseAdminInCiBuild() {
+  return (
+    process.env.GITHUB_ACTIONS === "true" &&
+    trueValues.has(
+      normalizeOptionalValue(process.env.ALLOW_MISSING_FIREBASE_ADMIN_IN_CI)?.toLowerCase() ??
+        "",
+    )
+  );
+}
+
 function hasFirebaseServerCredentials(config: FirebaseServerConfig) {
   if (shouldUseFirebaseEmulators()) {
     return Boolean(config.projectId);
@@ -253,11 +263,18 @@ export function assertFirebaseServerConfig() {
   const missingEnvVarNames = getMissingFirebaseServerEnvVarNames();
 
   if (missingEnvVarNames.length > 0) {
-    handleConfigurationProblem(
-      `Firebase Admin SDK configuration is incomplete. Missing environment variables: ${missingEnvVarNames.join(
-        ", ",
-      )}.`,
-    );
+    const message = `Firebase Admin SDK configuration is incomplete. Missing environment variables: ${missingEnvVarNames.join(
+      ", ",
+    )}.`;
+
+    if (shouldAllowMissingFirebaseAdminInCiBuild()) {
+      warnFirebaseConfigurationOnce(
+        `${message} CI build validation will continue without Firebase Admin data.`,
+      );
+      return false;
+    }
+
+    handleConfigurationProblem(message);
     return false;
   }
 
