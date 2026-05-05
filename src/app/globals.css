@@ -1831,13 +1831,25 @@ input[type="checkbox"] {
     align-items: start;
   }
 
+  /* Sidebar is 280–320px — keep all location fields stacked single-column */
   .directory-location-grid {
-    grid-template-columns: minmax(0, 1.4fr) minmax(180px, 0.6fr) auto;
+    grid-template-columns: 1fr;
   }
 
   .directory-location-grid__actions {
     grid-column: auto;
-    justify-content: flex-end;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Single-column filters in narrow sidebar */
+  .directory-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Description text is redundant once you're in the sidebar */
+  .directory-search-panel__header p {
+    display: none;
   }
 
   .profile-layout {

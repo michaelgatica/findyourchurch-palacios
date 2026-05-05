@@ -50,8 +50,11 @@ export default function ContactPage() {
             support is appreciated but never required for a listing.
           </p>
           <DonationSupportActions />
-          <DonationSupportEmbed />
         </div>
+      </div>
+
+      <div className="panel content-card">
+        <DonationSupportEmbed />
       </div>
     </section>
   );
