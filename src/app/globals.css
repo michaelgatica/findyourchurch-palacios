@@ -1800,6 +1800,8 @@ input[type="checkbox"] {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: rgba(11, 74, 36, 0.18) transparent;
+    gap: 0.75rem;
+    padding: 1rem;
   }
 
   .directory-search-panel::-webkit-scrollbar {
@@ -1811,9 +1813,10 @@ input[type="checkbox"] {
     background: rgba(11, 74, 36, 0.18);
   }
 
-  /* Title is a sidebar label now — not a hero headline */
+  /* Title is a compact sidebar label — stack title then count badge */
   .directory-search-panel__title {
-    font-size: 1.15rem;
+    font-size: 1rem;
+    font-weight: 700;
     max-width: none;
     letter-spacing: -0.01em;
   }
@@ -1826,30 +1829,59 @@ input[type="checkbox"] {
     content: " ";
   }
 
+  /* Stack: title on top, count badge below it — full width */
   .directory-search-panel__header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
 
-  /* Sidebar is 280–320px — keep all location fields stacked single-column */
+  .directory-results__count {
+    width: fit-content;
+  }
+
+  /* Description text is redundant in the sidebar */
+  .directory-search-panel__header p {
+    display: none;
+  }
+
+  /* Sidebar is 280–320px — keep all location fields stacked */
   .directory-location-grid {
     grid-template-columns: 1fr;
+    gap: 0.6rem;
   }
 
   .directory-location-grid__actions {
     grid-column: auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
   }
 
   /* Single-column filters in narrow sidebar */
   .directory-filter-grid {
     grid-template-columns: 1fr;
+    gap: 0.6rem;
   }
 
-  /* Description text is redundant once you're in the sidebar */
-  .directory-search-panel__header p {
-    display: none;
+  /* Compact inputs inside the sidebar */
+  .directory-search-panel input,
+  .directory-search-panel select {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.9rem;
+    border-radius: 12px;
+  }
+
+  /* Compact buttons inside the sidebar */
+  .directory-search-panel .button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    border-radius: 10px;
+    min-height: 0;
+  }
+
+  .directory-search-panel .directory-search-panel__search-field input {
+    min-height: 0;
+    padding: 0.55rem 0.75rem;
   }
 
   .profile-layout {
