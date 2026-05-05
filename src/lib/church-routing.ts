@@ -15,6 +15,7 @@ type ChurchRouteTarget = {
 const reservedChurchShareSlugs = new Set(
   [
     "",
+    "account",
     "about",
     "admin",
     "api",
@@ -100,4 +101,3 @@ export function buildChurchSharePath(customShareSlug: string | null | undefined)
 
   return `/${normalizedValue}`;
 }
-

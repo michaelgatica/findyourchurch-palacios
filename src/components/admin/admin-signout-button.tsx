@@ -1,9 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 
-import { signOutFirebaseUser } from "@/lib/firebase/auth-client";
-import { clearFirebaseServerSession } from "@/lib/firebase/session-client";
+import { signOutApplicationSession } from "@/lib/firebase/session-client";
 
 interface AdminSignOutButtonProps {
   className?: string;
@@ -15,23 +14,39 @@ export function AdminSignOutButton({
   redirectTo = "/admin/login",
 }: AdminSignOutButtonProps) {
   const [isPending, startTransition] = useTransition();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   function handleSignOut() {
     startTransition(async () => {
-      await signOutFirebaseUser();
-      await clearFirebaseServerSession();
-      window.location.assign(redirectTo);
+      try {
+        setErrorMessage(null);
+        await signOutApplicationSession();
+        window.location.assign(redirectTo);
+      } catch (error) {
+        setErrorMessage(
+          error instanceof Error
+            ? error.message
+            : "We could not complete sign-out. Please try again.",
+        );
+      }
     });
   }
 
   return (
-    <button
-      type="button"
-      className={className ?? "button button--ghost"}
-      onClick={handleSignOut}
-      disabled={isPending}
-    >
-      {isPending ? "Signing out..." : "Sign out"}
-    </button>
+    <>
+      <button
+        type="button"
+        className={className ?? "button button--ghost"}
+        onClick={handleSignOut}
+        disabled={isPending}
+      >
+        {isPending ? "Signing out..." : "Sign out"}
+      </button>
+      {errorMessage ? (
+        <p className="field__error" aria-live="polite">
+          {errorMessage}
+        </p>
+      ) : null}
+    </>
   );
 }

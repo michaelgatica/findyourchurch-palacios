@@ -9,11 +9,10 @@ import { createClaimRequestFormState } from "@/lib/claim-request-form-state";
 import {
   createFirebaseUserAccount,
   signInWithFirebaseEmail,
-  signOutFirebaseUser,
 } from "@/lib/firebase/auth-client";
 import {
-  clearFirebaseServerSession,
   establishFirebaseServerSession,
+  signOutApplicationSession,
 } from "@/lib/firebase/session-client";
 import type { AuthenticatedAppUser } from "@/lib/types/directory";
 
@@ -324,10 +323,18 @@ export function ChurchClaimRequestForm({
 
   function handleUseDifferentAccount() {
     startTransition(async () => {
-      await signOutFirebaseUser();
-      await clearFirebaseServerSession();
-      setSessionUser(null);
-      setIsSessionCleared(true);
+      try {
+        setAuthErrorMessage(null);
+        await signOutApplicationSession();
+        setSessionUser(null);
+        setIsSessionCleared(true);
+      } catch (error) {
+        setAuthErrorMessage(
+          error instanceof Error
+            ? error.message
+            : "We could not switch accounts right now. Please try again.",
+        );
+      }
     });
   }
 
@@ -353,6 +360,8 @@ export function ChurchClaimRequestForm({
             {isPending ? "Switching..." : "Use a different account"}
           </button>
         </div>
+
+        {authErrorMessage ? <div className="form-alert">{authErrorMessage}</div> : null}
 
         <AuthenticatedClaimForm
           churchId={churchId}
