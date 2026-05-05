@@ -1806,36 +1806,30 @@ input[type="checkbox"] {
 
   /* Directory: filter sidebar on left, results on right */
   .directory-layout {
-    grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: minmax(248px, 276px) minmax(0, 1fr);
+    gap: 1.2rem;
+  }
+
+  .directory-search-stack {
+    gap: 0.8rem;
   }
 
   .directory-search-panel {
-    position: sticky;
-    top: calc(var(--header-height, 70px) + 1rem);
-    max-height: calc(100vh - var(--header-height, 70px) - 2rem);
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(11, 74, 36, 0.18) transparent;
-    gap: 0.75rem;
-    padding: 1rem;
-  }
-
-  .directory-search-panel::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .directory-search-panel::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: rgba(11, 74, 36, 0.18);
+    position: static;
+    top: auto;
+    max-height: none;
+    overflow: visible;
+    gap: 0.62rem;
+    padding: 0.92rem;
   }
 
   /* Title is a compact sidebar label — stack title then count badge */
   .directory-search-panel__title {
-    font-size: 1rem;
+    font-size: 0.92rem;
     font-weight: 700;
     max-width: none;
     letter-spacing: -0.01em;
+    line-height: 1.2;
   }
 
   .directory-search-panel__title span {
@@ -1849,11 +1843,14 @@ input[type="checkbox"] {
   /* Stack: title on top, count badge below it — full width */
   .directory-search-panel__header {
     grid-template-columns: 1fr;
-    gap: 0.5rem;
+    gap: 0.35rem;
   }
 
   .directory-results__count {
     width: fit-content;
+    min-height: 28px;
+    padding: 0.24rem 0.6rem;
+    font-size: 0.82rem;
   }
 
   /* Description text is redundant in the sidebar */
@@ -1864,46 +1861,87 @@ input[type="checkbox"] {
   /* Sidebar is 280–320px — keep all location fields stacked */
   .directory-location-grid {
     grid-template-columns: 1fr;
-    gap: 0.6rem;
+    gap: 0.48rem;
   }
 
   .directory-location-grid__actions {
     grid-column: auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    gap: 0.42rem;
   }
 
   /* Single-column filters in narrow sidebar */
   .directory-filter-grid {
     grid-template-columns: 1fr;
-    gap: 0.6rem;
+    gap: 0.48rem;
   }
 
   /* Compact inputs inside the sidebar */
+  .directory-search-panel .field {
+    gap: 0.28rem;
+  }
+
+  .directory-search-panel .field__label {
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
   .directory-search-panel input,
   .directory-search-panel select {
-    padding: 0.55rem 0.75rem;
-    font-size: 0.9rem;
-    border-radius: 12px;
+    padding: 0.5rem 0.68rem;
+    font-size: 0.84rem;
+    border-radius: 11px;
   }
 
   /* Compact buttons inside the sidebar */
   .directory-search-panel .button {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
+    padding: 0.46rem 0.68rem;
+    font-size: 0.8rem;
     border-radius: 10px;
-    min-height: 0;
+    min-height: 40px;
   }
 
   .directory-search-panel .directory-search-panel__search-field input {
     min-height: 0;
-    padding: 0.55rem 0.75rem;
+    padding: 0.52rem 0.68rem;
+  }
+
+  .directory-search-panel__actions {
+    gap: 0.55rem;
+    padding-top: 0.1rem;
+  }
+
+  .directory-search-panel__actions .supporting-text,
+  .directory-search-panel__location-message {
+    font-size: 0.8rem;
+    line-height: 1.42;
+  }
+
+  .directory-toggle-grid {
+    gap: 0.34rem;
+  }
+
+  .directory-toggle-grid .toggle-field {
+    min-height: 32px;
+    gap: 0.32rem;
+    padding: 0.3rem 0.54rem;
+  }
+
+  .directory-toggle-grid .toggle-field span {
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .directory-toggle-grid .toggle-field input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
   }
 
   .directory-map__canvas {
-    min-height: 320px;
-    height: 320px;
+    min-height: 260px;
+    height: 260px;
   }
 
   .profile-layout {
