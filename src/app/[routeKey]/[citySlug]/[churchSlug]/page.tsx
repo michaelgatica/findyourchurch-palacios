@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { ChurchProfileView } from "@/components/church-profile-view";
-import { buildChurchProfilePath, createPageMetadata } from "@/lib/config/site";
+import {
+  buildChurchProfilePath,
+  buildLaunchPageTitle,
+  createPageMetadata,
+  siteConfig,
+} from "@/lib/config/site";
 import { getPublishedChurches, getChurchByRoute } from "@/lib/repositories/church-repository";
 
 interface CanonicalChurchProfilePageProps {
@@ -40,14 +45,14 @@ export async function generateMetadata({
 
   if (!church) {
     return createPageMetadata({
-      title: "Church Profile | Find Your Church Palacios",
+      title: buildLaunchPageTitle("Church Profile"),
       description: "Church listing not found.",
       pathname: requestedPath,
     });
   }
 
   return createPageMetadata({
-    title: `${church.name} | Find Your Church Palacios`,
+    title: `${church.name} | ${siteConfig.launchName}`,
     description: church.description,
     pathname: buildChurchProfilePath(church),
     imagePath: church.logoSrc ?? church.photos[0]?.src,
@@ -77,4 +82,3 @@ export default async function CanonicalChurchProfilePage({
 
   return <ChurchProfileView church={church} />;
 }
-

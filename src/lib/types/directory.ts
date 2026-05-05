@@ -123,6 +123,34 @@ export interface CityRegion {
   countyId: string;
 }
 
+export interface LaunchMarketBrandAssets {
+  landscapeLogoSrc: string;
+  squareLogoSrc: string;
+}
+
+export interface LaunchMarket {
+  id: string;
+  name: string;
+  launchName: string;
+  primaryCityId: string;
+  nearbyCityIds: string[];
+  stateId: string;
+  countyIds: string[];
+  contactEmail: string;
+  localAreaLabel: string;
+  communityLabel: string;
+  heroTitle: string;
+  heroLead: string;
+  heroPanelTitle: string;
+  directoryHeading: string;
+  directoryLead: string;
+  launchDescription: string;
+  directoryDescription: string;
+  currentListingScope: string;
+  launchVision: string;
+  brandAssets: LaunchMarketBrandAssets;
+}
+
 export interface StructuredAddress {
   line1: string;
   line2?: string;
@@ -668,8 +696,8 @@ export const emptySubmissionFormValues: SubmissionFormValues = {
   customShareSlug: "",
   addressLine1: "",
   addressLine2: "",
-  city: "Palacios",
-  stateCode: "TX",
+  city: "",
+  stateCode: "",
   postalCode: "",
   phone: "",
   email: "",

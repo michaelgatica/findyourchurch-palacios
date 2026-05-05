@@ -1,11 +1,10 @@
 import Link from "next/link";
 
-import { createPageMetadata } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 
 export const metadata = createPageMetadata({
-  title: "Submission Received | Find Your Church Palacios",
-  description:
-    "Your church submission has been received and is awaiting review by Find Your Church Palacios.",
+  title: buildLaunchPageTitle("Submission Received"),
+  description: `Your church submission has been received and is awaiting review by ${siteConfig.launchName}.`,
   pathname: "/submit/confirmation",
   noIndex: true,
 });
@@ -30,7 +29,7 @@ export default async function SubmissionConfirmationPage({
         <p className="eyebrow eyebrow--gold">Submission Received</p>
         <h1>Thank you for submitting {churchName}</h1>
         <p>
-          Thank you for submitting your church to Find Your Church Palacios. We received your
+          Thank you for submitting your church to {siteConfig.launchName}. We received your
           listing and will review it for accuracy before publishing. Please allow up to 24 hours
           for approval.
         </p>

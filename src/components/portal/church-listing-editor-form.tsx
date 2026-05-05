@@ -81,12 +81,12 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
             <input
               name="customShareSlug"
               defaultValue={formState.values.customShareSlug}
-              placeholder="first-baptist-palacios"
+              placeholder="church-name"
             />
             <span className="field__hint">
               Optional. This can create a short share link like
               {" "}
-              <strong>/first-baptist-palacios</strong>.
+              <strong>/church-name</strong>.
             </span>
             <FieldError message={formState.errors.customShareSlug} />
           </label>

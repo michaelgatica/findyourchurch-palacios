@@ -2,7 +2,9 @@ import {
   cities,
   counties,
   findCityByNameAndStateCode,
+  getActiveLaunchMarket,
   getCityById,
+  getCitiesForLaunchMarket,
   getCountyById,
   getStateByCode,
   getStateById,
@@ -419,6 +421,10 @@ export function mapDraftToChurchDocument(
 
 export function buildLocationRecords() {
   const now = new Date().toISOString();
+  const activeLaunchMarket = getActiveLaunchMarket();
+  const activeLaunchCityIds = new Set(
+    getCitiesForLaunchMarket(activeLaunchMarket).map((city) => city.id),
+  );
 
   return cities.map((city) => {
     const county = counties.find((candidateCounty) => candidateCounty.id === city.countyId);
@@ -432,7 +438,7 @@ export function buildLocationRecords() {
       stateSlug: state?.slug ?? "texas",
       citySlug: city.slug,
       countySlug: county?.slug ?? "matagorda-county",
-      isActiveLaunchMarket: city.id === "palacios-texas",
+      isActiveLaunchMarket: activeLaunchCityIds.has(city.id),
       createdAt: now,
       updatedAt: now,
     } satisfies LocationRecord;

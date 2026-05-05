@@ -3,12 +3,12 @@ import { redirect } from "next/navigation";
 
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { AdminSignOutButton } from "@/components/admin/admin-signout-button";
-import { createPageMetadata } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 import { getServerAuthenticatedUserFromSessionCookie } from "@/lib/firebase/session";
 
 export const metadata = createPageMetadata({
-  title: "Admin Login | Find Your Church Palacios",
-  description: "Sign in to the Find Your Church Palacios admin portal.",
+  title: buildLaunchPageTitle("Admin Login"),
+  description: `Sign in to the ${siteConfig.launchName} admin portal.`,
   pathname: "/admin/login",
   noIndex: true,
 });

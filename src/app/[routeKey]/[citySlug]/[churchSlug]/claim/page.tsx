@@ -1,7 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 
 import { ChurchClaimRequestForm } from "@/components/church-claim-request-form";
-import { buildChurchClaimPath, createPageMetadata } from "@/lib/config/site";
+import {
+  buildChurchClaimPath,
+  buildLaunchPageTitle,
+  createPageMetadata,
+  siteConfig,
+} from "@/lib/config/site";
 import { getServerAuthenticatedUserFromSessionCookie } from "@/lib/firebase/session";
 import { getChurchByRoute } from "@/lib/repositories/church-repository";
 
@@ -26,16 +31,15 @@ export async function generateMetadata({
 
   if (!church) {
     return createPageMetadata({
-      title: "Claim This Church | Find Your Church Palacios",
+      title: buildLaunchPageTitle("Claim This Church"),
       description: "Church listing not found.",
       pathname: requestedPath,
     });
   }
 
   return createPageMetadata({
-    title: `Claim ${church.name} | Find Your Church Palacios`,
-    description:
-      "Request access to help keep this church listing updated on Find Your Church Palacios.",
+    title: `Claim ${church.name} | ${siteConfig.launchName}`,
+    description: `Request access to help keep this church listing updated on ${siteConfig.launchName}.`,
     pathname: buildChurchClaimPath(church),
   });
 }
@@ -84,4 +88,3 @@ export default async function CanonicalChurchClaimPage({
     </section>
   );
 }
-

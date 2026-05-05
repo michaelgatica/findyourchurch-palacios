@@ -9,8 +9,8 @@ export function SiteFooter() {
       <div className="shell site-footer__inner">
         <div className="site-footer__brand-block">
           <Image
-            src="/assets/logos/find-your-church-palacios-landscape.png"
-            alt="Find Your Church Palacios logo"
+            src={siteConfig.brandAssets.landscapeLogoSrc}
+            alt={`${siteConfig.launchName} logo`}
             width={210}
             height={95}
             className="site-footer__brand-image"
@@ -39,7 +39,7 @@ export function SiteFooter() {
           />
           <p className="supporting-text">
             {siteConfig.launchName} is a free local church directory created to help people connect
-            with church communities in the Palacios area.
+            with church communities in {siteConfig.launchAreaLabel}.
           </p>
         </div>
       </div>

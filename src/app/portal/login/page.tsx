@@ -2,12 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { PortalLoginForm } from "@/components/portal/portal-login-form";
-import { createPageMetadata } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 import { getRepresentativePortalContext } from "@/lib/services/representative-access-service";
 
 export const metadata = createPageMetadata({
-  title: "Representative Login | Find Your Church Palacios",
-  description: "Sign in to the Find Your Church Palacios church representative portal.",
+  title: buildLaunchPageTitle("Representative Login"),
+  description: `Sign in to the ${siteConfig.launchName} church representative portal.`,
   pathname: "/portal/login",
   noIndex: true,
 });

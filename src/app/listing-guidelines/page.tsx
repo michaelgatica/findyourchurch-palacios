@@ -1,11 +1,10 @@
 import Link from "next/link";
 
-import { createPageMetadata, siteConfig } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 
 export const metadata = createPageMetadata({
-  title: "Listing Guidelines | Find Your Church Palacios",
-  description:
-    "Review the listing guidelines for Find Your Church Palacios, including reviewed listings, accuracy expectations, and rejection criteria.",
+  title: buildLaunchPageTitle("Listing Guidelines"),
+  description: `Review the listing guidelines for ${siteConfig.launchName}, including reviewed listings, accuracy expectations, and rejection criteria.`,
   pathname: "/listing-guidelines",
 });
 
@@ -43,7 +42,7 @@ export default function ListingGuidelinesPage() {
         <div className="panel content-card">
           <h2>No rankings or public reviews</h2>
           <p>
-            This version of Find Your Church Palacios does not rank churches or collect public
+            This version of {siteConfig.launchName} does not rank churches or collect public
             reviews. The purpose is connection and clarity, not competition.
           </p>
         </div>

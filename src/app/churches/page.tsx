@@ -1,5 +1,5 @@
 import { DirectoryBrowser } from "@/components/directory-browser";
-import { createPageMetadata } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 import {
   getDirectoryFilterOptions,
   getPublishedChurches,
@@ -9,9 +9,8 @@ import { resolveChurchesForDirectoryMap } from "@/lib/services/church-map-servic
 export const dynamic = "force-dynamic";
 
 export const metadata = createPageMetadata({
-  title: "Church Directory | Find Your Church Palacios",
-  description:
-    "Browse the Find Your Church Palacios directory to explore local churches, view service times, and connect with church communities in Palacios and nearby communities.",
+  title: buildLaunchPageTitle("Church Directory"),
+  description: siteConfig.directoryDescription,
   pathname: "/churches",
 });
 
@@ -26,11 +25,8 @@ export default async function ChurchesPage() {
     <section className="shell page-section">
       <div className="page-intro">
         <p className="eyebrow eyebrow--gold">Church Directory</p>
-        <h1>Find churches near you in Palacios and nearby communities</h1>
-        <p>
-          Search by church name, pastor, ministry, worship style, or service time, then use the
-          map and filters below to narrow your results across Palacios and the surrounding area.
-        </p>
+        <h1>{siteConfig.directoryHeading}</h1>
+        <p>{siteConfig.directoryLead}</p>
       </div>
 
       <DirectoryBrowser churches={churchesWithMapCoordinates} filterOptions={filterOptions} />

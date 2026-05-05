@@ -2,12 +2,11 @@ import Link from "next/link";
 
 import { DonationSupportActions } from "@/components/donation-support-actions";
 import { DonationSupportEmbed } from "@/components/donation-support-embed";
-import { createPageMetadata, siteConfig } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 
 export const metadata = createPageMetadata({
-  title: "Contact | Find Your Church Palacios",
-  description:
-    "Contact Find Your Church Palacios for listing questions, ministry support, corrections, or church representative access help.",
+  title: buildLaunchPageTitle("Contact"),
+  description: `Contact ${siteConfig.launchName} for listing questions, ministry support, corrections, or church representative access help.`,
   pathname: "/contact",
 });
 
@@ -18,8 +17,9 @@ export default function ContactPage() {
         <p className="eyebrow eyebrow--gold">Contact</p>
         <h1>Questions, corrections, or support</h1>
         <p>
-          We want Find Your Church Palacios to be helpful, accurate, and easy to use. If you need
-          help with a listing, claim request, portal access, or ministry support, please reach out.
+          We want {siteConfig.launchName} to be helpful, accurate, and easy to use. If you need
+          help with a listing, claim request, portal access, or ministry support, please reach
+          out.
         </p>
       </div>
 

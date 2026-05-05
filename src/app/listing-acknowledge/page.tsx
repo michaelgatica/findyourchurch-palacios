@@ -1,11 +1,16 @@
 import Link from "next/link";
 
-import { buildChurchProfilePath, createPageMetadata } from "@/lib/config/site";
+import {
+  buildChurchProfilePath,
+  buildLaunchPageTitle,
+  createPageMetadata,
+  siteConfig,
+} from "@/lib/config/site";
 import { acknowledgeChurchListingByToken } from "@/lib/services/listing-verification-service";
 
 export const metadata = createPageMetadata({
-  title: "Listing Confirmation | Find Your Church Palacios",
-  description: "Confirm that a church listing is still active on Find Your Church Palacios.",
+  title: buildLaunchPageTitle("Listing Confirmation"),
+  description: `Confirm that a church listing is still active on ${siteConfig.launchName}.`,
   pathname: "/listing-acknowledge",
   noIndex: true,
 });

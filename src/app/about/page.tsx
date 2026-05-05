@@ -2,12 +2,11 @@ import Link from "next/link";
 
 import { DonationSupportActions } from "@/components/donation-support-actions";
 import { DonationSupportEmbed } from "@/components/donation-support-embed";
-import { createPageMetadata, siteConfig } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 
 export const metadata = createPageMetadata({
-  title: "About | Find Your Church Palacios",
-  description:
-    "Learn about Find Your Church Palacios, its ministry purpose, and the long-term vision behind this local church directory.",
+  title: buildLaunchPageTitle("About"),
+  description: `Learn about ${siteConfig.launchName}, its ministry purpose, and the long-term vision behind this local church directory.`,
   pathname: "/about",
 });
 
@@ -16,7 +15,7 @@ export default function AboutPage() {
     <section className="shell page-section">
       <div className="page-intro page-intro--narrow">
         <p className="eyebrow eyebrow--gold">About This Ministry</p>
-        <h1>Why Find Your Church Palacios exists</h1>
+        <h1>Why {siteConfig.launchName} exists</h1>
         <p>
           {siteConfig.launchName} is a ministry project powered by {siteConfig.ministryName}. Our
           purpose is to help people find local churches and help churches keep their information
@@ -26,7 +25,7 @@ export default function AboutPage() {
 
       <div className="content-page-grid">
         <div className="panel content-card">
-          <h2>Palacios is our first local launch</h2>
+          <h2>{siteConfig.launchCity} is our first local launch</h2>
           <p>{siteConfig.launchVision}</p>
         </div>
 

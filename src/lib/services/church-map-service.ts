@@ -1,4 +1,5 @@
 import { formatAddress, type GeoPoint } from "@/lib/church-utils";
+import { siteConfig } from "@/lib/config/site";
 import type { ChurchRecord } from "@/lib/types/directory";
 
 const knownChurchCoordinatesBySlug: Record<string, GeoPoint> = {
@@ -56,7 +57,7 @@ async function fetchGeocodedCoordinates(query: string) {
       const response = await fetch(requestUrl, {
         headers: {
           "Accept-Language": "en-US,en;q=0.9",
-          "User-Agent": "FindYourChurchPalacios/1.0 (support@findyourchurchpalacios.org)",
+          "User-Agent": `${siteConfig.launchName.replace(/\s+/g, "")}/1.0 (${siteConfig.contactEmail})`,
         },
         next: {
           revalidate: 60 * 60 * 24,

@@ -7,6 +7,7 @@ import { OptionalAnalytics } from "@/components/optional-analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import {
+  buildLaunchHomeTitle,
   buildMetadataImageUrl,
   getSiteUrl,
   siteConfig,
@@ -28,13 +29,13 @@ const bodyFont = Work_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  title: "Find Your Church Palacios | Find Churches in Palacios, Texas",
+  title: buildLaunchHomeTitle(),
   description: siteConfig.launchDescription,
   icons: {
-    icon: "/assets/logos/find-your-church-palacios-512.png",
+    icon: siteConfig.brandAssets.squareLogoSrc,
   },
   openGraph: {
-    title: "Find Your Church Palacios | Find Churches in Palacios, Texas",
+    title: buildLaunchHomeTitle(),
     description: siteConfig.launchDescription,
     url: getSiteUrl(),
     siteName: siteConfig.launchName,
@@ -50,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Find Your Church Palacios | Find Churches in Palacios, Texas",
+    title: buildLaunchHomeTitle(),
     description: siteConfig.launchDescription,
     images: [buildMetadataImageUrl()],
   },

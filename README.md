@@ -4,6 +4,13 @@ Find Your Church Palacios is the first local launch of the broader Find Your Chu
 
 Find Your Church Palacios is a ministry project powered by El Roi Digital Ministries.
 
+## Platform direction
+
+This codebase is being prepared as a broader `Find Your Church` platform with Palacios as the
+first active launch market. The long-term goal is to let the same backend, accounts, church
+records, claims, updates, and audit history grow into additional Texas markets and eventually
+serve the future `findyourchurch.org` root platform without rebuilding from scratch.
+
 ## Phase 7 status
 
 Phase 7 prepares the project for the real production launch of FindYourChurchPalacios.org with:
@@ -27,8 +34,9 @@ Phase 7 prepares the project for the real production launch of FindYourChurchPal
 
 - `/`
 - `/churches`
-- `/churches/[churchSlug]`
-- `/churches/[churchSlug]/claim`
+- `/[stateCode]/[citySlug]/[churchSlug]`
+- `/[stateCode]/[citySlug]/[churchSlug]/claim`
+- `/[customShareSlug]`
 - `/churches/[churchSlug]/claim/confirmation`
 - `/submit`
 - `/submit/confirmation`
@@ -102,6 +110,10 @@ Important:
 
 ```bash
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+# Optional future root platform URL, for example https://findyourchurch.org
+NEXT_PUBLIC_PLATFORM_URL=
+# Current local launch market for this deployment
+NEXT_PUBLIC_ACTIVE_MARKET_KEY=palacios
 NEXT_PUBLIC_DONATION_URL=
 NEXT_PUBLIC_ENABLE_DONATIONS=true
 NEXT_PUBLIC_ZEFFY_FORM_PATH=/embed/donation-form/helping-churches-reach-people-through-technology

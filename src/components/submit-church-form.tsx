@@ -5,8 +5,18 @@ import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { submitChurchAction } from "@/lib/actions/submit-church";
+import { siteConfig } from "@/lib/config/site";
 import { denominationOptions, worshipStyleOptions } from "@/lib/data/options";
 import { emptySubmissionFormState } from "@/lib/types/directory";
+
+const defaultSubmissionFormState = {
+  ...emptySubmissionFormState,
+  values: {
+    ...emptySubmissionFormState.values,
+    city: siteConfig.launchCity,
+    stateCode: siteConfig.launchStateCode,
+  },
+};
 
 function FieldError({ message }: { message?: string }) {
   if (!message) {
@@ -35,8 +45,8 @@ function SubmitButton() {
 }
 
 export function SubmitChurchForm() {
-  const [state, formAction] = useActionState(submitChurchAction, emptySubmissionFormState);
-  const formState = state ?? emptySubmissionFormState;
+  const [state, formAction] = useActionState(submitChurchAction, defaultSubmissionFormState);
+  const formState = state ?? defaultSubmissionFormState;
   const [createManagerAccount, setCreateManagerAccount] = useState(
     formState.values.createManagerAccount,
   );
@@ -54,7 +64,7 @@ export function SubmitChurchForm() {
     >
       <div className="submission-form__intro panel">
         <p className="eyebrow eyebrow--gold">Church Listing Submission</p>
-        <h2>Share your church listing with the Palacios directory</h2>
+        <h2>Share your church listing with {siteConfig.launchName}</h2>
         <p>
           Submitted listings are saved as <strong>pending review</strong> and are not published
           automatically. Please allow up to 24 hours for approval.
@@ -92,12 +102,12 @@ export function SubmitChurchForm() {
             <input
               name="customShareSlug"
               defaultValue={formState.values.customShareSlug}
-              placeholder="first-baptist-palacios"
+              placeholder="church-name"
             />
             <span className="field__hint">
               Optional. If approved, this can create a short church link like
               {" "}
-              <strong>/first-baptist-palacios</strong>.
+              <strong>/church-name</strong>.
             </span>
             <FieldError message={formState.errors.customShareSlug} />
           </label>
@@ -528,8 +538,8 @@ export function SubmitChurchForm() {
               defaultChecked={formState.values.communicationConsent}
             />
             <span>
-              I understand that Find Your Church Palacios may email me about this listing,
-              account access, and review updates.
+              I understand that {siteConfig.launchName} may email me about this listing, account
+              access, and review updates.
             </span>
           </label>
           <FieldError message={formState.errors.communicationConsent} />
@@ -563,7 +573,7 @@ export function SubmitChurchForm() {
             <span>
               Optional: You may email me occasional non-essential follow-up messages about the
               directory, restoration help, or ministry support updates. You can opt out later by
-              contacting support@findyourchurchpalacios.org.
+              contacting {siteConfig.contactEmail}.
             </span>
           </label>
         </div>

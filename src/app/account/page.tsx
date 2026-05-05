@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { createPageMetadata } from "@/lib/config/site";
 import { getServerAuthenticatedUserFromSessionCookie } from "@/lib/firebase/session";
 import { updateProfileAction } from "@/lib/actions/account";
+import { buildLaunchPageTitle, createPageMetadata } from "@/lib/config/site";
 
 export const metadata = createPageMetadata({
-  title: "My Account | Find Your Church Palacios",
+  title: buildLaunchPageTitle("My Account"),
   description: "Update your Find Your Church account profile information.",
   pathname: "/account",
   noIndex: true,

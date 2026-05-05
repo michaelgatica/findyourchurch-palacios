@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
 
+import {
+  getActiveLaunchCity,
+  getActiveLaunchMarket,
+  getCitiesForLaunchMarket,
+  getCountyById,
+  getStateById,
+} from "@/lib/data/locations";
+
 export {
   buildChurchClaimPath,
   buildChurchProfilePath,
@@ -8,26 +16,16 @@ export {
   normalizeChurchShareSlug,
 } from "@/lib/church-routing";
 
-export const siteConfig = {
-  projectName: "Find Your Church",
-  launchName: "Find Your Church Palacios",
+export const platformConfig = {
+  platformName: "Find Your Church",
+  rootDomain: "findyourchurch.org",
   ministryName: "El Roi Digital Ministries",
-  launchCity: "Palacios",
-  launchState: "Texas",
-  launchStateCode: "TX",
-  launchCounty: "Matagorda County",
   organizationDescription:
     "Find Your Church is a ministry project powered by El Roi Digital Ministries.",
-  launchDescription:
-    "Find Your Church Palacios helps residents, visitors, and families discover local churches, view service times, and connect with church communities in Palacios and nearby communities.",
-  directoryDescription:
-    "Browse published church listings in Palacios, Texas and nearby communities, compare service times, and connect with local church communities.",
-  currentListingScope:
-    "We are currently accepting church listings in Palacios, Texas and nearby communities within a 20-mile radius, including Blessing, Collegeport, Markham, Matagorda, Olivia, and Wadsworth.",
-  launchVision:
-    "Palacios is our first local launch. Our long-term vision is to help more communities make local church information easy to find, accurate, and accessible.",
+  platformDescription:
+    "Find Your Church is a ministry project powered by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with.",
   donationDescription:
-    "Find Your Church Palacios is offered as a donation-supported ministry project. Many church directory and ministry technology platforms charge monthly or yearly fees for enhanced listings, directory tools, or visibility. Our desire is different: we do not want cost to keep a church from being searchable, visible, and easy to connect with.",
+    "Find Your Church is offered as a donation-supported ministry project. Many church directory and ministry technology platforms charge monthly or yearly fees for enhanced listings, directory tools, or visibility. Our desire is different: we do not want cost to keep a church from being searchable, visible, and easy to connect with.",
   donationFollowup:
     "If your church is able to support this work with a donation, it would be deeply appreciated and will help us continue serving churches and expanding this ministry. If your church is unable to give at this time, we completely understand. Your church can still be listed. We believe God will provide through those who are able.",
   ministryDonationUrl: "www.elroidigital.org/donate.html",
@@ -39,12 +37,65 @@ export const siteConfig = {
     white: "#FFFFFF",
     lightBackground: "#F7F5EF",
   },
-  contactEmail: "support@findyourchurchpalacios.org",
   donationEmbedFormPath: "/embed/donation-form/helping-churches-reach-people-through-technology",
 } as const;
 
-const defaultOpenGraphImagePath = "/assets/logos/find-your-church-palacios-512.png";
 const defaultZeffyHost = "https://www.zeffy.com";
+const activeLaunchMarket = getActiveLaunchMarket();
+const activeLaunchCity = getActiveLaunchCity();
+const activeLaunchState = getStateById(activeLaunchMarket.stateId);
+const activeLaunchCounty = getCountyById(activeLaunchCity.countyId);
+const activeMarketCities = getCitiesForLaunchMarket(activeLaunchMarket);
+const nearbyCommunityNames = activeMarketCities
+  .filter((city) => city.id !== activeLaunchCity.id)
+  .map((city) => city.name);
+const defaultOpenGraphImagePath = activeLaunchMarket.brandAssets.squareLogoSrc;
+
+if (!activeLaunchState) {
+  throw new Error(`Launch market "${activeLaunchMarket.id}" is missing its state record.`);
+}
+
+export const currentLaunchMarket = activeLaunchMarket;
+export const currentLaunchCities = activeMarketCities;
+
+export const siteConfig = {
+  projectName: platformConfig.platformName,
+  platformName: platformConfig.platformName,
+  rootDomain: platformConfig.rootDomain,
+  ministryName: platformConfig.ministryName,
+  organizationDescription: platformConfig.organizationDescription,
+  platformDescription: platformConfig.platformDescription,
+  launchMarketId: activeLaunchMarket.id,
+  launchName: activeLaunchMarket.launchName,
+  launchCity: activeLaunchCity.name,
+  launchState: activeLaunchState.name,
+  launchStateCode: activeLaunchState.code,
+  launchCounty: activeLaunchCounty?.name ?? "",
+  launchLocationLabel: `${activeLaunchCity.name}, ${activeLaunchState.name}`,
+  launchRegionLabel:
+    nearbyCommunityNames.length > 0
+      ? `${activeLaunchCity.name} and nearby communities`
+      : activeLaunchCity.name,
+  launchAreaLabel: activeLaunchMarket.localAreaLabel,
+  communityLabel: activeLaunchMarket.communityLabel,
+  coveredCommunityNames: nearbyCommunityNames,
+  launchDescription: activeLaunchMarket.launchDescription,
+  directoryDescription: activeLaunchMarket.directoryDescription,
+  currentListingScope: activeLaunchMarket.currentListingScope,
+  launchVision: activeLaunchMarket.launchVision,
+  heroTitle: activeLaunchMarket.heroTitle,
+  heroLead: activeLaunchMarket.heroLead,
+  heroPanelTitle: activeLaunchMarket.heroPanelTitle,
+  directoryHeading: activeLaunchMarket.directoryHeading,
+  directoryLead: activeLaunchMarket.directoryLead,
+  donationDescription: `${activeLaunchMarket.launchName} is offered as a donation-supported ministry project. ${platformConfig.donationDescription.replace("Find Your Church is offered as a donation-supported ministry project. ", "")}`,
+  donationFollowup: platformConfig.donationFollowup,
+  ministryDonationUrl: platformConfig.ministryDonationUrl,
+  brandColors: platformConfig.brandColors,
+  brandAssets: activeLaunchMarket.brandAssets,
+  contactEmail: activeLaunchMarket.contactEmail,
+  donationEmbedFormPath: platformConfig.donationEmbedFormPath,
+} as const;
 
 function getOptionalPublicEnvVar(name: string) {
   const value = process.env[name]?.trim();
@@ -64,6 +115,16 @@ export function getSiteUrl() {
   }
 
   return configuredSiteUrl.replace(/\/$/, "");
+}
+
+export function getPlatformUrl() {
+  const configuredPlatformUrl = process.env.NEXT_PUBLIC_PLATFORM_URL?.trim();
+
+  if (!configuredPlatformUrl) {
+    return getSiteUrl();
+  }
+
+  return configuredPlatformUrl.replace(/\/$/, "");
 }
 
 export function buildAbsoluteUrl(pathname = "/") {
@@ -127,6 +188,14 @@ export function getGoogleAnalyticsMeasurementId() {
 
 export function getGoogleSiteVerificationToken() {
   return process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || null;
+}
+
+export function buildLaunchHomeTitle() {
+  return `${siteConfig.launchName} | Find Churches in ${siteConfig.launchLocationLabel}`;
+}
+
+export function buildLaunchPageTitle(pageTitle: string) {
+  return `${pageTitle} | ${siteConfig.launchName}`;
 }
 
 export function createPageMetadata({

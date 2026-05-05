@@ -10,6 +10,7 @@ import {
   firebaseSessionChangedEvent,
   signOutApplicationSession,
 } from "@/lib/firebase/session-client";
+import { siteConfig } from "@/lib/config/site";
 
 const navigationItems = [
   {
@@ -294,10 +295,10 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="shell site-header__inner">
         <div className="site-header__bar">
-          <Link href="/" className="site-header__brand" aria-label="Find Your Church Palacios">
+          <Link href="/" className="site-header__brand" aria-label={siteConfig.launchName}>
             <Image
-              src="/assets/logos/find-your-church-palacios-landscape.png"
-              alt="Find Your Church Palacios logo"
+              src={siteConfig.brandAssets.landscapeLogoSrc}
+              alt={`${siteConfig.launchName} logo`}
               width={246}
               height={111}
               priority

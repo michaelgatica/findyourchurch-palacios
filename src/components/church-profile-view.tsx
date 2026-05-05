@@ -5,6 +5,7 @@ import {
   buildAbsoluteUrl,
   buildChurchClaimPath,
   buildChurchProfilePath,
+  siteConfig,
 } from "@/lib/config/site";
 import {
   buildDirectionsUrl,
@@ -123,7 +124,7 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
               </div>
               <h1>{church.name}</h1>
               <p className="profile-hero__subtitle">
-                {church.specificAffiliation ?? "Serving the Palacios area"}
+                {church.specificAffiliation ?? `Serving ${siteConfig.launchAreaLabel}`}
               </p>
               <p className="profile-hero__service-time">
                 {primaryServiceTime?.label ?? "Service times coming soon"}

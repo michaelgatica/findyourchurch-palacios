@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 
 import { submitChurchClaimRequestAction } from "@/lib/actions/church-claim-request";
 import { createClaimRequestFormState } from "@/lib/claim-request-form-state";
+import { siteConfig } from "@/lib/config/site";
 import {
   createFirebaseUserAccount,
   signInWithFirebaseEmail,
@@ -190,8 +191,8 @@ function AuthenticatedClaimForm(props: {
               defaultChecked={formState.values.communicationConsent}
             />
             <span>
-              I understand that Find Your Church Palacios may email me about this request,
-              account access, and review updates.
+              I understand that {siteConfig.launchName} may email me about this request, account
+              access, and review updates.
             </span>
           </label>
           <FieldError message={formState.errors.communicationConsent} />
@@ -225,7 +226,7 @@ function AuthenticatedClaimForm(props: {
             <span>
               Optional: You may email me occasional non-essential follow-up messages about the
               directory, restoration help, or ministry support updates. You can opt out later by
-              contacting support@findyourchurchpalacios.org.
+              contacting {siteConfig.contactEmail}.
             </span>
           </label>
         </div>

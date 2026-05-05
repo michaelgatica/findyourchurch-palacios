@@ -1,11 +1,10 @@
 import Link from "next/link";
 
-import { createPageMetadata, siteConfig } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 
 export const metadata = createPageMetadata({
-  title: "Privacy | Find Your Church Palacios",
-  description:
-    "Read the privacy overview for Find Your Church Palacios, including church submissions, account information, and Firebase-based storage.",
+  title: buildLaunchPageTitle("Privacy"),
+  description: `Read the privacy overview for ${siteConfig.launchName}, including church submissions, account information, and Firebase-based storage.`,
   pathname: "/privacy",
 });
 
@@ -65,7 +64,7 @@ export default function PrivacyPage() {
         <div className="panel content-card">
           <h2>Firebase and file storage</h2>
           <p>
-            Find Your Church Palacios uses Firebase Authentication, Cloud Firestore, Firebase
+            {siteConfig.launchName} uses Firebase Authentication, Cloud Firestore, Firebase
             Storage, and trusted server-side Firebase Admin SDK operations to manage accounts,
             listings, uploaded media, and workflow records.
           </p>

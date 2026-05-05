@@ -1,11 +1,10 @@
 import Link from "next/link";
 
-import { createPageMetadata, siteConfig } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 
 export const metadata = createPageMetadata({
-  title: "Terms and Conditions | Find Your Church Palacios",
-  description:
-    "Read the Terms and Conditions for Find Your Church Palacios, including website use, listing submissions, account responsibilities, and communication consent.",
+  title: buildLaunchPageTitle("Terms and Conditions"),
+  description: `Read the Terms and Conditions for ${siteConfig.launchName}, including website use, listing submissions, account responsibilities, and communication consent.`,
   pathname: "/terms",
 });
 
@@ -16,7 +15,7 @@ export default function TermsPage() {
         <p className="eyebrow eyebrow--gold">Terms</p>
         <h1>Terms and Conditions</h1>
         <p>
-          These Terms and Conditions govern the use of Find Your Church Palacios, including public
+          These Terms and Conditions govern the use of {siteConfig.launchName}, including public
           browsing, church listing submissions, church representative access, and communication
           through this ministry platform.
         </p>
@@ -26,9 +25,9 @@ export default function TermsPage() {
         <div className="panel content-card">
           <h2>Informational directory use</h2>
           <p>
-            Listings are provided for informational purposes. Find Your Church Palacios does not
-            rank churches, provide public reviews, or guarantee the completeness of every listing
-            at every moment.
+            Listings are provided for informational purposes. {siteConfig.launchName} does not rank
+            churches, provide public reviews, or guarantee the completeness of every listing at
+            every moment.
           </p>
         </div>
 

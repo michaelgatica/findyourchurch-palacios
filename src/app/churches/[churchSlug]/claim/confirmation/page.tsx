@@ -1,11 +1,10 @@
 import Link from "next/link";
 
-import { createPageMetadata } from "@/lib/config/site";
+import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
 
 export const metadata = createPageMetadata({
-  title: "Claim Request Received | Find Your Church Palacios",
-  description:
-    "Your church claim request has been received and is awaiting review by Find Your Church Palacios.",
+  title: buildLaunchPageTitle("Claim Request Received"),
+  description: `Your church claim request has been received and is awaiting review by ${siteConfig.launchName}.`,
   pathname: "/churches/claim/confirmation",
   noIndex: true,
 });

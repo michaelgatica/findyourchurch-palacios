@@ -21,19 +21,19 @@ function getPortalUrl() {
 
 function getMissionNote() {
   return [
-    `Find Your Church Palacios is a ministry project created by ${siteConfig.ministryName} to help churches be searchable, visible, and easier to connect with. ${siteConfig.ministryName} exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.`,
+    `${siteConfig.launchName} is a ministry project created by ${siteConfig.ministryName} to help churches be searchable, visible, and easier to connect with. ${siteConfig.ministryName} exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.`,
   ];
 }
 
 function getDonationNote() {
   return [
-    `Find Your Church Palacios is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit ${siteConfig.ministryDonationUrl}.`,
+    `${siteConfig.launchName} is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit ${siteConfig.ministryDonationUrl}.`,
   ];
 }
 
 function getAdminOnlyMinistryNote() {
   return [
-    `Find Your Church Palacios is a ministry project created and maintained by ${siteConfig.ministryName}.`,
+    `${siteConfig.launchName} is a ministry project created and maintained by ${siteConfig.ministryName}.`,
   ];
 }
 
@@ -80,7 +80,7 @@ export async function queueSubmissionReceivedNotification(
     to: submission.submitterEmail,
     subject: "We received your church listing submission",
     body: [
-      "Thank you for submitting your church to Find Your Church Palacios.",
+      `Thank you for submitting your church to ${siteConfig.launchName}.`,
       "",
       `We received the listing for ${submission.churchDraft.name} and will review it for accuracy before it is published. Please allow up to 24 hours for review. If we need clarification or suggested edits, we will contact you using the information provided.`,
       ...accountCreatedMessage,
@@ -125,7 +125,7 @@ export async function sendSubmissionApprovedNotification(input: {
     to: input.submission.submitterEmail,
     subject: "Your church listing has been approved",
     body: [
-      `Good news - the listing for ${input.church.name} has been approved and is now available on Find Your Church Palacios.`,
+      `Good news - the listing for ${input.church.name} has been approved and is now available on ${siteConfig.launchName}.`,
       "",
       "You can view the listing here:",
       buildAbsoluteUrl(buildChurchProfilePath(input.church)),
@@ -136,7 +136,7 @@ export async function sendSubmissionApprovedNotification(input: {
           ]
         : []),
       "",
-      "Thank you for helping keep local church information accurate, helpful, and easy to find for residents, visitors, and families in the Palacios area.",
+      `Thank you for helping keep local church information accurate, helpful, and easy to find for residents, visitors, and families in ${siteConfig.launchAreaLabel}.`,
       "",
       ...getMissionAndDonationNote(),
     ].join("\n"),
@@ -153,7 +153,7 @@ export async function sendSubmissionDeniedNotification(input: {
     to: input.submission.submitterEmail,
     subject: "Update regarding your church listing submission",
     body: [
-      `Thank you for submitting ${input.submission.churchDraft.name} to Find Your Church Palacios.`,
+      `Thank you for submitting ${input.submission.churchDraft.name} to ${siteConfig.launchName}.`,
       "",
       "At this time, we are unable to publish the listing as submitted.",
       "",
@@ -177,7 +177,7 @@ export async function sendSubmissionChangesRequestedNotification(input: {
     to: input.submission.submitterEmail,
     subject: "Changes requested for your church listing",
     body: [
-      `Thank you for submitting ${input.submission.churchDraft.name} to Find Your Church Palacios.`,
+      `Thank you for submitting ${input.submission.churchDraft.name} to ${siteConfig.launchName}.`,
       "",
       "Before we can publish the listing, we need a few updates or clarifications.",
       "",
@@ -439,7 +439,7 @@ export async function sendRepresentativeUpdateApprovedNotification(input: {
     to: input.representativeEmail,
     subject: "Your church listing updates were approved",
     body: [
-      `Your updates for ${input.church.name} have been approved and are now visible on Find Your Church Palacios.`,
+      `Your updates for ${input.church.name} have been approved and are now visible on ${siteConfig.launchName}.`,
       "",
       "You can view the listing here:",
       buildAbsoluteUrl(buildChurchProfilePath(input.church)),
@@ -463,7 +463,7 @@ export async function sendRepresentativeUpdateDeniedNotification(input: {
     to: input.representativeEmail,
     subject: "Update regarding your church listing changes",
     body: [
-      `Thank you for submitting updates for ${input.church.name} on Find Your Church Palacios.`,
+      `Thank you for submitting updates for ${input.church.name} on ${siteConfig.launchName}.`,
       "",
       "At this time, we are unable to publish the changes as submitted.",
       "",
@@ -489,7 +489,7 @@ export async function sendRepresentativeUpdateChangesRequestedNotification(input
     to: input.representativeEmail,
     subject: "Changes requested for your church listing updates",
     body: [
-      `Thank you for submitting updates for ${input.church.name} on Find Your Church Palacios.`,
+      `Thank you for submitting updates for ${input.church.name} on ${siteConfig.launchName}.`,
       "",
       "Before we can publish the listing changes, we need a few updates or clarifications.",
       "",
@@ -537,7 +537,7 @@ export async function sendEditorInviteNotification(input: {
     to: input.representative.email,
     subject: "You have been invited to help manage a church listing",
     body: [
-      `You have been invited to help manage the listing for ${input.church.name} on Find Your Church Palacios.`,
+      `You have been invited to help manage the listing for ${input.church.name} on ${siteConfig.launchName}.`,
       "",
       "Please sign in using this email address to accept access:",
       getPortalUrl(),
@@ -706,7 +706,7 @@ export async function sendAnnualListingVerificationNotification(input: {
     to: input.recipientEmail,
     subject: "Please confirm your church listing is still active",
     body: [
-      `We want to help keep the listing for ${input.church.name} accurate and active on Find Your Church Palacios.`,
+      `We want to help keep the listing for ${input.church.name} accurate and active on ${siteConfig.launchName}.`,
       "",
       "If this listing is still active, please confirm it here:",
       input.acknowledgementUrl,
@@ -733,7 +733,7 @@ export async function sendAnnualListingVerificationReminder7Notification(input: 
     to: input.recipientEmail,
     subject: "Reminder: please confirm your church listing within 7 days",
     body: [
-      `This is a reminder to confirm that the listing for ${input.church.name} is still active on Find Your Church Palacios.`,
+      `This is a reminder to confirm that the listing for ${input.church.name} is still active on ${siteConfig.launchName}.`,
       "",
       "Please confirm the listing here:",
       input.acknowledgementUrl,
@@ -758,7 +758,7 @@ export async function sendAnnualListingVerificationReminder3Notification(input: 
     to: input.recipientEmail,
     subject: "Final reminder: your church listing will be archived in 3 days",
     body: [
-      `This is a final reminder to confirm that the listing for ${input.church.name} is still active on Find Your Church Palacios.`,
+      `This is a final reminder to confirm that the listing for ${input.church.name} is still active on ${siteConfig.launchName}.`,
       "",
       "Please confirm the listing is still active here:",
       input.acknowledgementUrl,
@@ -784,7 +784,7 @@ export async function sendAnnualListingArchivedNotification(input: {
     body: [
       `The listing for ${input.church.name} has been archived from the public directory because we did not receive an annual confirmation.`,
       "",
-      `If the church is still active and you would like the listing restored, please contact ${siteConfig.contactEmail} or submit a new update request through Find Your Church Palacios. We will be glad to review and restore accurate information.`,
+      `If the church is still active and you would like the listing restored, please contact ${siteConfig.contactEmail} or submit a new update request through ${siteConfig.launchName}. We will be glad to review and restore accurate information.`,
       "",
       ...getMissionNote(),
     ].join("\n"),

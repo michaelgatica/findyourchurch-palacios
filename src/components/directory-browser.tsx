@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useDeferredValue, useEffect, useState } from "react";
 
 import { ChurchCard } from "@/components/church-card";
+import { siteConfig } from "@/lib/config/site";
 import {
   calculateDistanceMiles,
   filterChurches,
@@ -168,7 +169,7 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
       if (!payload.found || !payload.coordinates) {
         setReferencePoint(null);
         setLocationMessage(
-          "We could not place that location on the map. Try a Palacios address, city name, or ZIP code.",
+          `We could not place that location on the map. Try a ${siteConfig.launchCity} address, city name, or ZIP code.`,
         );
         return;
       }
@@ -232,7 +233,7 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
               </h2>
               <p className="supporting-text">
                 Search by church name, pastor, ministry, worship style, or keyword, then search near
-                a Palacios address, ZIP code, or your current location.
+                a {siteConfig.launchCity} address, ZIP code, or your current location.
               </p>
             </div>
             <span className="directory-results__count">
@@ -260,7 +261,7 @@ export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserPr
                 name="locationQuery"
                 value={locationQuery}
                 onChange={(event) => setLocationQuery(event.target.value)}
-                placeholder="Palacios address, city, or ZIP code"
+                placeholder={`${siteConfig.launchCity} address, city, or ZIP code`}
               />
             </label>
 
