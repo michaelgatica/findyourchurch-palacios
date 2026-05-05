@@ -72,7 +72,7 @@ export default function RootLayout({
         <Script
           id="zeffy-modal-script"
           src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"
-          strategy="beforeInteractive"
+          strategy="lazyOnload"
         />
         <a href="#main-content" className="skip-link">
           Skip to main content

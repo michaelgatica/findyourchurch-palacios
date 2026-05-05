@@ -1,0 +1,64 @@
+name: Validate build
+
+# Firebase App Hosting deploys automatically on push to main.
+# This workflow validates every PR and push to main so broken builds
+# are caught before they reach production.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  validate:
+    name: Type check and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          # Non-sensitive values that are safe to hardcode for CI builds.
+          # Sensitive keys (API keys, storage bucket, etc.) must be added
+          # as GitHub Actions secrets: Settings → Secrets and variables → Actions
+          NEXT_PUBLIC_SITE_URL: https://findyourchurchpalacios.org
+          NEXT_PUBLIC_ENABLE_DONATIONS: "true"
+          NEXT_PUBLIC_ZEFFY_FORM_PATH: /embed/donation-form/helping-churches-reach-people-through-technology
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: findyourchurch-24562
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: findyourchurch-24562.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "443706380375"
+          NEXT_PUBLIC_FIREBASE_APP_ID: "1:443706380375:web:e2f1c184b87865e003d312"
+          NEXT_PUBLIC_FIREBASE_DATABASE_ID: findyourchurchpal
+          # Add these as GitHub Actions secrets for full CI build validation:
+          # NEXT_PUBLIC_FIREBASE_API_KEY
+          # NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+          # NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+          NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ secrets.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          # Firebase Admin SDK — needed for generateStaticParams on church profile pages.
+          # Add these to GitHub Actions secrets (same values as Firebase App Hosting env).
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
