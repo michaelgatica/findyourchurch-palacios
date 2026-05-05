@@ -22,9 +22,7 @@ const DirectoryMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="directory-map__loading">
-        Loading the church map...
-      </div>
+      <div className="directory-map__loading directory-map__loading--shimmer" aria-busy="true" aria-label="Loading church map" role="status" />
     ),
   },
 );

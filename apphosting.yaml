@@ -1,0 +1,68 @@
+runConfig:
+  runtime: nodejs20
+  concurrency: 80
+  minInstances: 0
+  maxInstances: 10
+
+# Non-sensitive build-time and runtime values are declared here.
+# Sensitive values (Firebase keys, SMTP passwords, secrets) are managed
+# through Firebase App Hosting → Settings → Environment in the Firebase Console.
+# Do NOT commit real secrets to this file.
+env:
+  - variable: NEXT_PUBLIC_SITE_URL
+    value: https://findyourchurchpalacios.org
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_ENABLE_DONATIONS
+    value: "true"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_ZEFFY_FORM_PATH
+    value: /embed/donation-form/helping-churches-reach-people-through-technology
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: findyourchurch-24562
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: findyourchurch-24562.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "443706380375"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:443706380375:web:e2f1c184b87865e003d312
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_DATABASE_ID
+    value: findyourchurchpal
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: FIREBASE_PROJECT_ID
+    value: findyourchurch-24562
+    availability:
+      - RUNTIME
+
+  - variable: FIREBASE_DATABASE_ID
+    value: findyourchurchpal
+    availability:
+      - RUNTIME

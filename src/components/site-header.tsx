@@ -148,10 +148,12 @@ function HeaderUserMenu({
           setIsOpen((currentValue) => !currentValue);
         }}
       >
-        <span className="site-header__account-avatar" aria-hidden="true">
-          {initials}
-        </span>
-        <span className="site-header__account-label">
+        {user ? (
+          <span className="site-header__account-avatar" aria-hidden="true">
+            {initials}
+          </span>
+        ) : null}
+        <span className={`site-header__account-label${!user ? " site-header__account-label--always" : ""}`}>
           {user ? "Account" : "Sign in"}
         </span>
       </button>
