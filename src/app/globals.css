@@ -1789,7 +1789,7 @@ input[type="checkbox"] {
 
   /* Directory: filter sidebar on left, results on right */
   .directory-layout {
-    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+    grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
     gap: 1.5rem;
   }
 
@@ -1799,6 +1799,31 @@ input[type="checkbox"] {
     max-height: calc(100vh - var(--header-height, 70px) - 2rem);
     overflow-y: auto;
     scrollbar-width: thin;
+    scrollbar-color: rgba(11, 74, 36, 0.18) transparent;
+  }
+
+  .directory-search-panel::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .directory-search-panel::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(11, 74, 36, 0.18);
+  }
+
+  /* Title is a sidebar label now — not a hero headline */
+  .directory-search-panel__title {
+    font-size: 1.15rem;
+    max-width: none;
+    letter-spacing: -0.01em;
+  }
+
+  .directory-search-panel__title span {
+    display: inline;
+  }
+
+  .directory-search-panel__title span + span::before {
+    content: " ";
   }
 
   .directory-search-panel__header {
