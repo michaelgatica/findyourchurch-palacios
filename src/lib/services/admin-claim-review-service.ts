@@ -32,6 +32,14 @@ function createRequiredMessageError() {
   return new Error("A message is required for this action.");
 }
 
+function canReviewClaim(status: string) {
+  return status === "pending_review" || status === "more_info_requested";
+}
+
+function createClaimAlreadyReviewedError(status: string) {
+  return new Error(`This claim has already been reviewed and is currently ${status.replace(/_/g, " ")}.`);
+}
+
 export async function listAdminClaimRequests(status?: string) {
   return listChurchClaimRequests({
     status: status as never,
@@ -121,6 +129,10 @@ export async function requestClaimMoreInfo(input: {
 
   if (!claimRequest) {
     throw new Error("The church claim request could not be found.");
+  }
+
+  if (!canReviewClaim(claimRequest.status)) {
+    throw createClaimAlreadyReviewedError(claimRequest.status);
   }
 
   const church = await getChurchByIdFromFirebase(claimRequest.churchId);
@@ -230,6 +242,10 @@ export async function denyClaimRequest(input: {
     throw new Error("The church claim request could not be found.");
   }
 
+  if (!canReviewClaim(claimRequest.status)) {
+    throw createClaimAlreadyReviewedError(claimRequest.status);
+  }
+
   const church = await getChurchByIdFromFirebase(claimRequest.churchId);
 
   if (!church) {
@@ -286,6 +302,10 @@ export async function approveClaimRequest(input: {
 
   if (!claimRequest) {
     throw new Error("The church claim request could not be found.");
+  }
+
+  if (!canReviewClaim(claimRequest.status)) {
+    throw createClaimAlreadyReviewedError(claimRequest.status);
   }
 
   const church = await getChurchByIdFromFirebase(claimRequest.churchId);

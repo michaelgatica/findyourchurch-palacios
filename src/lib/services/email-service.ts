@@ -99,6 +99,34 @@ function createBodyPreview(messageBody: string) {
   return messageBody.replace(/\s+/g, " ").trim().slice(0, 240);
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function createHtmlEmailBody(messageBody: string) {
+  const linkedBody = escapeHtml(messageBody).replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" style="color:#0B4A24;text-decoration:underline;">$1</a>',
+  );
+
+  const blocks = linkedBody
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => `<p style="margin:0 0 16px 0;line-height:1.6;">${block.replace(/\n/g, "<br />")}</p>`);
+
+  return [
+    '<div style="font-family:Georgia,serif;color:#1f2f26;font-size:16px;">',
+    ...blocks,
+    "</div>",
+  ].join("");
+}
+
 function createEmailConfigurationError(message: string) {
   return new Error(message);
 }
@@ -171,6 +199,7 @@ async function sendResendEmail(input: {
       to: [input.to],
       subject: input.subject,
       text: input.body,
+      html: createHtmlEmailBody(input.body),
     }),
   });
 
@@ -221,6 +250,7 @@ async function sendSmtpEmail(input: {
     to: input.to,
     subject: input.subject,
     text: input.body,
+    html: createHtmlEmailBody(input.body),
   });
 
   await logEmailRecord({

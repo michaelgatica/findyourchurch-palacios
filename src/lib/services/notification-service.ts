@@ -14,6 +14,7 @@ import type {
 
 import { sendTransactionalEmail } from "@/lib/services/email-service";
 import { getAdminNotificationEmails } from "@/lib/services/email-service";
+import { formatDateTime } from "@/lib/formatting";
 
 function getPortalUrl() {
   return buildAbsoluteUrl("/portal");
@@ -102,7 +103,7 @@ export async function queueSubmissionReceivedNotification(
       submission.requestedManagerAccount
         ? `Manager account requested: ${submission.requestedManagerAccount.email}`
         : undefined,
-      `Submission time: ${submission.submittedAt ?? submission.createdAt}`,
+      `Submission time: ${formatDateTime(submission.submittedAt ?? submission.createdAt)}`,
       "",
       "Review it here:",
       buildAbsoluteUrl(`/admin/submissions/${submission.id}`),
@@ -241,7 +242,7 @@ export async function sendClaimReceivedNotification(input: {
       `Church name: ${input.church.name}`,
       `Requester name: ${input.claimRequest.requesterName}`,
       `Requester email: ${input.claimRequest.requesterEmail}`,
-      `Request time: ${input.claimRequest.createdAt}`,
+      `Request time: ${formatDateTime(input.claimRequest.createdAt)}`,
       "",
       "Review it here:",
       buildAbsoluteUrl(`/admin/claims/${input.claimRequest.id}`),
@@ -378,7 +379,7 @@ export async function sendRepresentativeUpdateSubmittedNotification(input: {
       "",
       `Church name: ${input.church.name}`,
       `Representative email: ${input.representativeEmail}`,
-      `Submitted at: ${input.updateRequest.createdAt}`,
+      `Submitted at: ${formatDateTime(input.updateRequest.createdAt)}`,
       "",
       "Review it here:",
       buildAbsoluteUrl(`/admin/updates/${input.updateRequest.id}`),

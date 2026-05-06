@@ -1,3 +1,5 @@
+const centralTimeZone = "America/Chicago";
+
 export function formatDateTime(value?: string | null) {
   if (!value) {
     return "Not yet available";
@@ -6,6 +8,7 @@ export function formatDateTime(value?: string | null) {
   return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: centralTimeZone,
   }).format(new Date(value));
 }
 
@@ -16,6 +19,7 @@ export function formatDate(value?: string | null) {
 
   return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
+    timeZone: centralTimeZone,
   }).format(new Date(value));
 }
 

@@ -29,6 +29,8 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
 
   const { claimRequest, church, messages, auditLogs, emailLogs } = reviewData;
   const redirectTo = `/admin/claims/${claimRequest.id}`;
+  const canReviewClaim =
+    claimRequest.status === "pending_review" || claimRequest.status === "more_info_requested";
 
   return (
     <div className="admin-content">
@@ -59,58 +61,70 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
       </div>
 
       <div className="admin-review-grid">
-        <div className="panel">
-          <h2>Approve claim</h2>
-          <p className="supporting-text">
-            Approving this request assigns a primary representative record to the church and marks
-            the claim as approved in Firestore.
-          </p>
-          <form action={approveClaimRequestAction} className="field-stack">
-            <input type="hidden" name="claimRequestId" value={claimRequest.id} />
-            <input type="hidden" name="redirectTo" value={redirectTo} />
-            <button type="submit" className="button button--primary">
-              Approve claim
-            </button>
-          </form>
-        </div>
+        {canReviewClaim ? (
+          <>
+            <div className="panel">
+              <h2>Approve claim</h2>
+              <p className="supporting-text">
+                Approving this request assigns a primary representative record to the church and marks
+                the claim as approved in Firestore.
+              </p>
+              <form action={approveClaimRequestAction} className="field-stack">
+                <input type="hidden" name="claimRequestId" value={claimRequest.id} />
+                <input type="hidden" name="redirectTo" value={redirectTo} />
+                <button type="submit" className="button button--primary">
+                  Approve claim
+                </button>
+              </form>
+            </div>
 
-        <div className="panel">
-          <h2>Request more information</h2>
-          <form action={requestClaimMoreInfoAction} className="field-stack">
-            <input type="hidden" name="claimRequestId" value={claimRequest.id} />
-            <input type="hidden" name="redirectTo" value={redirectTo} />
-            <label className="field">
-              <span className="field__label">Message to requester</span>
-              <textarea
-                name="adminMessage"
-                placeholder="Explain what additional information is needed."
-                required
-              />
-            </label>
-            <button type="submit" className="button button--secondary">
-              Request more info
-            </button>
-          </form>
-        </div>
+            <div className="panel">
+              <h2>Request more information</h2>
+              <form action={requestClaimMoreInfoAction} className="field-stack">
+                <input type="hidden" name="claimRequestId" value={claimRequest.id} />
+                <input type="hidden" name="redirectTo" value={redirectTo} />
+                <label className="field">
+                  <span className="field__label">Message to requester</span>
+                  <textarea
+                    name="adminMessage"
+                    placeholder="Explain what additional information is needed."
+                    required
+                  />
+                </label>
+                <button type="submit" className="button button--secondary">
+                  Request more info
+                </button>
+              </form>
+            </div>
 
-        <div className="panel">
-          <h2>Deny claim</h2>
-          <form action={denyClaimRequestAction} className="field-stack">
-            <input type="hidden" name="claimRequestId" value={claimRequest.id} />
-            <input type="hidden" name="redirectTo" value={redirectTo} />
-            <label className="field">
-              <span className="field__label">Message to requester</span>
-              <textarea
-                name="adminMessage"
-                placeholder="Share the reason this request cannot be approved."
-                required
-              />
-            </label>
-            <button type="submit" className="button button--ghost">
-              Deny claim
-            </button>
-          </form>
-        </div>
+            <div className="panel">
+              <h2>Deny claim</h2>
+              <form action={denyClaimRequestAction} className="field-stack">
+                <input type="hidden" name="claimRequestId" value={claimRequest.id} />
+                <input type="hidden" name="redirectTo" value={redirectTo} />
+                <label className="field">
+                  <span className="field__label">Message to requester</span>
+                  <textarea
+                    name="adminMessage"
+                    placeholder="Share the reason this request cannot be approved."
+                    required
+                  />
+                </label>
+                <button type="submit" className="button button--ghost">
+                  Deny claim
+                </button>
+              </form>
+            </div>
+          </>
+        ) : (
+          <div className="panel">
+            <h2>Review complete</h2>
+            <p className="supporting-text">
+              This claim has already been {claimRequest.status.replace(/_/g, " ")}. Review actions are
+              disabled to prevent duplicate approval or denial emails.
+            </p>
+          </div>
+        )}
 
         <div className="panel">
           <h2>Save internal note</h2>
