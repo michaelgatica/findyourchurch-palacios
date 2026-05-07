@@ -20,6 +20,10 @@ function getPortalUrl() {
   return buildAbsoluteUrl("/portal");
 }
 
+function createEmailLink(label: string, url: string) {
+  return `[${label}](${url})`;
+}
+
 function getMissionNote() {
   return [
     `${siteConfig.launchName} is a ministry project created by ${siteConfig.ministryName} to help churches be searchable, visible, and easier to connect with. ${siteConfig.ministryName} exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.`,
@@ -28,7 +32,7 @@ function getMissionNote() {
 
 function getDonationNote() {
   return [
-    `${siteConfig.launchName} is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit ${siteConfig.ministryDonationUrl}.`,
+    `${siteConfig.launchName} is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit the ${createEmailLink("El Roi Digital Ministries donate page", siteConfig.ministryDonationUrl)}.`,
   ];
 }
 
@@ -105,8 +109,7 @@ export async function queueSubmissionReceivedNotification(
         : undefined,
       `Submission time: ${formatDateTime(submission.submittedAt ?? submission.createdAt)}`,
       "",
-      "Review it here:",
-      buildAbsoluteUrl(`/admin/submissions/${submission.id}`),
+      `Review it here: ${createEmailLink("Open submission review", buildAbsoluteUrl(`/admin/submissions/${submission.id}`))}`,
       "",
       ...getAdminOnlyMinistryNote(),
     ]
@@ -128,8 +131,7 @@ export async function sendSubmissionApprovedNotification(input: {
     body: [
       `Good news - the listing for ${input.church.name} has been approved and is now available on ${siteConfig.launchName}.`,
       "",
-      "You can view the listing here:",
-      buildAbsoluteUrl(buildChurchProfilePath(input.church)),
+      `You can view the listing here: ${createEmailLink("Open church listing", buildAbsoluteUrl(buildChurchProfilePath(input.church)))}`,
       ...(input.managerAccountAssigned && input.submission.requestedManagerAccount
         ? [
             "",
@@ -244,8 +246,7 @@ export async function sendClaimReceivedNotification(input: {
       `Requester email: ${input.claimRequest.requesterEmail}`,
       `Request time: ${formatDateTime(input.claimRequest.createdAt)}`,
       "",
-      "Review it here:",
-      buildAbsoluteUrl(`/admin/claims/${input.claimRequest.id}`),
+      `Review it here: ${createEmailLink("Open claim review", buildAbsoluteUrl(`/admin/claims/${input.claimRequest.id}`))}`,
       "",
       ...getAdminOnlyMinistryNote(),
     ].join("\n"),
@@ -266,8 +267,7 @@ export async function sendClaimApprovedNotification(input: {
       "",
       "You may now sign in to the church representative portal to help keep the listing accurate and up to date.",
       "",
-      "Portal:",
-      getPortalUrl(),
+      `Portal: ${createEmailLink("Open church portal", getPortalUrl())}`,
       "",
       "Thank you for helping make local church information easier to find and trust.",
       "",
@@ -381,8 +381,7 @@ export async function sendRepresentativeUpdateSubmittedNotification(input: {
       `Representative email: ${input.representativeEmail}`,
       `Submitted at: ${formatDateTime(input.updateRequest.createdAt)}`,
       "",
-      "Review it here:",
-      buildAbsoluteUrl(`/admin/updates/${input.updateRequest.id}`),
+      `Review it here: ${createEmailLink("Open update review", buildAbsoluteUrl(`/admin/updates/${input.updateRequest.id}`))}`,
       "",
       ...getAdminOnlyMinistryNote(),
     ].join("\n"),
@@ -402,8 +401,7 @@ export async function sendRepresentativeUpdateAutoPublishedNotification(input: {
     body: [
       `Your listing for ${input.church.name} has been updated.`,
       "",
-      "You can view the latest public listing here:",
-      buildAbsoluteUrl(buildChurchProfilePath(input.church)),
+      `You can view the latest public listing here: ${createEmailLink("Open church listing", buildAbsoluteUrl(buildChurchProfilePath(input.church)))}`,
       "",
       "Thank you for helping keep local church information accurate and easy to find.",
       "",
@@ -442,8 +440,7 @@ export async function sendRepresentativeUpdateApprovedNotification(input: {
     body: [
       `Your updates for ${input.church.name} have been approved and are now visible on ${siteConfig.launchName}.`,
       "",
-      "You can view the listing here:",
-      buildAbsoluteUrl(buildChurchProfilePath(input.church)),
+      `You can view the listing here: ${createEmailLink("Open church listing", buildAbsoluteUrl(buildChurchProfilePath(input.church)))}`,
       "",
       "Thank you for helping keep your church information accurate and helpful for the community.",
       "",
@@ -540,8 +537,7 @@ export async function sendEditorInviteNotification(input: {
     body: [
       `You have been invited to help manage the listing for ${input.church.name} on ${siteConfig.launchName}.`,
       "",
-      "Please sign in using this email address to accept access:",
-      getPortalUrl(),
+      `Please sign in using this email address to accept access: ${createEmailLink("Open church portal", getPortalUrl())}`,
       "",
       "Once accepted, you can help keep the church listing accurate and up to date.",
       "",
@@ -565,8 +561,7 @@ export async function sendOwnershipTransferRequestedNotification(input: {
       `Requested new owner: ${input.transferRequest.newOwnerName}`,
       `New owner email: ${input.transferRequest.newOwnerEmail}`,
       "",
-      "Review it here:",
-      buildAbsoluteUrl(`/admin/churches/${input.church.id}/representatives`),
+      `Review it here: ${createEmailLink("Open representative review", buildAbsoluteUrl(`/admin/churches/${input.church.id}/representatives`))}`,
       "",
       ...getAdminOnlyMinistryNote(),
     ].join("\n"),
@@ -589,8 +584,7 @@ export async function sendOwnershipTransferApprovedNotification(input: {
       "",
       "You can now sign in to the church representative portal to help keep this listing accurate and up to date.",
       "",
-      "Portal:",
-      getPortalUrl(),
+      `Portal: ${createEmailLink("Open church portal", getPortalUrl())}`,
       "",
       ...getMissionNote(),
     ].join("\n"),
@@ -666,8 +660,7 @@ export async function sendRepresentativeChurchMessageNotification(input: {
       "Message:",
       input.messageBody,
       "",
-      "Reply here:",
-      buildAbsoluteUrl(`/admin/churches/${input.church.id}/representatives`),
+      `Reply here: ${createEmailLink("Open representative conversation", buildAbsoluteUrl(`/admin/churches/${input.church.id}/representatives`))}`,
     ].join("\n"),
     relatedEntityType: "church",
     relatedEntityId: input.church.id,
@@ -688,8 +681,7 @@ export async function sendAdminChurchMessageNotification(input: {
       "Message:",
       input.messageBody,
       "",
-      "Please sign in to the church representative portal if a response or update is needed:",
-      getPortalUrl(),
+      `Please sign in to the church representative portal if a response or update is needed: ${createEmailLink("Open church portal", getPortalUrl())}`,
       "",
       ...getMissionNote(),
     ].join("\n"),
@@ -709,8 +701,7 @@ export async function sendAnnualListingVerificationNotification(input: {
     body: [
       `We want to help keep the listing for ${input.church.name} accurate and active on ${siteConfig.launchName}.`,
       "",
-      "If this listing is still active, please confirm it here:",
-      input.acknowledgementUrl,
+      `If this listing is still active, please confirm it here: ${createEmailLink("Confirm listing is active", input.acknowledgementUrl)}`,
       "",
       "You do not need to make edits unless something has changed. A simple confirmation lets us know the church is still active and that the information can remain public.",
       "",
@@ -736,8 +727,7 @@ export async function sendAnnualListingVerificationReminder7Notification(input: 
     body: [
       `This is a reminder to confirm that the listing for ${input.church.name} is still active on ${siteConfig.launchName}.`,
       "",
-      "Please confirm the listing here:",
-      input.acknowledgementUrl,
+      `Please confirm the listing here: ${createEmailLink("Confirm listing is active", input.acknowledgementUrl)}`,
       "",
       "If we do not receive confirmation, the listing will be archived from the public directory in 7 days. Archiving helps us avoid showing outdated information to people looking for a local church.",
       "",
@@ -761,8 +751,7 @@ export async function sendAnnualListingVerificationReminder3Notification(input: 
     body: [
       `This is a final reminder to confirm that the listing for ${input.church.name} is still active on ${siteConfig.launchName}.`,
       "",
-      "Please confirm the listing is still active here:",
-      input.acknowledgementUrl,
+      `Please confirm the listing is still active here: ${createEmailLink("Confirm listing is active", input.acknowledgementUrl)}`,
       "",
       "If we do not receive confirmation within 3 days, the listing will be archived from the public directory until it is reviewed again. This helps keep the directory accurate for residents, visitors, and families looking for a church community.",
       "",

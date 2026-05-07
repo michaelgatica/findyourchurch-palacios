@@ -20,6 +20,7 @@ export const platformConfig = {
   platformName: "Find Your Church",
   rootDomain: "findyourchurch.org",
   ministryName: "El Roi Digital Ministries",
+  ministrySupportEmail: "support@elroidigital.org",
   organizationDescription:
     "Find Your Church is a ministry project powered by El Roi Digital Ministries.",
   platformDescription:
@@ -94,6 +95,10 @@ export const siteConfig = {
   brandColors: platformConfig.brandColors,
   brandAssets: activeLaunchMarket.brandAssets,
   contactEmail: activeLaunchMarket.contactEmail,
+  adminNotificationFallbackEmails: [
+    activeLaunchMarket.contactEmail,
+    platformConfig.ministrySupportEmail,
+  ],
   donationEmbedFormPath: platformConfig.donationEmbedFormPath,
 } as const;
 

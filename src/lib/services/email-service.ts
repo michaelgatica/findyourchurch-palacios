@@ -34,17 +34,18 @@ export function getEmailFromAddress() {
 
 export function getAdminNotificationEmails() {
   const rawValue = normalizeOptionalValue(process.env.ADMIN_NOTIFICATION_EMAIL);
-
-  if (!rawValue) {
-    return [];
-  }
+  const configuredRecipients = rawValue
+    ? rawValue
+        .split(/[;,]/)
+        .map((value) => value.trim())
+        .filter(Boolean)
+    : [];
 
   return Array.from(
     new Set(
-      rawValue
-        .split(/[;,]/)
-        .map((value) => value.trim())
-        .filter(Boolean),
+      [...configuredRecipients, ...(siteConfig.adminNotificationFallbackEmails ?? [])].filter(
+        Boolean,
+      ),
     ),
   );
 }
@@ -96,7 +97,7 @@ export function getEmailConfigurationProblems(provider = getConfiguredEmailProvi
 }
 
 function createBodyPreview(messageBody: string) {
-  return messageBody.replace(/\s+/g, " ").trim().slice(0, 240);
+  return createTextEmailBody(messageBody).replace(/\s+/g, " ").trim().slice(0, 240);
 }
 
 function escapeHtml(value: string) {
@@ -108,17 +109,41 @@ function escapeHtml(value: string) {
     .replaceAll("'", "&#39;");
 }
 
-function createHtmlEmailBody(messageBody: string) {
-  const linkedBody = escapeHtml(messageBody).replace(
-    /(https?:\/\/[^\s<]+)/g,
-    '<a href="$1" style="color:#0B4A24;text-decoration:underline;">$1</a>',
-  );
+function renderInlineHtml(value: string) {
+  const pattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<]+)/g;
+  let html = "";
+  let lastIndex = 0;
 
-  const blocks = linkedBody
+  for (const match of value.matchAll(pattern)) {
+    const matchIndex = match.index ?? 0;
+    html += escapeHtml(value.slice(lastIndex, matchIndex));
+
+    if (match[1] && match[2]) {
+      html += `<a href="${escapeHtml(match[2])}" style="color:#0B4A24;text-decoration:underline;">${escapeHtml(match[1])}</a>`;
+    } else if (match[3]) {
+      html += `<a href="${escapeHtml(match[3])}" style="color:#0B4A24;text-decoration:underline;">${escapeHtml(match[3])}</a>`;
+    }
+
+    lastIndex = matchIndex + match[0].length;
+  }
+
+  html += escapeHtml(value.slice(lastIndex));
+  return html;
+}
+
+function createTextEmailBody(messageBody: string) {
+  return messageBody.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$1: $2");
+}
+
+function createHtmlEmailBody(messageBody: string) {
+  const blocks = messageBody
     .split(/\n\s*\n/)
     .map((block) => block.trim())
     .filter(Boolean)
-    .map((block) => `<p style="margin:0 0 16px 0;line-height:1.6;">${block.replace(/\n/g, "<br />")}</p>`);
+    .map((block) => {
+      const lines = block.split("\n").map((line) => renderInlineHtml(line));
+      return `<p style="margin:0 0 16px 0;line-height:1.6;">${lines.join("<br />")}</p>`;
+    });
 
   return [
     '<div style="font-family:Georgia,serif;color:#1f2f26;font-size:16px;">',
@@ -162,7 +187,7 @@ async function sendConsoleEmail(input: {
   relatedEntityId?: string;
 }) {
   console.log(
-    `[email:console] to=${input.to} subject=${input.subject}\n${input.body}`,
+    `[email:console] to=${input.to} subject=${input.subject}\n${createTextEmailBody(input.body)}`,
   );
 
   await logEmailRecord({
@@ -198,7 +223,7 @@ async function sendResendEmail(input: {
       from: input.from,
       to: [input.to],
       subject: input.subject,
-      text: input.body,
+      text: createTextEmailBody(input.body),
       html: createHtmlEmailBody(input.body),
     }),
   });
@@ -249,7 +274,7 @@ async function sendSmtpEmail(input: {
     from: input.from,
     to: input.to,
     subject: input.subject,
-    text: input.body,
+    text: createTextEmailBody(input.body),
     html: createHtmlEmailBody(input.body),
   });
 
