@@ -3,6 +3,8 @@ import type { MetadataRoute } from "next";
 import { buildAbsoluteUrl, buildChurchProfilePath } from "@/lib/config/site";
 import { getPublishedChurches } from "@/lib/repositories/church-repository";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const churches = await getPublishedChurches();
   const baseRoutes = [

@@ -8,7 +8,9 @@ import {
   createPageMetadata,
   siteConfig,
 } from "@/lib/config/site";
-import { getPublishedChurches, getChurchByRoute } from "@/lib/repositories/church-repository";
+import { getChurchByRoute } from "@/lib/repositories/church-repository";
+
+export const dynamic = "force-dynamic";
 
 interface CanonicalChurchProfilePageProps {
   params: Promise<{
@@ -16,20 +18,6 @@ interface CanonicalChurchProfilePageProps {
     citySlug: string;
     churchSlug: string;
   }>;
-}
-
-export async function generateStaticParams() {
-  const churches = await getPublishedChurches();
-
-  return churches.map((church) => {
-    const path = buildChurchProfilePath(church).split("/").filter(Boolean);
-
-    return {
-      routeKey: path[0],
-      citySlug: path[1],
-      churchSlug: path[2],
-    };
-  });
 }
 
 export async function generateMetadata({

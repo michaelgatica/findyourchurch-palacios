@@ -10,6 +10,8 @@ import {
 import { getServerAuthenticatedUserFromSessionCookie } from "@/lib/firebase/session";
 import { getChurchByRoute } from "@/lib/repositories/church-repository";
 
+export const dynamic = "force-dynamic";
+
 interface CanonicalChurchClaimPageProps {
   params: Promise<{
     routeKey: string;

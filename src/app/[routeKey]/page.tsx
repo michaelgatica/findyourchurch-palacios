@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { buildChurchProfilePath, isReservedChurchShareSlug } from "@/lib/config/site";
 import { getChurchByCustomShareSlug } from "@/lib/repositories/church-repository";
 
+export const dynamic = "force-dynamic";
+
 interface ChurchShareRedirectPageProps {
   params: Promise<{
     routeKey: string;
@@ -26,4 +28,3 @@ export default async function ChurchShareRedirectPage({
 
   redirect(buildChurchProfilePath(church));
 }
-
