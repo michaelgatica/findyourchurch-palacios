@@ -31,7 +31,7 @@ export default async function PortalLoginPage({ searchParams }: PortalLoginPageP
   }
 
   return (
-    <section className="shell page-section portal-page">
+    <section className="shell page-section portal-page auth-compact">
       <div className="portal-shell">
         {context ? (
           <div className="form-alert">

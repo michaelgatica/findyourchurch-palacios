@@ -392,7 +392,7 @@ export function ChurchClaimRequestForm({
 
   if (activeSessionUser) {
     return (
-      <div className="section-stack">
+      <div className="section-stack auth-compact">
         <div className="panel claim-authenticated">
           <div>
             <p className="eyebrow">Signed In</p>
@@ -426,7 +426,7 @@ export function ChurchClaimRequestForm({
   }
 
   return (
-    <div className="section-stack">
+    <div className="section-stack auth-compact">
       <div className="panel">
         <p className="eyebrow eyebrow--gold">Sign In Required</p>
         <h2>Sign in to request listing access</h2>

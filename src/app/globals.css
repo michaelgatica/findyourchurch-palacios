@@ -1695,6 +1695,318 @@ input[type="checkbox"] {
   font-weight: 600;
 }
 
+/* Compact authenticated app surfaces: admin, representative portal, account, and claim sign-up. */
+.admin-page,
+.portal-page,
+.account-page,
+.auth-compact {
+  font-size: 0.94rem;
+}
+
+.admin-page,
+.portal-page {
+  padding-top: 1.45rem;
+}
+
+.admin-content,
+.admin-summary-grid,
+.admin-two-column,
+.admin-three-column,
+.admin-card-list,
+.admin-sidebar-stack,
+.admin-list,
+.admin-review-grid,
+.timeline-list,
+.admin-detail-grid,
+.admin-metadata-grid,
+.admin-media-grid,
+.auth-compact,
+.portal-page .section-stack,
+.account-page .content-page-stack {
+  gap: 0.78rem;
+}
+
+.auth-compact.section-stack,
+.auth-compact .section-stack,
+.portal-page .section-stack {
+  padding: 0;
+}
+
+.auth-compact > .panel,
+.auth-compact > .submission-form,
+.account-page .content-page-stack,
+.portal-page.auth-compact .portal-shell {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.admin-page .admin-login-card,
+.admin-page .admin-shell,
+.portal-page .portal-shell {
+  padding: 1.05rem;
+  border-radius: 24px;
+}
+
+.admin-page .panel,
+.portal-page .panel,
+.account-page .panel,
+.auth-compact .panel,
+.admin-page .confirmation-card,
+.portal-page .confirmation-card {
+  padding: 1rem;
+  border-radius: 20px;
+}
+
+.admin-page h1,
+.portal-page h1,
+.account-page h1,
+.auth-compact h1 {
+  font-size: clamp(1.75rem, 3.2vw, 2.7rem);
+  line-height: 1.06;
+}
+
+.admin-page h2,
+.portal-page h2,
+.account-page h2,
+.auth-compact h2 {
+  font-size: clamp(1.25rem, 2vw, 1.72rem);
+}
+
+.admin-page h3,
+.portal-page h3,
+.account-page h3,
+.auth-compact h3 {
+  font-size: clamp(1rem, 1.45vw, 1.22rem);
+}
+
+.admin-page .eyebrow,
+.portal-page .eyebrow,
+.account-page .eyebrow,
+.auth-compact .eyebrow {
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+}
+
+.admin-page .eyebrow::before,
+.portal-page .eyebrow::before,
+.account-page .eyebrow::before,
+.auth-compact .eyebrow::before {
+  width: 0.62rem;
+  height: 0.62rem;
+}
+
+.admin-page .supporting-text,
+.portal-page .supporting-text,
+.account-page .supporting-text,
+.auth-compact .supporting-text,
+.admin-page p,
+.portal-page p,
+.account-page p,
+.auth-compact p {
+  font-size: 0.91rem;
+  line-height: 1.52;
+}
+
+.admin-page .button,
+.portal-page .button,
+.account-page .button,
+.auth-compact .button {
+  min-height: 38px;
+  padding: 0.54rem 0.88rem;
+  font-size: 0.85rem;
+}
+
+.admin-page .button-row,
+.portal-page .button-row,
+.account-page .button-row,
+.auth-compact .button-row {
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.admin-page .submission-form,
+.portal-page .submission-form,
+.account-page .submission-form,
+.auth-compact .submission-form,
+.admin-page .field-stack,
+.portal-page .field-stack,
+.account-page .field-stack,
+.auth-compact .field-stack {
+  gap: 0.74rem;
+}
+
+.admin-page .form-grid,
+.portal-page .form-grid,
+.account-page .form-grid,
+.auth-compact .form-grid,
+.admin-page .field,
+.portal-page .field,
+.account-page .field,
+.auth-compact .field {
+  gap: 0.38rem;
+}
+
+.admin-page .field__label,
+.portal-page .field__label,
+.account-page .field__label,
+.auth-compact .field__label {
+  font-size: 0.84rem;
+}
+
+.admin-page .field__required,
+.portal-page .field__required,
+.account-page .field__required,
+.auth-compact .field__required {
+  margin-left: 0.32rem;
+  padding: 0.08rem 0.36rem;
+  font-size: 0.65rem;
+}
+
+.admin-page .field__hint,
+.portal-page .field__hint,
+.account-page .field__hint,
+.auth-compact .field__hint,
+.admin-page .field__error,
+.portal-page .field__error,
+.account-page .field__error,
+.auth-compact .field__error,
+.admin-page .form-grid__note,
+.portal-page .form-grid__note,
+.account-page .form-grid__note,
+.auth-compact .form-grid__note {
+  font-size: 0.8rem;
+  line-height: 1.42;
+}
+
+.admin-page input,
+.admin-page textarea,
+.admin-page select,
+.portal-page input,
+.portal-page textarea,
+.portal-page select,
+.account-page input,
+.account-page textarea,
+.account-page select,
+.auth-compact input,
+.auth-compact textarea,
+.auth-compact select {
+  min-height: 42px;
+  padding: 0.62rem 0.78rem;
+  border-radius: 14px;
+  font-size: 0.9rem;
+}
+
+.admin-page textarea,
+.portal-page textarea,
+.account-page textarea,
+.auth-compact textarea {
+  min-height: 104px;
+}
+
+.admin-page input[type="file"],
+.portal-page input[type="file"],
+.auth-compact input[type="file"] {
+  padding: 0.62rem;
+}
+
+.admin-page input[type="checkbox"],
+.portal-page input[type="checkbox"],
+.account-page input[type="checkbox"],
+.auth-compact input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 4px;
+}
+
+.admin-page .checkbox-field,
+.admin-page .toggle-field,
+.portal-page .checkbox-field,
+.portal-page .toggle-field,
+.account-page .checkbox-field,
+.account-page .toggle-field,
+.auth-compact .checkbox-field,
+.auth-compact .toggle-field {
+  gap: 0.45rem;
+  padding: 0.6rem 0.72rem;
+  border-radius: 14px;
+  font-size: 0.86rem;
+}
+
+.admin-page .checkbox-field--stacked span,
+.portal-page .checkbox-field--stacked span,
+.account-page .checkbox-field--stacked span,
+.auth-compact .checkbox-field--stacked span {
+  line-height: 1.42;
+}
+
+.admin-page .form-alert,
+.portal-page .form-alert,
+.account-page .form-alert,
+.auth-compact .form-alert {
+  padding: 0.68rem 0.82rem;
+  border-radius: 13px;
+  font-size: 0.85rem;
+}
+
+.admin-page .submission-form__actions,
+.portal-page .submission-form__actions,
+.account-page .submission-form__actions,
+.auth-compact .submission-form__actions {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.15rem;
+}
+
+.claim-auth-switches .button {
+  flex-basis: 175px;
+}
+
+.admin-nav,
+.portal-nav,
+.admin-inline-stats,
+.status-filter-row {
+  gap: 0.48rem;
+}
+
+.admin-nav__link,
+.portal-nav__link,
+.status-badge {
+  min-height: 32px;
+  padding: 0.42rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.admin-list__item,
+.timeline-item,
+.admin-card-list__item {
+  gap: 0.68rem;
+  padding: 0.78rem 0.9rem;
+  border-radius: 16px;
+}
+
+.admin-stat-card strong {
+  font-size: clamp(1.25rem, 2.4vw, 1.65rem);
+}
+
+.portal-media-card {
+  gap: 0.65rem;
+}
+
+.admin-media-card__image {
+  border-radius: 16px;
+}
+
+.feature-pill {
+  padding: 0.52rem 0.7rem;
+  border-radius: 13px;
+  font-size: 0.86rem;
+}
+
 .site-footer {
   margin-top: 2rem;
   padding: 2rem 0 2.6rem;
@@ -2086,6 +2398,21 @@ input[type="checkbox"] {
   input,
   textarea,
   select {
+    font-size: 16px;
+  }
+
+  .admin-page input,
+  .admin-page textarea,
+  .admin-page select,
+  .portal-page input,
+  .portal-page textarea,
+  .portal-page select,
+  .account-page input,
+  .account-page textarea,
+  .account-page select,
+  .auth-compact input,
+  .auth-compact textarea,
+  .auth-compact select {
     font-size: 16px;
   }
 

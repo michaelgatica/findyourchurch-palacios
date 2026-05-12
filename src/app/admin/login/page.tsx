@@ -32,7 +32,7 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
   }
 
   return (
-    <section className="shell page-section admin-page">
+    <section className="shell page-section admin-page auth-compact">
       <div className="admin-login-card">
         <div className="panel">
           <p className="eyebrow eyebrow--gold">Internal Admin Portal</p>

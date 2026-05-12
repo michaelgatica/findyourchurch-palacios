@@ -47,7 +47,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
   const role = profile?.role ?? "pending_user";
 
   return (
-    <section className="shell page-section">
+    <section className="shell page-section account-page auth-compact">
       <div className="content-page-stack">
         <div className="panel content-card">
           <p className="eyebrow eyebrow--gold">My Account</p>
