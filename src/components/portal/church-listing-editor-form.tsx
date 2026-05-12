@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { updateChurchListingAction } from "@/lib/actions/portal";
@@ -11,6 +11,18 @@ import {
 import { denominationOptions, worshipStyleOptions } from "@/lib/data/options";
 import type { ChurchRecord } from "@/lib/types/directory";
 
+const maximumUploadSizeInBytes = 8 * 1024 * 1024;
+const maximumTotalUploadSizeInBytes = 45 * 1024 * 1024;
+const maximumPhotoUploadCount = 4;
+
+function formatFileSize(sizeInBytes: number) {
+  if (sizeInBytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(sizeInBytes / 1024))} KB`;
+  }
+
+  return `${(sizeInBytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function FieldError({ message }: { message?: string }) {
   if (!message) {
     return null;
@@ -19,20 +31,98 @@ function FieldError({ message }: { message?: string }) {
   return <p className="field__error">{message}</p>;
 }
 
-function SubmitButton() {
+function SubmitButton({ disabled = false }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
 
   return (
-    <button type="submit" className="button button--primary" disabled={pending}>
+    <button type="submit" className="button button--primary" disabled={pending || disabled}>
       {pending ? "Saving changes..." : "Save church listing changes"}
     </button>
+  );
+}
+
+function UploadSelectionSummary({
+  selectedLogoFile,
+  selectedPhotoFiles,
+  errorMessage,
+}: {
+  selectedLogoFile: File | null;
+  selectedPhotoFiles: File[];
+  errorMessage?: string;
+}) {
+  if (!selectedLogoFile && selectedPhotoFiles.length === 0 && !errorMessage) {
+    return null;
+  }
+
+  return (
+    <div
+      className={
+        errorMessage
+          ? "upload-selection-summary upload-selection-summary--error"
+          : "upload-selection-summary"
+      }
+      aria-live="polite"
+    >
+      {errorMessage ? <p>{errorMessage}</p> : null}
+      {selectedLogoFile ? (
+        <p>
+          Logo selected: <strong>{selectedLogoFile.name}</strong>{" "}
+          ({formatFileSize(selectedLogoFile.size)})
+        </p>
+      ) : null}
+      {selectedPhotoFiles.length > 0 ? (
+        <div>
+          <p>
+            {selectedPhotoFiles.length} photo{selectedPhotoFiles.length === 1 ? "" : "s"} selected.
+            Photos upload after you click save.
+          </p>
+          <ul>
+            {selectedPhotoFiles.map((file) => (
+              <li key={`${file.name}-${file.size}-${file.lastModified}`}>
+                {file.name} ({formatFileSize(file.size)})
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : selectedLogoFile ? (
+        <p>Logo uploads after you click save.</p>
+      ) : null}
+    </div>
   );
 }
 
 export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
   const initialState = createChurchListingFormState(church);
   const [state, formAction] = useActionState(updateChurchListingAction, initialState);
+  const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
+  const [selectedPhotoFiles, setSelectedPhotoFiles] = useState<File[]>([]);
   const formState = state ?? initialState;
+  const selectedUploadError = useMemo(() => {
+    const selectedFiles = [
+      ...(selectedLogoFile ? [selectedLogoFile] : []),
+      ...selectedPhotoFiles,
+    ];
+    const oversizedFile = selectedFiles.find((file) => file.size > maximumUploadSizeInBytes);
+    const totalSize = selectedFiles.reduce((total, file) => total + file.size, 0);
+
+    if (oversizedFile) {
+      return `${oversizedFile.name} is ${formatFileSize(
+        oversizedFile.size,
+      )}. Please choose images that are 8 MB or smaller.`;
+    }
+
+    if (selectedPhotoFiles.length > maximumPhotoUploadCount) {
+      return `Please upload no more than ${maximumPhotoUploadCount} new photos at one time.`;
+    }
+
+    if (totalSize > maximumTotalUploadSizeInBytes) {
+      return `The selected uploads total ${formatFileSize(
+        totalSize,
+      )}. Please keep one save under ${formatFileSize(maximumTotalUploadSizeInBytes)}.`;
+    }
+
+    return undefined;
+  }, [selectedLogoFile, selectedPhotoFiles]);
 
   return (
     <form
@@ -389,18 +479,39 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
 
           <label className="field">
             <span className="field__label">Upload new logo</span>
-            <input name="churchLogo" type="file" accept=".png,.jpg,.jpeg,.webp" />
+            <input
+              name="churchLogo"
+              type="file"
+              accept=".png,.jpg,.jpeg,.webp"
+              onChange={(event) => {
+                setSelectedLogoFile(event.currentTarget.files?.[0] ?? null);
+              }}
+            />
             <span className="field__hint">PNG, JPG, or WebP. Maximum 512x512 pixels.</span>
             <FieldError message={formState.errors.churchLogo} />
           </label>
 
           <label className="field field--full">
             <span className="field__label">Upload new photos</span>
-            <input name="churchPhotos" type="file" accept=".png,.jpg,.jpeg,.webp" multiple />
+            <input
+              name="churchPhotos"
+              type="file"
+              accept=".png,.jpg,.jpeg,.webp"
+              multiple
+              onChange={(event) => {
+                setSelectedPhotoFiles(Array.from(event.currentTarget.files ?? []));
+              }}
+            />
             <span className="field__hint">Keep or upload up to 4 photos total.</span>
             <FieldError message={formState.errors.churchPhotos} />
           </label>
         </div>
+
+        <UploadSelectionSummary
+          selectedLogoFile={selectedLogoFile}
+          selectedPhotoFiles={selectedPhotoFiles}
+          errorMessage={selectedUploadError}
+        />
 
         <div className="admin-media-grid">
           {church.photos.length === 0 ? (
@@ -435,7 +546,7 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
       </section>
 
       <div className="submission-form__actions">
-        <SubmitButton />
+        <SubmitButton disabled={Boolean(selectedUploadError)} />
       </div>
     </form>
   );
