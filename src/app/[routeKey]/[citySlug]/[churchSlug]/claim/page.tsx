@@ -3,7 +3,6 @@ import { notFound, redirect } from "next/navigation";
 import { ChurchClaimRequestForm } from "@/components/church-claim-request-form";
 import {
   buildChurchClaimPath,
-  buildLaunchPageTitle,
   createPageMetadata,
   siteConfig,
 } from "@/lib/config/site";
@@ -32,11 +31,7 @@ export async function generateMetadata({
   const requestedPath = `/${resolvedParams.routeKey}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}/claim`;
 
   if (!church) {
-    return createPageMetadata({
-      title: buildLaunchPageTitle("Claim This Church"),
-      description: "Church listing not found.",
-      pathname: requestedPath,
-    });
+    notFound();
   }
 
   return createPageMetadata({

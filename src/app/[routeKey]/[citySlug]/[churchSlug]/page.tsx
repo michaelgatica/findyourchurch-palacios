@@ -4,7 +4,6 @@ import { notFound, redirect } from "next/navigation";
 import { ChurchProfileView } from "@/components/church-profile-view";
 import {
   buildChurchProfilePath,
-  buildLaunchPageTitle,
   createPageMetadata,
   siteConfig,
 } from "@/lib/config/site";
@@ -32,11 +31,7 @@ export async function generateMetadata({
   const requestedPath = `/${resolvedParams.routeKey}/${resolvedParams.citySlug}/${resolvedParams.churchSlug}`;
 
   if (!church) {
-    return createPageMetadata({
-      title: buildLaunchPageTitle("Church Profile"),
-      description: "Church listing not found.",
-      pathname: requestedPath,
-    });
+    notFound();
   }
 
   return createPageMetadata({
