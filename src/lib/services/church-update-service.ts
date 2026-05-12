@@ -1,10 +1,10 @@
 import { buildChurchProfilePath } from "@/lib/config/site";
 import {
-  createServiceTime,
   createTag,
   mapDraftToChurchDocument,
   mapChurchDocumentToChurchRecord,
 } from "@/lib/firebase/firestore";
+import { normalizeServiceTimeInput } from "@/lib/service-time-options";
 import { uploadChurchAssetsToFirebaseStorage } from "@/lib/firebase/storage";
 import { safeRevalidatePath } from "@/lib/revalidation";
 import { createAuditLogInFirebase } from "@/lib/repositories/firebase-audit-log-repository";
@@ -79,7 +79,7 @@ function buildChurchDraftFromUpdateInput(input: {
     additionalLeaders: input.validatedInput.additionalLeaders,
     description: input.validatedInput.shortDescription,
     statementOfFaith: input.validatedInput.statementOfFaith,
-    serviceTimes: input.validatedInput.serviceTimes.map(createServiceTime),
+    serviceTimes: input.validatedInput.serviceTimes.map(normalizeServiceTimeInput),
     address: {
       line1: input.validatedInput.addressLine1,
       line2: input.validatedInput.addressLine2,

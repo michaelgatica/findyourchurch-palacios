@@ -6,6 +6,7 @@ import {
   isReservedChurchShareSlug,
   normalizeChurchShareSlug,
 } from "@/lib/config/site";
+import { parseServiceTimesFromFormData } from "@/lib/validation/service-times";
 import type {
   CreateChurchSubmissionInput,
   SubmissionFieldErrorKey,
@@ -136,9 +137,9 @@ const submissionSchema = z.object({
   churchDescription: z
     .string()
     .min(20, "Add a short description.")
-    .max(300, "Keep the description at 300 characters or less."),
+    .max(500, "Keep the description at 500 characters or less."),
   serviceTimes: z
-    .array(z.string().min(2))
+    .array(z.unknown())
     .min(1, "Add at least one service time."),
   primaryContactName: z.string().min(2, "Enter the primary contact name."),
   primaryContactEmail: z.string().email("Enter a valid primary contact email."),
@@ -396,6 +397,8 @@ async function validateImageFile(
 
 export async function validateChurchSubmissionFormData(formData: FormData) {
   const values = createValues(formData);
+  const parsedServiceTimes = parseServiceTimesFromFormData(formData, values.serviceTimes);
+  values.serviceTimes = parsedServiceTimes.serviceTimesText;
   const managerAccountPassword = getString(formData, "managerAccountPassword");
   const managerAccountPasswordConfirmation = getString(
     formData,
@@ -413,7 +416,7 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
     email: values.email,
     denomination: values.denomination,
     churchDescription: values.churchDescription,
-    serviceTimes: splitLines(values.serviceTimes),
+    serviceTimes: parsedServiceTimes.serviceTimes,
     primaryContactName: values.primaryContactName,
     primaryContactEmail: values.primaryContactEmail,
     primaryContactRole: values.primaryContactRole,
@@ -445,6 +448,10 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
   });
 
   const errors = schemaResult.success ? {} : createErrorMap(schemaResult.error);
+
+  if (parsedServiceTimes.error) {
+    errors.serviceTimes = parsedServiceTimes.error;
+  }
   const normalizedCustomShareSlug = normalizeChurchShareSlug(values.customShareSlug);
 
   if (values.customShareSlug && !normalizedCustomShareSlug) {
@@ -534,7 +541,7 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
     email: schemaResult.data.email,
     denomination: schemaResult.data.denomination,
     shortDescription: schemaResult.data.churchDescription,
-    serviceTimes: schemaResult.data.serviceTimes,
+    serviceTimes: parsedServiceTimes.serviceTimes,
     primaryContactName: schemaResult.data.primaryContactName,
     primaryContactEmail: schemaResult.data.primaryContactEmail,
     primaryContactRole: schemaResult.data.primaryContactRole,

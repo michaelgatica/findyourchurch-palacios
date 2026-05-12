@@ -73,7 +73,7 @@ const importedChurchSchema = z.object({
   primaryClergyName: z.string().optional(),
   pastorName: z.string().optional(),
   additionalLeaders: z.array(z.string()).optional().default([]),
-  description: z.string().min(1).max(300),
+  description: z.string().min(1).max(500),
   statementOfFaith: z.string().max(200).optional(),
   serviceTimes: z.array(importedServiceTimeSchema).min(1),
   address: z.object({

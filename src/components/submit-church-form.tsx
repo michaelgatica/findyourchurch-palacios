@@ -8,6 +8,7 @@ import { submitChurchAction } from "@/lib/actions/submit-church";
 import { siteConfig } from "@/lib/config/site";
 import { denominationOptions, worshipStyleOptions } from "@/lib/data/options";
 import { emptySubmissionFormState } from "@/lib/types/directory";
+import { ServiceTimesFieldset } from "@/components/service-times-fieldset";
 
 const defaultSubmissionFormState = {
   ...emptySubmissionFormState,
@@ -116,26 +117,21 @@ export function SubmitChurchForm() {
             <RequiredLabel>Short church description</RequiredLabel>
             <textarea
               name="churchDescription"
-              maxLength={300}
+              maxLength={500}
               defaultValue={formState.values.churchDescription}
-              placeholder="Up to 300 characters"
+              placeholder="Up to 500 characters"
               required
             />
-            <span className="field__hint">Keep this brief and welcoming.</span>
+            <span className="field__hint">
+              Keep this brief and welcoming. Maximum 500 characters.
+            </span>
             <FieldError message={formState.errors.churchDescription} />
           </label>
 
-          <label className="field field--full">
-            <RequiredLabel>Service times</RequiredLabel>
-            <textarea
-              name="serviceTimes"
-              defaultValue={formState.values.serviceTimes}
-              placeholder="Enter one service per line"
-              required
-            />
-            <span className="field__hint">Example: Sunday Worship - 10:30 AM</span>
-            <FieldError message={formState.errors.serviceTimes} />
-          </label>
+          <ServiceTimesFieldset
+            serviceTimesText={formState.values.serviceTimes}
+            errorMessage={formState.errors.serviceTimes}
+          />
 
           <label className="field">
             <span className="field__label">Pastor / Priest / Reverend name</span>

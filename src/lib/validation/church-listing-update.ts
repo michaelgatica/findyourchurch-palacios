@@ -18,7 +18,9 @@ import type {
 import type {
   ChurchPhoto,
   ChurchRecord,
+  ServiceTime,
 } from "@/lib/types/directory";
+import { parseServiceTimesFromFormData } from "@/lib/validation/service-times";
 
 const acceptedImageMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const maximumUploadSizeInBytes = 8 * 1024 * 1024;
@@ -154,7 +156,7 @@ const listingSchema = z.object({
   churchDescription: z
     .string()
     .min(20, "Add a short description.")
-    .max(300, "Keep the description at 300 characters or less."),
+    .max(500, "Keep the description at 500 characters or less."),
   statementOfFaith: z
     .preprocess(
       (value) => {
@@ -182,7 +184,7 @@ const listingSchema = z.object({
     z.enum(worshipStyleOptions).optional(),
   ),
   serviceTimes: z
-    .array(z.string().min(2))
+    .array(z.unknown())
     .min(1, "Add at least one service time."),
   languages: z.array(z.string()).default([]),
   onlineGivingUrl: optionalUrl,
@@ -432,7 +434,7 @@ export interface ValidatedChurchListingUpdateInput {
   shortDescription: string;
   statementOfFaith?: string;
   worshipStyle?: string;
-  serviceTimes: string[];
+  serviceTimes: Array<ServiceTime | string>;
   languages: string[];
   onlineGivingUrl?: string;
   accessibilityDetails?: string;
@@ -457,6 +459,8 @@ export async function validateChurchListingUpdateFormData(
   currentChurch: ChurchRecord,
 ) {
   const values = createValues(formData, currentChurch);
+  const parsedServiceTimes = parseServiceTimesFromFormData(formData, values.serviceTimes);
+  values.serviceTimes = parsedServiceTimes.serviceTimesText;
   const schemaResult = listingSchema.safeParse({
     churchId: values.churchId,
     churchSlug: values.churchSlug,
@@ -481,7 +485,7 @@ export async function validateChurchListingUpdateFormData(
     churchDescription: values.churchDescription,
     statementOfFaith: values.statementOfFaith,
     worshipStyle: values.worshipStyle,
-    serviceTimes: splitLines(values.serviceTimes),
+    serviceTimes: parsedServiceTimes.serviceTimes,
     languages: splitCommaSeparatedValues(values.languagesOffered),
     onlineGivingUrl: values.onlineGivingUrl,
     accessibilityDetails: values.accessibilityDetails,
@@ -498,6 +502,10 @@ export async function validateChurchListingUpdateFormData(
   });
 
   const errors = schemaResult.success ? {} : createErrorMap(schemaResult.error);
+
+  if (parsedServiceTimes.error) {
+    errors.serviceTimes = parsedServiceTimes.error;
+  }
   const normalizedCustomShareSlug = normalizeChurchShareSlug(values.customShareSlug);
 
   if (values.customShareSlug && !normalizedCustomShareSlug) {
@@ -596,7 +604,7 @@ export async function validateChurchListingUpdateFormData(
       shortDescription: schemaResult.data.churchDescription,
       statementOfFaith: schemaResult.data.statementOfFaith,
       worshipStyle: schemaResult.data.worshipStyle,
-      serviceTimes: schemaResult.data.serviceTimes,
+      serviceTimes: parsedServiceTimes.serviceTimes,
       languages: schemaResult.data.languages,
       onlineGivingUrl: schemaResult.data.onlineGivingUrl,
       accessibilityDetails: schemaResult.data.accessibilityDetails,

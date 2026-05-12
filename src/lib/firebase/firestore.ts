@@ -10,6 +10,7 @@ import {
   getStateById,
   states,
 } from "@/lib/data/locations";
+import { normalizeServiceTimeInput } from "@/lib/service-time-options";
 import type {
   ChurchDocument,
   ChurchListingDraft,
@@ -307,7 +308,7 @@ export function buildChurchDraftFromSubmissionInput(
     additionalLeaders: input.additionalLeaders,
     description: input.shortDescription,
     statementOfFaith: input.statementOfFaith,
-    serviceTimes: input.serviceTimes.map(createServiceTime),
+    serviceTimes: input.serviceTimes.map(normalizeServiceTimeInput),
     address: {
       line1: input.addressLine1,
       line2: input.addressLine2,

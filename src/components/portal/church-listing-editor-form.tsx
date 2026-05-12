@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useActionState, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 
+import { ServiceTimesFieldset } from "@/components/service-times-fieldset";
 import { updateChurchListingAction } from "@/lib/actions/portal";
 import {
   createChurchListingFormState,
@@ -184,23 +185,20 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
             <span className="field__label">Short church description</span>
             <textarea
               name="churchDescription"
-              maxLength={300}
+              maxLength={500}
               defaultValue={formState.values.churchDescription}
               required
             />
+            <span className="field__hint">
+              Keep this to one warm paragraph. Maximum 500 characters.
+            </span>
             <FieldError message={formState.errors.churchDescription} />
           </label>
 
-          <label className="field field--full">
-            <span className="field__label">Service times</span>
-            <textarea
-              name="serviceTimes"
-              defaultValue={formState.values.serviceTimes}
-              placeholder="Enter one service per line"
-              required
-            />
-            <FieldError message={formState.errors.serviceTimes} />
-          </label>
+          <ServiceTimesFieldset
+            serviceTimesText={formState.values.serviceTimes}
+            errorMessage={formState.errors.serviceTimes}
+          />
 
           <label className="field">
             <span className="field__label">Pastor / Priest / Reverend name</span>

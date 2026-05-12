@@ -1053,6 +1053,56 @@ input[type="checkbox"] {
   margin: 0;
 }
 
+.service-time-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid rgba(11, 74, 36, 0.12);
+  border-radius: 18px;
+  background: rgba(247, 245, 239, 0.58);
+}
+
+.service-time-fieldset legend {
+  padding: 0 0.35rem;
+}
+
+.service-time-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.service-time-row {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(11, 74, 36, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.service-time-row__primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  color: var(--deep-green);
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.service-time-row__primary input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.service-time-row__field,
+.service-time-row__notes {
+  gap: 0.32rem;
+}
+
 .toggle-grid,
 .checkbox-grid,
 .feature-grid {
@@ -2327,6 +2377,15 @@ input[type="checkbox"] {
 
   .directory-location-grid__actions {
     grid-column: 1 / -1;
+  }
+
+  .service-time-row {
+    grid-template-columns: auto minmax(150px, 1fr) minmax(130px, 0.7fr) minmax(150px, 0.8fr);
+    align-items: end;
+  }
+
+  .service-time-row__notes {
+    grid-column: 2 / -1;
   }
 }
 

@@ -318,7 +318,7 @@ export interface CreateChurchSubmissionInput {
   email: string;
   denomination: string;
   shortDescription: string;
-  serviceTimes: string[];
+  serviceTimes: Array<ServiceTime | string>;
   primaryContactName: string;
   primaryContactEmail: string;
   primaryContactRole: string;
