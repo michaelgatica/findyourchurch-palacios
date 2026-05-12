@@ -12,8 +12,10 @@ export async function createPendingChurchClaimRequest(input: {
   requesterEmail: string;
   requesterPhone?: string;
   requesterRoleTitle: string;
-  relationshipToChurch: string;
-  proofOrExplanation: string;
+  authorizationExplanation: string;
+  verifierName?: string;
+  verifierRoleTitle?: string;
+  verifierPhone?: string;
   communicationConsent: boolean;
   termsAccepted: boolean;
   followUpEmailOptIn: boolean;

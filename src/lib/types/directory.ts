@@ -531,8 +531,12 @@ export interface ChurchClaimRequestRecord {
   requesterEmail: string;
   requesterPhone?: string;
   requesterRoleTitle: string;
-  relationshipToChurch: string;
-  proofOrExplanation: string;
+  authorizationExplanation?: string;
+  verifierName?: string;
+  verifierRoleTitle?: string;
+  verifierPhone?: string;
+  relationshipToChurch?: string;
+  proofOrExplanation?: string;
   communicationConsentAcceptedAt: string;
   termsAcceptedAt: string;
   followUpEmailOptIn: boolean;
@@ -551,8 +555,10 @@ export interface CreateChurchClaimRequestInput {
   requesterEmail: string;
   requesterPhone?: string;
   requesterRoleTitle: string;
-  relationshipToChurch: string;
-  proofOrExplanation: string;
+  authorizationExplanation: string;
+  verifierName?: string;
+  verifierRoleTitle?: string;
+  verifierPhone?: string;
   communicationConsent: boolean;
   termsAccepted: boolean;
   followUpEmailOptIn: boolean;

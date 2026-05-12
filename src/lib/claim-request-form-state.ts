@@ -6,8 +6,10 @@ export interface ClaimRequestFormValues {
   requesterEmail: string;
   requesterPhone: string;
   requesterRoleTitle: string;
-  relationshipToChurch: string;
-  proofOrExplanation: string;
+  authorizationExplanation: string;
+  verifierName: string;
+  verifierRoleTitle: string;
+  verifierPhone: string;
   communicationConsent: boolean;
   termsAccepted: boolean;
   followUpEmailOptIn: boolean;
@@ -18,8 +20,10 @@ export type ClaimRequestFieldName =
   | "requesterEmail"
   | "requesterPhone"
   | "requesterRoleTitle"
-  | "relationshipToChurch"
-  | "proofOrExplanation"
+  | "authorizationExplanation"
+  | "verifierName"
+  | "verifierRoleTitle"
+  | "verifierPhone"
   | "communicationConsent"
   | "termsAccepted";
 
@@ -44,8 +48,10 @@ export function createClaimRequestFormState(
       requesterEmail: values?.requesterEmail ?? "",
       requesterPhone: values?.requesterPhone ?? "",
       requesterRoleTitle: values?.requesterRoleTitle ?? "",
-      relationshipToChurch: values?.relationshipToChurch ?? "",
-      proofOrExplanation: values?.proofOrExplanation ?? "",
+      authorizationExplanation: values?.authorizationExplanation ?? "",
+      verifierName: values?.verifierName ?? "",
+      verifierRoleTitle: values?.verifierRoleTitle ?? "",
+      verifierPhone: values?.verifierPhone ?? "",
       communicationConsent: values?.communicationConsent ?? false,
       termsAccepted: values?.termsAccepted ?? false,
       followUpEmailOptIn: values?.followUpEmailOptIn ?? false,

@@ -6,7 +6,16 @@ import {
   getClaimDashboardCounts,
   listAdminClaimRequests,
 } from "@/lib/services/admin-claim-review-service";
-import { churchClaimRequestStatuses } from "@/lib/types/directory";
+import { churchClaimRequestStatuses, type ChurchClaimRequestRecord } from "@/lib/types/directory";
+
+function getClaimAuthorizationSummary(claimRequest: ChurchClaimRequestRecord) {
+  return (
+    claimRequest.authorizationExplanation ??
+    claimRequest.proofOrExplanation ??
+    claimRequest.relationshipToChurch ??
+    "Not provided"
+  );
+}
 
 interface AdminClaimsPageProps {
   searchParams: Promise<{
@@ -93,8 +102,8 @@ export default async function AdminClaimsPage({ searchParams }: AdminClaimsPageP
                   <p>{claimRequest.churchId}</p>
                 </div>
                 <div>
-                  <strong>Relationship</strong>
-                  <p>{claimRequest.relationshipToChurch}</p>
+                  <strong>Authorization</strong>
+                  <p>{getClaimAuthorizationSummary(claimRequest)}</p>
                 </div>
                 <div>
                   <strong>Requested</strong>

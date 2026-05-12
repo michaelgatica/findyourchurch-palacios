@@ -46,6 +46,27 @@ function getMissionAndDonationNote() {
   return [...getMissionNote(), "", ...getDonationNote()];
 }
 
+function getClaimAuthorizationSummary(claimRequest: ChurchClaimRequestRecord) {
+  return (
+    claimRequest.authorizationExplanation ??
+    claimRequest.proofOrExplanation ??
+    claimRequest.relationshipToChurch ??
+    "Not provided"
+  );
+}
+
+function getClaimVerifierSummary(claimRequest: ChurchClaimRequestRecord) {
+  const verifierDetails = [
+    claimRequest.verifierName,
+    claimRequest.verifierRoleTitle,
+    claimRequest.verifierPhone,
+  ]
+    .filter(Boolean)
+    .join(" - ");
+
+  return verifierDetails || "Not provided";
+}
+
 async function sendAdminNotificationEmail(input: {
   subject: string;
   body: string;
@@ -244,6 +265,9 @@ export async function sendClaimReceivedNotification(input: {
       `Church name: ${input.church.name}`,
       `Requester name: ${input.claimRequest.requesterName}`,
       `Requester email: ${input.claimRequest.requesterEmail}`,
+      `Requester role/title: ${input.claimRequest.requesterRoleTitle}`,
+      `Authorization explanation: ${getClaimAuthorizationSummary(input.claimRequest)}`,
+      `Approving contact: ${getClaimVerifierSummary(input.claimRequest)}`,
       `Request time: ${formatDateTime(input.claimRequest.createdAt)}`,
       "",
       `Review it here: ${createEmailLink("Open claim review", buildAbsoluteUrl(`/admin/claims/${input.claimRequest.id}`))}`,

@@ -31,6 +31,18 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
   const redirectTo = `/admin/claims/${claimRequest.id}`;
   const canReviewClaim =
     claimRequest.status === "pending_review" || claimRequest.status === "more_info_requested";
+  const authorizationExplanation =
+    claimRequest.authorizationExplanation ??
+    claimRequest.proofOrExplanation ??
+    claimRequest.relationshipToChurch ??
+    "Not provided";
+  const verifierContact = [
+    claimRequest.verifierName,
+    claimRequest.verifierRoleTitle,
+    claimRequest.verifierPhone,
+  ]
+    .filter(Boolean)
+    .join(" - ");
 
   return (
     <div className="admin-content">
@@ -186,12 +198,12 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
               <p>{claimRequest.requesterRoleTitle}</p>
             </div>
             <div>
-              <strong>Relationship to church</strong>
-              <p>{claimRequest.relationshipToChurch}</p>
+              <strong>Authorization explanation</strong>
+              <p>{authorizationExplanation}</p>
             </div>
             <div>
-              <strong>Proof or explanation</strong>
-              <p>{claimRequest.proofOrExplanation}</p>
+              <strong>Approving contact</strong>
+              <p>{verifierContact || "Not provided"}</p>
             </div>
           </div>
         </div>

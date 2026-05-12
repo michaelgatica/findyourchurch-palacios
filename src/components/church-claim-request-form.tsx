@@ -47,6 +47,25 @@ function RequiredLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+const claimRoleTitleOptions = [
+  "Pastor",
+  "Priest",
+  "Associate Pastor",
+  "Deacon",
+  "Elder",
+  "Board Member",
+  "Trustee",
+  "Church Administrator",
+  "Office Staff",
+  "Secretary",
+  "Technology Director",
+  "Communications Director",
+  "Ministry Leader",
+  "First Lady",
+  "Authorized Representative",
+  "Other church staff",
+];
+
 function SubmitClaimButton() {
   const { pending } = useFormStatus();
 
@@ -97,7 +116,7 @@ function AuthenticatedClaimForm(props: {
 
       <div className="panel">
         <p className="eyebrow eyebrow--gold">Authorized Representative</p>
-        <h2>Tell us about your relationship to {props.churchName}</h2>
+        <h2>Tell us who should manage {props.churchName}</h2>
         <p className="supporting-text">
           Your request will be saved as pending review and checked by the Find Your Church
           ministry team before access is approved.
@@ -151,35 +170,67 @@ function AuthenticatedClaimForm(props: {
 
           <label className="field">
             <RequiredLabel>Role / title</RequiredLabel>
-            <input
+            <select
               name="requesterRoleTitle"
-              defaultValue={formState.values.requesterRoleTitle}
-              placeholder="Pastor, church secretary, elder, staff member"
               required
-            />
+              defaultValue={formState.values.requesterRoleTitle}
+            >
+              <option value="">Select your role or title</option>
+              {claimRoleTitleOptions.map((roleTitle) => (
+                <option key={roleTitle} value={roleTitle}>
+                  {roleTitle}
+                </option>
+              ))}
+            </select>
             <FieldError message={formState.errors.requesterRoleTitle} />
           </label>
 
           <label className="field field--full">
-            <RequiredLabel>Relationship to church</RequiredLabel>
+            <RequiredLabel>How are you authorized to manage this listing?</RequiredLabel>
             <textarea
-              name="relationshipToChurch"
-              defaultValue={formState.values.relationshipToChurch}
-              placeholder="Please explain how you are connected to this church."
+              name="authorizationExplanation"
+              defaultValue={formState.values.authorizationExplanation}
+              placeholder="Briefly explain your connection to the church and who approved or asked you to help manage this listing."
               required
             />
-            <FieldError message={formState.errors.relationshipToChurch} />
+            <span className="field__hint">
+              Example: I serve on church staff and help keep the website and public information
+              updated.
+            </span>
+            <FieldError message={formState.errors.authorizationExplanation} />
           </label>
 
-          <label className="field field--full">
-            <RequiredLabel>Proof or explanation</RequiredLabel>
-            <textarea
-              name="proofOrExplanation"
-              defaultValue={formState.values.proofOrExplanation}
-              placeholder="Share any details that will help us confirm you are authorized to manage this listing."
-              required
+          <label className="field">
+            <span className="field__label">Approving person name</span>
+            <input
+              name="verifierName"
+              defaultValue={formState.values.verifierName}
+              placeholder="Optional"
             />
-            <FieldError message={formState.errors.proofOrExplanation} />
+            <FieldError message={formState.errors.verifierName} />
+          </label>
+
+          <label className="field">
+            <span className="field__label">Approving person role / title</span>
+            <input
+              name="verifierRoleTitle"
+              defaultValue={formState.values.verifierRoleTitle}
+              placeholder="Optional"
+            />
+            <FieldError message={formState.errors.verifierRoleTitle} />
+          </label>
+
+          <label className="field">
+            <span className="field__label">Approving person phone</span>
+            <input
+              name="verifierPhone"
+              defaultValue={formState.values.verifierPhone}
+              placeholder="Optional"
+            />
+            <span className="field__hint">
+              Only provide this if it is okay for us to contact them if verification is needed.
+            </span>
+            <FieldError message={formState.errors.verifierPhone} />
           </label>
         </div>
 

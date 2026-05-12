@@ -32,8 +32,10 @@ export async function submitChurchClaimRequestAction(
     requesterEmail: readFormValue(formData, "requesterEmail"),
     requesterPhone: readFormValue(formData, "requesterPhone"),
     requesterRoleTitle: readFormValue(formData, "requesterRoleTitle"),
-    relationshipToChurch: readFormValue(formData, "relationshipToChurch"),
-    proofOrExplanation: readFormValue(formData, "proofOrExplanation"),
+    authorizationExplanation: readFormValue(formData, "authorizationExplanation"),
+    verifierName: readFormValue(formData, "verifierName"),
+    verifierRoleTitle: readFormValue(formData, "verifierRoleTitle"),
+    verifierPhone: readFormValue(formData, "verifierPhone"),
     communicationConsent: readFormCheckboxValue(formData, "communicationConsent"),
     termsAccepted: readFormCheckboxValue(formData, "termsAccepted"),
     followUpEmailOptIn: readFormCheckboxValue(formData, "followUpEmailOptIn"),
@@ -68,16 +70,12 @@ export async function submitChurchClaimRequestAction(
   }
 
   if (values.requesterRoleTitle.length < 2) {
-    errors.requesterRoleTitle = "Please enter your role or title.";
+    errors.requesterRoleTitle = "Please select your role or title.";
   }
 
-  if (values.relationshipToChurch.length < 5) {
-    errors.relationshipToChurch = "Please explain your relationship to the church.";
-  }
-
-  if (values.proofOrExplanation.length < 20) {
-    errors.proofOrExplanation =
-      "Please provide enough detail for the ministry team to review the request.";
+  if (values.authorizationExplanation.length < 20) {
+    errors.authorizationExplanation =
+      "Please explain how you are authorized to help manage this listing.";
   }
 
   if (!values.communicationConsent) {
@@ -115,8 +113,10 @@ export async function submitChurchClaimRequestAction(
       requesterEmail: values.requesterEmail,
       requesterPhone: values.requesterPhone || undefined,
       requesterRoleTitle: values.requesterRoleTitle,
-      relationshipToChurch: values.relationshipToChurch,
-      proofOrExplanation: values.proofOrExplanation,
+      authorizationExplanation: values.authorizationExplanation,
+      verifierName: values.verifierName || undefined,
+      verifierRoleTitle: values.verifierRoleTitle || undefined,
+      verifierPhone: values.verifierPhone || undefined,
       communicationConsent: values.communicationConsent,
       termsAccepted: values.termsAccepted,
       followUpEmailOptIn: values.followUpEmailOptIn,

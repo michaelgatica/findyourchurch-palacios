@@ -13,12 +13,24 @@ export const churchClaimRequestSchema = z.object({
     .optional()
     .transform((value) => (value ? value : undefined)),
   requesterRoleTitle: z.string().min(2, "Role title is required."),
-  relationshipToChurch: z
+  authorizationExplanation: z
     .string()
-    .min(5, "Please explain your relationship to the church."),
-  proofOrExplanation: z
+    .min(20, "Please explain how you are authorized to help manage this listing."),
+  verifierName: z
     .string()
-    .min(20, "Please provide enough detail for the ministry team to review the request."),
+    .trim()
+    .optional()
+    .transform((value) => (value ? value : undefined)),
+  verifierRoleTitle: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => (value ? value : undefined)),
+  verifierPhone: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => (value ? value : undefined)),
   communicationConsent: z.boolean().refine(
     (value) => value,
     "Please confirm that we may email you about this request and review process.",

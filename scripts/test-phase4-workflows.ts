@@ -253,8 +253,11 @@ async function run() {
     requesterEmail: primaryClaimant.email,
     requesterPhone: primaryClaimant.phone,
     requesterRoleTitle: "Pastor",
-    relationshipToChurch: "Lead pastor and primary church contact for this listing.",
-    proofOrExplanation: "I oversee this church and approve directory information updates.",
+    authorizationExplanation:
+      "I am the lead pastor and primary church contact for this listing, and I approve directory information updates.",
+    verifierName: "Phase 4 Verifier",
+    verifierRoleTitle: "Church Office",
+    verifierPhone: "361-555-0102",
     communicationConsent: true,
     termsAccepted: true,
     followUpEmailOptIn: false,

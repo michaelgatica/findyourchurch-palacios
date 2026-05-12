@@ -198,9 +198,11 @@ async function run() {
     requesterEmail: approvingClaimant.email,
     requesterPhone: approvingClaimant.phone,
     requesterRoleTitle: "Pastor",
-    relationshipToChurch: "Lead pastor and primary ministry contact for this church.",
-    proofOrExplanation:
-      "I oversee this church location and can provide additional verification on request.",
+    authorizationExplanation:
+      "I am the lead pastor and primary ministry contact for this church, and I can provide additional verification on request.",
+    verifierName: "Phase 3 Verifier",
+    verifierRoleTitle: "Church Office",
+    verifierPhone: "361-555-0101",
     communicationConsent: true,
     termsAccepted: true,
     followUpEmailOptIn: false,
@@ -218,9 +220,8 @@ async function run() {
     requesterEmail: moreInfoClaimant.email,
     requesterPhone: moreInfoClaimant.phone,
     requesterRoleTitle: "Staff Member",
-    relationshipToChurch: "Weekly staff member helping coordinate the office and visitor follow-up.",
-    proofOrExplanation:
-      "I help manage front office communication, but I may need to share more verification details.",
+    authorizationExplanation:
+      "I am a weekly staff member helping coordinate the office and visitor follow-up, and I can share more verification details if needed.",
     communicationConsent: true,
     termsAccepted: true,
     followUpEmailOptIn: false,
@@ -239,9 +240,8 @@ async function run() {
     requesterEmail: deniedClaimant.email,
     requesterPhone: deniedClaimant.phone,
     requesterRoleTitle: "Volunteer",
-    relationshipToChurch: "Volunteer helping with occasional events and weekend setup.",
-    proofOrExplanation:
-      "I sometimes help at the church, but I am not the main contact for ownership and updates.",
+    authorizationExplanation:
+      "I sometimes help at the church with occasional events, but I am not the main contact for ownership and updates.",
     communicationConsent: true,
     termsAccepted: true,
     followUpEmailOptIn: false,
