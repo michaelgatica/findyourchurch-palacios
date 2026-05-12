@@ -861,6 +861,15 @@ select:focus-visible {
   color: var(--muted);
 }
 
+.church-card__service {
+  margin-top: 0.28rem;
+  color: var(--deep-green);
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 .text-link {
   color: var(--deep-green);
   font-weight: 700;

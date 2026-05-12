@@ -19,6 +19,22 @@ export function getPrimaryServiceTime(church: ChurchRecord) {
   return church.serviceTimes.find((serviceTime) => serviceTime.isPrimary) ?? church.serviceTimes[0];
 }
 
+export function getServiceTimeLabel(serviceTime: ChurchRecord["serviceTimes"][number] | string | null | undefined) {
+  if (!serviceTime) {
+    return "";
+  }
+
+  if (typeof serviceTime === "string") {
+    return serviceTime;
+  }
+
+  return serviceTime.label;
+}
+
+export function getPrimaryServiceTimeLabel(church: ChurchRecord) {
+  return getServiceTimeLabel(getPrimaryServiceTime(church));
+}
+
 export function buildDirectionsUrl(address: StructuredAddress) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formatAddress(address))}`;
 }
@@ -93,7 +109,7 @@ function createSearchableText(church: ChurchRecord) {
     church.specificAffiliation,
     church.primaryClergyName,
     church.additionalLeaders.join(" "),
-    church.serviceTimes.map((serviceTime) => serviceTime.label).join(" "),
+    church.serviceTimes.map(getServiceTimeLabel).join(" "),
     church.ministryTags.map((tag) => tag.label).join(" "),
     church.worshipStyle,
     church.languages.join(" "),

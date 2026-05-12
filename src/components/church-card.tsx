@@ -7,7 +7,7 @@ import {
   formatAddress,
   getChurchCardTags,
   getChurchInitials,
-  getPrimaryServiceTime,
+  getPrimaryServiceTimeLabel,
 } from "@/lib/church-utils";
 import type { ChurchRecord } from "@/lib/types/directory";
 
@@ -20,7 +20,7 @@ export function ChurchCard({
   distanceMiles?: number | null;
   isHighlighted?: boolean;
 }) {
-  const primaryServiceTime = getPrimaryServiceTime(church);
+  const primaryServiceTimeLabel = getPrimaryServiceTimeLabel(church);
   const keyTags = getChurchCardTags(church);
 
   return (
@@ -47,6 +47,9 @@ export function ChurchCard({
           </div>
           <h3>{church.name}</h3>
           <p className="church-card__meta">{formatAddress(church.address)}</p>
+          <p className="church-card__service">
+            {primaryServiceTimeLabel || "Service times coming soon"}
+          </p>
           {typeof distanceMiles === "number" ? (
             <p className="church-card__distance">{distanceMiles.toFixed(1)} miles away</p>
           ) : null}
@@ -58,7 +61,7 @@ export function ChurchCard({
       <div className="church-card__summary-grid">
         <div>
           <span className="church-card__label">Primary service</span>
-          <p>{primaryServiceTime?.label ?? "Service times coming soon"}</p>
+          <p>{primaryServiceTimeLabel || "Service times coming soon"}</p>
         </div>
 
         <div>

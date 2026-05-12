@@ -13,7 +13,7 @@ import {
 import {
   buildDirectionsUrl,
   formatAddress,
-  getPrimaryServiceTime,
+  getPrimaryServiceTimeLabel,
   type GeoPoint,
 } from "@/lib/church-utils";
 import { buildChurchProfilePath } from "@/lib/config/site";
@@ -112,7 +112,7 @@ export function DirectoryMap({
           }
 
           const isSelected = selectedChurchId === church.id;
-          const primaryServiceTime = getPrimaryServiceTime(church);
+          const primaryServiceTimeLabel = getPrimaryServiceTimeLabel(church);
 
           return (
             <CircleMarker
@@ -134,9 +134,9 @@ export function DirectoryMap({
                   <p className="directory-map__popup-denomination">{church.denomination}</p>
                   <h3>{church.name}</h3>
                   <p>{formatAddress(church.address)}</p>
-                  {primaryServiceTime ? (
+                  {primaryServiceTimeLabel ? (
                     <p>
-                      <strong>Service:</strong> {primaryServiceTime.label}
+                      <strong>Service:</strong> {primaryServiceTimeLabel}
                     </p>
                   ) : null}
                   <div className="directory-map__popup-actions">

@@ -11,7 +11,8 @@ import {
   buildDirectionsUrl,
   formatAddress,
   getChurchInitials,
-  getPrimaryServiceTime,
+  getPrimaryServiceTimeLabel,
+  getServiceTimeLabel,
 } from "@/lib/church-utils";
 import { formatDate, formatListValue } from "@/lib/formatting";
 import type { ChurchRecord } from "@/lib/types/directory";
@@ -72,7 +73,7 @@ function MinistryHighlight({ label }: { label: string }) {
 }
 
 export function ChurchProfileView({ church }: { church: ChurchRecord }) {
-  const primaryServiceTime = getPrimaryServiceTime(church);
+  const primaryServiceTimeLabel = getPrimaryServiceTimeLabel(church);
   const canonicalPath = buildChurchProfilePath(church);
   const claimPath = buildChurchClaimPath(church);
   const phoneNumber = church.phone.trim();
@@ -136,7 +137,7 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
                 {church.specificAffiliation ?? `Serving ${siteConfig.launchAreaLabel}`}
               </p>
               <p className="profile-hero__service-time">
-                {primaryServiceTime?.label ?? "Service times coming soon"}
+                {primaryServiceTimeLabel || "Service times coming soon"}
               </p>
               <p className="profile-hero__address">{formatAddress(church.address)}</p>
               <div className="tag-row profile-hero__tag-row">
@@ -229,9 +230,14 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
             <h2>Service times</h2>
             <div className="service-list">
               {church.serviceTimes.map((serviceTime) => (
-                <div key={serviceTime.id} className="service-list__item">
-                  <p>{serviceTime.label}</p>
-                  {serviceTime.notes ? <span>{serviceTime.notes}</span> : null}
+                <div
+                  key={typeof serviceTime === "string" ? serviceTime : serviceTime.id}
+                  className="service-list__item"
+                >
+                  <p>{getServiceTimeLabel(serviceTime)}</p>
+                  {typeof serviceTime !== "string" && serviceTime.notes ? (
+                    <span>{serviceTime.notes}</span>
+                  ) : null}
                 </div>
               ))}
             </div>
