@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Work_Sans } from "next/font/google";
+import { Poppins, Source_Sans_3 } from "next/font/google";
 import Script from "next/script";
 import "leaflet/dist/leaflet.css";
 
@@ -15,16 +15,18 @@ import {
 
 import "./globals.css";
 
-const headingFont = Fraunces({
+const headingFont = Poppins({
   subsets: ["latin"],
   variable: "--font-heading",
-  weight: ["600", "700"],
+  weight: ["500", "600", "700", "800"],
+  display: "swap",
 });
 
-const bodyFont = Work_Sans({
+const bodyFont = Source_Sans_3({
   subsets: ["latin"],
   variable: "--font-body",
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {

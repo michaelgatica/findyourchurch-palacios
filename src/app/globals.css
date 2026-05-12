@@ -36,7 +36,7 @@ body {
     radial-gradient(circle at top left, rgba(217, 162, 27, 0.16), transparent 28%),
     radial-gradient(circle at top right, rgba(11, 74, 36, 0.12), transparent 26%),
     linear-gradient(180deg, #fcfbf7 0%, var(--light-background) 48%, #f3efe4 100%);
-  font-family: var(--font-body), sans-serif;
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
   line-height: 1.6;
 }
 
@@ -412,27 +412,65 @@ main {
 
 h1,
 h2,
-h3 {
+h3,
+h4,
+h5,
+h6,
+legend {
   margin: 0;
-  font-family: var(--font-heading), serif;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
 }
 
 h1 {
-  font-size: clamp(1.75rem, 5.4vw, 4.15rem);
+  font-size: clamp(1.8rem, 4.6vw, 3.45rem);
 }
 
 h2 {
-  font-size: clamp(1.4rem, 3.8vw, 2.6rem);
+  font-size: clamp(1.35rem, 3vw, 2.25rem);
 }
 
 h3 {
-  font-size: clamp(1.1rem, 2.6vw, 1.45rem);
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+}
+
+h4,
+h5,
+h6,
+legend {
+  font-size: 1rem;
 }
 
 p {
   margin: 0;
+}
+
+.button,
+.site-nav__link,
+.site-header__menu-button,
+.site-header__account-button,
+.site-header__account-link,
+.site-header__account-action,
+.field__label,
+.eyebrow,
+.tag,
+.church-card__badge,
+.church-card__label,
+.directory-results__count,
+.status-badge,
+.admin-nav__link,
+.portal-nav__link,
+.field__required,
+.hero-panel__stats strong,
+.admin-stat-card strong,
+.ministry-highlight-card strong,
+.site-header__account-meta strong,
+.admin-update-row__label,
+.admin-update-row__value strong,
+.profile-hero__service-time {
+  font-family: var(--font-heading), var(--font-body), sans-serif;
 }
 
 .eyebrow {
@@ -760,7 +798,7 @@ select:focus-visible {
     linear-gradient(145deg, rgba(11, 74, 36, 0.95), rgba(6, 56, 28, 0.86)),
     var(--deep-green);
   color: var(--white);
-  font-family: var(--font-heading), serif;
+  font-family: var(--font-heading), var(--font-body), sans-serif;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
@@ -772,7 +810,7 @@ select:focus-visible {
 }
 
 .church-card__header-copy h3 {
-  font-size: 1.55rem;
+  font-size: 1.32rem;
 }
 
 .church-card__badge-row {
@@ -1080,7 +1118,7 @@ input[type="checkbox"] {
 
 .directory-search-panel__title {
   max-width: 18ch;
-  font-size: clamp(1.4rem, 4.2vw, 3.3rem);
+  font-size: clamp(1.45rem, 3.4vw, 2.75rem);
 }
 
 .directory-search-panel__title span {
@@ -1344,7 +1382,7 @@ input[type="checkbox"] {
 }
 
 .profile-hero h1 {
-  font-size: clamp(1.9rem, 4.2vw, 3.15rem);
+  font-size: clamp(1.75rem, 3.4vw, 2.65rem);
 }
 
 .profile-hero__copy {
@@ -1783,22 +1821,22 @@ input[type="checkbox"] {
 .portal-page h1,
 .account-page h1,
 .auth-compact h1 {
-  font-size: clamp(1.75rem, 3.2vw, 2.7rem);
-  line-height: 1.06;
+  font-size: clamp(1.55rem, 2.7vw, 2.25rem);
+  line-height: 1.14;
 }
 
 .admin-page h2,
 .portal-page h2,
 .account-page h2,
 .auth-compact h2 {
-  font-size: clamp(1.25rem, 2vw, 1.72rem);
+  font-size: clamp(1.15rem, 1.8vw, 1.52rem);
 }
 
 .admin-page h3,
 .portal-page h3,
 .account-page h3,
 .auth-compact h3 {
-  font-size: clamp(1rem, 1.45vw, 1.22rem);
+  font-size: clamp(0.98rem, 1.35vw, 1.14rem);
 }
 
 .admin-page .eyebrow,
@@ -2657,7 +2695,7 @@ input[type="checkbox"] {
   }
 
   .church-card__header-copy h3 {
-    font-size: 1.25rem;
+    font-size: 1.14rem;
   }
 
   /* Stack card action buttons full-width so they're easy to tap */
@@ -2725,7 +2763,7 @@ input[type="checkbox"] {
   }
 
   .profile-hero h1 {
-    font-size: clamp(1.5rem, 6.5vw, 2.35rem);
+    font-size: clamp(1.45rem, 5.8vw, 2.05rem);
   }
 
   /* Footer — single column links, tighter spacing */
