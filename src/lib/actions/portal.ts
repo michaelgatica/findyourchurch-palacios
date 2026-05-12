@@ -85,8 +85,10 @@ export async function updateChurchListingAction(
     }
   }
 
+  const actor = await requirePortalActor();
+  let redirectTo: string;
+
   try {
-    const actor = await requirePortalActor();
     const access = await requireRepresentativeChurchAccess({
       userId: actor.id,
       churchId,
@@ -100,15 +102,14 @@ export async function updateChurchListingAction(
       representativeEmail: access.profile.email,
     });
 
-    redirect(
+    redirectTo =
       result.mode === "auto_published"
         ? buildRedirectWithMessage("/portal", "success", "listing-updated")
         : buildRedirectWithMessage(
             "/portal/updates",
             "success",
             "updates-submitted",
-          ),
-    );
+          );
   } catch (error) {
     return {
       status: "error",
@@ -125,6 +126,8 @@ export async function updateChurchListingAction(
       values: validationResult.values,
     };
   }
+
+  redirect(redirectTo);
 }
 
 export async function sendRepresentativeChurchMessageAction(formData: FormData) {

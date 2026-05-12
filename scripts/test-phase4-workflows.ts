@@ -51,6 +51,7 @@ import {
 } from "@/lib/repositories/submission-repository";
 import { approveSubmission } from "@/lib/services/admin-submission-service";
 import type { ChurchPhoto, ChurchRecord } from "@/lib/types/directory";
+import type { ValidatedUploadFile } from "@/lib/validation/church-listing-update";
 
 loadEnv({
   path: ".env.local",
@@ -229,6 +230,22 @@ function buildValidatedInput(church: ChurchRecord, overrides?: Partial<{
   };
 }
 
+function createTestPhotoUpload(): ValidatedUploadFile {
+  return {
+    kind: "photo",
+    originalName: "phase-4-upload-test.png",
+    extension: ".png",
+    mimeType: "image/png",
+    size: 67,
+    width: 1,
+    height: 1,
+    buffer: Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
+      "base64",
+    ),
+  };
+}
+
 async function run() {
   const adminProfile = await getAdminProfile();
   const approvedSubmission = await createWorkflowSubmission("base");
@@ -286,7 +303,7 @@ async function run() {
         "Auto-publish verification update applied directly to the published church listing.",
     }),
     uploads: {
-      churchPhotos: [],
+      churchPhotos: [createTestPhotoUpload()],
     },
     submittedByUserId: primaryClaimant.id,
     submittedByRepresentativeId: primaryRepresentative.id,
@@ -298,9 +315,11 @@ async function run() {
   if (
     autoPublishedResult.mode !== "auto_published" ||
     churchAfterAutoPublish?.description !==
-      "Auto-publish verification update applied directly to the published church listing."
+      "Auto-publish verification update applied directly to the published church listing." ||
+    churchAfterAutoPublish.photos.length === 0 ||
+    !churchAfterAutoPublish.photos[0]?.src.includes("firebasestorage.googleapis.com")
   ) {
-    throw new Error("Auto-publish workflow did not update the public church record.");
+    throw new Error("Auto-publish workflow did not update the public church record with uploaded media.");
   }
 
   await toggleChurchAutoPublishUpdates({
