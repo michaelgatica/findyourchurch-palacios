@@ -62,10 +62,11 @@ function DetailRow({
   );
 }
 
-function BooleanFeature({ enabled, label }: { enabled: boolean; label: string }) {
+function MinistryHighlight({ label }: { label: string }) {
   return (
-    <div className={`feature-pill ${enabled ? "feature-pill--enabled" : "feature-pill--muted"}`}>
-      {label}
+    <div className="ministry-highlight-card">
+      <span>Available</span>
+      <strong>{label}</strong>
     </div>
   );
 }
@@ -75,6 +76,14 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
   const canonicalPath = buildChurchProfilePath(church);
   const claimPath = buildChurchClaimPath(church);
   const phoneNumber = church.phone.trim();
+  const ministryHighlights = [
+    church.features.childrenMinistry ? "Children's ministry" : null,
+    church.features.youthMinistry ? "Youth ministry" : null,
+    church.features.nurseryCare ? "Nursery care" : null,
+    church.features.spanishService ? "Spanish service" : null,
+    church.features.livestream ? "Livestream" : null,
+    church.features.wheelchairAccessible ? "Wheelchair accessible" : null,
+  ].filter((feature): feature is string => Boolean(feature));
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Church",
@@ -117,7 +126,7 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
               </div>
             )}
 
-            <div>
+            <div className="profile-hero__copy">
               <div className="profile-hero__badge-row">
                 <span className="church-card__badge">{church.denomination}</span>
                 {church.isSeedContent ? <p className="profile-hero__sample-note">Sample listing</p> : null}
@@ -231,21 +240,27 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
           <div className="panel">
             <p className="eyebrow">Ministries</p>
             <h2>Ministry highlights</h2>
-            <div className="feature-grid">
-              <BooleanFeature enabled={church.features.childrenMinistry} label="Children's ministry" />
-              <BooleanFeature enabled={church.features.youthMinistry} label="Youth ministry" />
-              <BooleanFeature enabled={church.features.nurseryCare} label="Nursery care" />
-              <BooleanFeature enabled={church.features.spanishService} label="Spanish service" />
-              <BooleanFeature enabled={church.features.livestream} label="Livestream" />
-              <BooleanFeature enabled={church.features.wheelchairAccessible} label="Wheelchair accessible" />
-            </div>
-            <div className="tag-row">
-              {church.ministryTags.map((tag) => (
-                <span key={tag.id} className="tag">
-                  {tag.label}
-                </span>
-              ))}
-            </div>
+            {ministryHighlights.length > 0 ? (
+              <div className="ministry-highlight-grid">
+                {ministryHighlights.map((feature) => (
+                  <MinistryHighlight key={feature} label={feature} />
+                ))}
+              </div>
+            ) : (
+              <p className="supporting-text">
+                Ministry details have not been added yet. A church representative can update this
+                section after claiming the listing.
+              </p>
+            )}
+            {church.ministryTags.length > 0 ? (
+              <div className="tag-row ministry-tag-row">
+                {church.ministryTags.map((tag) => (
+                  <span key={tag.id} className="tag">
+                    {tag.label}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <div className="panel">

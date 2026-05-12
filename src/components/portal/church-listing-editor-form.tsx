@@ -126,7 +126,6 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
 
   return (
     <form
-      key={JSON.stringify(formState.values)}
       action={formAction}
       className="submission-form"
       encType="multipart/form-data"
@@ -546,6 +545,11 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
       </section>
 
       <div className="submission-form__actions">
+        {formState.formError ? (
+          <div className="form-alert form-alert--inline" role="alert">
+            {formState.formError}
+          </div>
+        ) : null}
         <SubmitButton disabled={Boolean(selectedUploadError)} />
       </div>
     </form>

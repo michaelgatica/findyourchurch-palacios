@@ -230,10 +230,10 @@ function buildValidatedInput(church: ChurchRecord, overrides?: Partial<{
   };
 }
 
-function createTestPhotoUpload(): ValidatedUploadFile {
+function createTestImageUpload(kind: "logo" | "photo"): ValidatedUploadFile {
   return {
-    kind: "photo",
-    originalName: "phase-4-upload-test.png",
+    kind,
+    originalName: `phase-4-${kind}-upload-test.png`,
     extension: ".png",
     mimeType: "image/png",
     size: 67,
@@ -244,6 +244,14 @@ function createTestPhotoUpload(): ValidatedUploadFile {
       "base64",
     ),
   };
+}
+
+function createTestPhotoUpload(): ValidatedUploadFile {
+  return createTestImageUpload("photo");
+}
+
+function createTestLogoUpload(): ValidatedUploadFile {
+  return createTestImageUpload("logo");
 }
 
 async function run() {
@@ -335,7 +343,8 @@ async function run() {
         "Pending review verification update that should remain hidden until admin approval.",
     }),
     uploads: {
-      churchPhotos: [],
+      churchLogo: createTestLogoUpload(),
+      churchPhotos: [createTestPhotoUpload()],
     },
     submittedByUserId: primaryClaimant.id,
     submittedByRepresentativeId: primaryRepresentative.id,
@@ -358,13 +367,18 @@ async function run() {
 
   const approvedUpdateRequest = await getChurchUpdateRequestById(reviewPendingResult.updateRequest.id);
   const churchAfterUpdateApproval = await getChurchBySlugFromFirebase(church.slug);
+  const lastApprovedPhoto =
+    churchAfterUpdateApproval?.photos[churchAfterUpdateApproval.photos.length - 1];
 
   if (
     approvedUpdateRequest?.status !== "approved" ||
     churchAfterUpdateApproval?.description !==
-      "Pending review verification update that should remain hidden until admin approval."
+      "Pending review verification update that should remain hidden until admin approval." ||
+    !churchAfterUpdateApproval?.logoSrc?.includes("firebasestorage.googleapis.com") ||
+    (churchAfterUpdateApproval?.photos.length ?? 0) <= churchAfterAutoPublish.photos.length ||
+    !lastApprovedPhoto?.src.includes("firebasestorage.googleapis.com")
   ) {
-    throw new Error("Approved representative updates did not publish correctly.");
+    throw new Error("Approved representative updates did not publish correctly with uploaded media.");
   }
 
   const changesRequestedResult = await submitRepresentativeChurchUpdate({
