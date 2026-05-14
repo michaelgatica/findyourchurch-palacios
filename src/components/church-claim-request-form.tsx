@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useMemo, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 
+import { PasswordInput } from "@/components/password-input";
 import { submitChurchClaimRequestAction } from "@/lib/actions/church-claim-request";
 import { createClaimRequestFormState } from "@/lib/claim-request-form-state";
 import { siteConfig } from "@/lib/config/site";
@@ -338,9 +339,20 @@ export function ChurchClaimRequestForm({
     const name = String(formData.get("authName") ?? "").trim();
     const email = String(formData.get("authEmail") ?? "").trim();
     const password = String(formData.get("authPassword") ?? "");
+    const passwordConfirmation = String(formData.get("authPasswordConfirmation") ?? "");
     const phone = String(formData.get("authPhone") ?? "").trim();
 
     setAuthErrorMessage(null);
+
+    if (authMode === "create" && password.length < 6) {
+      setAuthErrorMessage("Choose a password with at least 6 characters.");
+      return;
+    }
+
+    if (authMode === "create" && password !== passwordConfirmation) {
+      setAuthErrorMessage("The password confirmation does not match. Please re-enter it.");
+      return;
+    }
 
     startTransition(async () => {
       try {
@@ -477,13 +489,28 @@ export function ChurchClaimRequestForm({
 
             <label className="field">
               <RequiredLabel>Password</RequiredLabel>
-              <input
+              <PasswordInput
                 name="authPassword"
-                type="password"
                 autoComplete={authMode === "create" ? "new-password" : "current-password"}
+                minLength={authMode === "create" ? 6 : undefined}
                 required
               />
             </label>
+
+            {authMode === "create" ? (
+              <label className="field">
+                <RequiredLabel>Confirm password</RequiredLabel>
+                <PasswordInput
+                  name="authPasswordConfirmation"
+                  autoComplete="new-password"
+                  minLength={6}
+                  required
+                />
+                <span className="field__hint">
+                  Re-enter the same password so we know it was typed correctly.
+                </span>
+              </label>
+            ) : null}
           </div>
 
           {authMode === "create" ? (

@@ -1053,6 +1053,37 @@ input[type="checkbox"] {
   margin: 0;
 }
 
+.password-input {
+  position: relative;
+}
+
+.password-input input {
+  padding-right: 4.85rem;
+}
+
+.password-input__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.45rem;
+  min-height: 30px;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid rgba(11, 74, 36, 0.14);
+  border-radius: 999px;
+  background: rgba(247, 245, 239, 0.92);
+  color: var(--deep-green);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.password-input__toggle:hover,
+.password-input__toggle:focus-visible {
+  background: rgba(217, 162, 27, 0.16);
+  border-color: rgba(11, 74, 36, 0.25);
+}
+
 .service-time-fieldset {
   min-width: 0;
   margin: 0;
@@ -2015,6 +2046,13 @@ input[type="checkbox"] {
   padding: 0.62rem 0.78rem;
   border-radius: 14px;
   font-size: 0.9rem;
+}
+
+.admin-page .password-input input,
+.portal-page .password-input input,
+.account-page .password-input input,
+.auth-compact .password-input input {
+  padding-right: 4.35rem;
 }
 
 .admin-page textarea,

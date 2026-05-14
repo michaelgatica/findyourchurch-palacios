@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 
+import { PasswordInput } from "@/components/password-input";
 import {
   createFirebaseUserAccount,
   signInWithFirebaseEmail,
@@ -22,10 +23,21 @@ export function PortalLoginForm({ redirectPath }: PortalLoginFormProps) {
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    const passwordConfirmation = String(formData.get("passwordConfirmation") ?? "");
     const name = String(formData.get("name") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
 
     setErrorMessage(null);
+
+    if (mode === "create" && password.length < 6) {
+      setErrorMessage("Choose a password with at least 6 characters.");
+      return;
+    }
+
+    if (mode === "create" && password !== passwordConfirmation) {
+      setErrorMessage("The password confirmation does not match. Please re-enter it.");
+      return;
+    }
 
     startTransition(async () => {
       try {
@@ -109,13 +121,30 @@ export function PortalLoginForm({ redirectPath }: PortalLoginFormProps) {
               <span className="field__label">
                 Password <span className="field__required">Required</span>
               </span>
-              <input
+              <PasswordInput
                 name="password"
-                type="password"
                 autoComplete={mode === "create" ? "new-password" : "current-password"}
+                minLength={mode === "create" ? 6 : undefined}
                 required
               />
             </label>
+
+            {mode === "create" ? (
+              <label className="field">
+                <span className="field__label">
+                  Confirm password <span className="field__required">Required</span>
+                </span>
+                <PasswordInput
+                  name="passwordConfirmation"
+                  autoComplete="new-password"
+                  minLength={6}
+                  required
+                />
+                <span className="field__hint">
+                  Re-enter the same password so we know it was typed correctly.
+                </span>
+              </label>
+            ) : null}
           </div>
 
           {errorMessage ? <div className="form-alert">{errorMessage}</div> : null}

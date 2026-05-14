@@ -5,10 +5,11 @@ import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { submitChurchAction } from "@/lib/actions/submit-church";
+import { PasswordInput } from "@/components/password-input";
+import { ServiceTimesFieldset } from "@/components/service-times-fieldset";
 import { siteConfig } from "@/lib/config/site";
 import { denominationOptions, worshipStyleOptions } from "@/lib/data/options";
 import { emptySubmissionFormState } from "@/lib/types/directory";
-import { ServiceTimesFieldset } from "@/components/service-times-fieldset";
 
 const defaultSubmissionFormState = {
   ...emptySubmissionFormState,
@@ -490,9 +491,8 @@ export function SubmitChurchForm() {
           <div className="form-grid" style={{ marginTop: "1rem" }}>
             <label className="field">
               <RequiredLabel>Account password</RequiredLabel>
-              <input
+              <PasswordInput
                 name="managerAccountPassword"
-                type="password"
                 autoComplete="new-password"
                 minLength={6}
                 required={createManagerAccount}
@@ -506,13 +506,15 @@ export function SubmitChurchForm() {
 
             <label className="field">
               <RequiredLabel>Confirm password</RequiredLabel>
-              <input
+              <PasswordInput
                 name="managerAccountPasswordConfirmation"
-                type="password"
                 autoComplete="new-password"
                 minLength={6}
                 required={createManagerAccount}
               />
+              <span className="field__hint">
+                Re-enter the same password to avoid account setup mistakes.
+              </span>
               <FieldError message={formState.errors.managerAccountPasswordConfirmation} />
             </label>
           </div>
