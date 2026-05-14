@@ -1414,6 +1414,17 @@ input[type="checkbox"] {
   font-weight: 600;
 }
 
+.form-alert p {
+  margin: 0;
+}
+
+.form-alert__list {
+  display: grid;
+  gap: 0.22rem;
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+
 .form-alert--success {
   background: rgba(11, 74, 36, 0.1);
   color: var(--deep-green);

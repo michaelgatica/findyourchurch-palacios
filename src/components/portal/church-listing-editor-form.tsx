@@ -32,6 +32,35 @@ function FieldError({ message }: { message?: string }) {
   return <p className="field__error">{message}</p>;
 }
 
+function FormErrorSummary({
+  message,
+  errors,
+}: {
+  message?: string;
+  errors: Record<string, string | undefined>;
+}) {
+  if (!message) {
+    return null;
+  }
+
+  const uniqueErrors = Array.from(
+    new Set(Object.values(errors).filter((error): error is string => Boolean(error))),
+  );
+
+  return (
+    <div className="form-alert" role="alert">
+      <p>{message}</p>
+      {uniqueErrors.length > 0 ? (
+        <ul className="form-alert__list">
+          {uniqueErrors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 function SubmitButton({ disabled = false }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
 
@@ -97,6 +126,9 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
   const [state, formAction] = useActionState(updateChurchListingAction, initialState);
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
   const [selectedPhotoFiles, setSelectedPhotoFiles] = useState<File[]>([]);
+  const [keptPhotoIds, setKeptPhotoIds] = useState(
+    () => new Set(church.photos.map((photo) => photo.id)),
+  );
   const formState = state ?? initialState;
   const selectedUploadError = useMemo(() => {
     const selectedFiles = [
@@ -116,6 +148,12 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
       return `Please upload no more than ${maximumPhotoUploadCount} new photos at one time.`;
     }
 
+    if (keptPhotoIds.size + selectedPhotoFiles.length > maximumPhotoUploadCount) {
+      return `You are keeping ${keptPhotoIds.size} existing photo${
+        keptPhotoIds.size === 1 ? "" : "s"
+      } and adding ${selectedPhotoFiles.length}. Keep the total at ${maximumPhotoUploadCount} photos or fewer.`;
+    }
+
     if (totalSize > maximumTotalUploadSizeInBytes) {
       return `The selected uploads total ${formatFileSize(
         totalSize,
@@ -123,7 +161,7 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
     }
 
     return undefined;
-  }, [selectedLogoFile, selectedPhotoFiles]);
+  }, [keptPhotoIds.size, selectedLogoFile, selectedPhotoFiles]);
 
   return (
     <form
@@ -141,7 +179,7 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
           Depending on your church settings, changes will either publish immediately or be held for
           admin review.
         </p>
-        {formState.formError ? <div className="form-alert">{formState.formError}</div> : null}
+        <FormErrorSummary message={formState.formError} errors={formState.errors} />
       </div>
 
       <section className="form-section panel">
@@ -484,7 +522,9 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
                 setSelectedLogoFile(event.currentTarget.files?.[0] ?? null);
               }}
             />
-            <span className="field__hint">PNG, JPG, or WebP. Maximum 512x512 pixels.</span>
+            <span className="field__hint">
+              PNG, JPG, or WebP. Square logos are preferred. Maximum 8 MB.
+            </span>
             <FieldError message={formState.errors.churchLogo} />
           </label>
 
@@ -499,7 +539,10 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
                 setSelectedPhotoFiles(Array.from(event.currentTarget.files ?? []));
               }}
             />
-            <span className="field__hint">Keep or upload up to 4 photos total.</span>
+            <span className="field__hint">
+              Keep or upload up to 4 photos total. Uncheck an existing photo before adding a
+              replacement.
+            </span>
             <FieldError message={formState.errors.churchPhotos} />
           </label>
         </div>
@@ -524,7 +567,24 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
                   className="admin-media-card__image"
                 />
                 <label className="checkbox-field">
-                  <input type="checkbox" name={`keepPhoto_${photo.id}`} defaultChecked />
+                  <input
+                    type="checkbox"
+                    name={`keepPhoto_${photo.id}`}
+                    checked={keptPhotoIds.has(photo.id)}
+                    onChange={(event) => {
+                      setKeptPhotoIds((currentIds) => {
+                        const nextIds = new Set(currentIds);
+
+                        if (event.currentTarget.checked) {
+                          nextIds.add(photo.id);
+                        } else {
+                          nextIds.delete(photo.id);
+                        }
+
+                        return nextIds;
+                      });
+                    }}
+                  />
                   <span>Keep this photo</span>
                 </label>
                 <label className="field">
@@ -543,9 +603,26 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
       </section>
 
       <div className="submission-form__actions">
-        {formState.formError ? (
+        {selectedUploadError ? (
           <div className="form-alert form-alert--inline" role="alert">
-            {formState.formError}
+            <p>{selectedUploadError}</p>
+          </div>
+        ) : formState.formError ? (
+          <div className="form-alert form-alert--inline" role="alert">
+            <p>{formState.formError}</p>
+            {Object.values(formState.errors).some(Boolean) ? (
+              <ul className="form-alert__list">
+                {Array.from(
+                  new Set(
+                    Object.values(formState.errors).filter(
+                      (error): error is string => Boolean(error),
+                    ),
+                  ),
+                ).map((error) => (
+                  <li key={error}>{error}</li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         ) : null}
         <SubmitButton disabled={Boolean(selectedUploadError)} />

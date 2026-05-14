@@ -531,10 +531,7 @@ export async function validateChurchListingUpdateFormData(
   const validatedPhotos: ValidatedUploadFile[] = [];
 
   if (churchLogo) {
-    const logoValidation = await validateImageFile("churchLogo", churchLogo, {
-      maximumWidth: 512,
-      maximumHeight: 512,
-    });
+    const logoValidation = await validateImageFile("churchLogo", churchLogo);
 
     if (logoValidation.error) {
       errors.churchLogo = logoValidation.error;
