@@ -6,6 +6,7 @@ import {
   getChurchByCustomShareSlugFromFirebase,
   getChurchByIdFromFirebase,
 } from "@/lib/repositories/firebase-church-repository";
+import { getChurchUpdateRequestById } from "@/lib/repositories/firebase-update-request-repository";
 import { getServerAuthenticatedUserFromSessionCookie } from "@/lib/firebase/session";
 import type { ChurchListingFormState } from "@/lib/portal-church-form-state";
 import { sendRepresentativeChurchMessage } from "@/lib/services/church-messaging-service";
@@ -32,6 +33,12 @@ function getRequiredString(formData: FormData, fieldName: string) {
   return value.trim();
 }
 
+function getOptionalString(formData: FormData, fieldName: string) {
+  const value = formData.get(fieldName);
+
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
 async function requirePortalActor() {
   const authenticatedUser = await getServerAuthenticatedUserFromSessionCookie();
 
@@ -53,9 +60,43 @@ export async function updateChurchListingAction(
     throw new Error("The church listing could not be found.");
   }
 
+  const actor = await requirePortalActor();
+  const resubmissionUpdateRequestId = getOptionalString(
+    formData,
+    "resubmissionUpdateRequestId",
+  );
+  const resubmissionUpdateRequest = resubmissionUpdateRequestId
+    ? await getChurchUpdateRequestById(resubmissionUpdateRequestId)
+    : null;
+
+  if (resubmissionUpdateRequestId) {
+    if (!resubmissionUpdateRequest) {
+      return {
+        status: "error",
+        formError: "The requested update draft could not be found.",
+        errors: {},
+        values: _previousState.values,
+      };
+    }
+
+    if (
+      resubmissionUpdateRequest.churchId !== currentChurch.id ||
+      resubmissionUpdateRequest.submittedByUserId !== actor.id ||
+      resubmissionUpdateRequest.status !== "changes_requested"
+    ) {
+      return {
+        status: "error",
+        formError: "This update request is not available for editing.",
+        errors: {},
+        values: _previousState.values,
+      };
+    }
+  }
+
   const validationResult = await validateChurchListingUpdateFormData(
     formData,
     currentChurch,
+    resubmissionUpdateRequest?.proposedChanges,
   );
 
   if (!validationResult.success) {
@@ -85,7 +126,6 @@ export async function updateChurchListingAction(
     }
   }
 
-  const actor = await requirePortalActor();
   let redirectTo: string;
 
   try {
@@ -100,6 +140,7 @@ export async function updateChurchListingAction(
       submittedByUserId: actor.id,
       submittedByRepresentativeId: access.representative.id,
       representativeEmail: access.profile.email,
+      resubmissionUpdateRequestId,
     });
 
     redirectTo =

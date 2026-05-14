@@ -15,7 +15,9 @@ import {
 } from "@/lib/repositories/firebase-church-repository";
 import {
   createChurchUpdateRequestInFirebase,
+  getChurchUpdateRequestById,
   listChurchUpdateRequests,
+  updateChurchUpdateRequestInFirebase,
 } from "@/lib/repositories/firebase-update-request-repository";
 import type { ChurchListingDraft, ChurchPhoto, ChurchRecord } from "@/lib/types/directory";
 import type {
@@ -129,6 +131,7 @@ export async function submitRepresentativeChurchUpdate(input: {
   submittedByUserId: string;
   submittedByRepresentativeId: string;
   representativeEmail: string;
+  resubmissionUpdateRequestId?: string;
 }) {
   const currentChurch =
     (await getChurchByIdFromFirebase(input.currentChurch.id)) ?? input.currentChurch;
@@ -214,21 +217,68 @@ export async function submitRepresentativeChurchUpdate(input: {
     };
   }
 
-  const updateRequest = await createChurchUpdateRequestInFirebase({
-    churchId: currentChurch.id,
-    submittedByUserId: input.submittedByUserId,
-    submittedByRepresentativeId: input.submittedByRepresentativeId,
-    proposedChanges,
-  });
+  const resubmittedUpdateRequest = input.resubmissionUpdateRequestId
+    ? await getChurchUpdateRequestById(input.resubmissionUpdateRequestId)
+    : null;
+
+  if (input.resubmissionUpdateRequestId) {
+    if (!resubmittedUpdateRequest) {
+      throw new Error("The requested update draft could not be found.");
+    }
+
+    if (
+      resubmittedUpdateRequest.churchId !== currentChurch.id ||
+      resubmittedUpdateRequest.submittedByUserId !== input.submittedByUserId ||
+      resubmittedUpdateRequest.submittedByRepresentativeId !== input.submittedByRepresentativeId
+    ) {
+      throw new Error("You can only resubmit your own church update requests.");
+    }
+
+    if (resubmittedUpdateRequest.status !== "changes_requested") {
+      throw new Error("This update request is not waiting on requested changes.");
+    }
+
+    await updateChurchUpdateRequestInFirebase(resubmittedUpdateRequest.id, {
+      proposedChanges,
+      status: "pending_review",
+      autoPublished: false,
+      reviewedBy: undefined,
+      approvedAt: null,
+      deniedAt: null,
+    });
+  }
+
+  const updateRequest =
+    resubmittedUpdateRequest
+      ? {
+          ...resubmittedUpdateRequest,
+          proposedChanges,
+          status: "pending_review" as const,
+          updatedAt: now,
+          autoPublished: false,
+          approvedAt: null,
+          deniedAt: null,
+        }
+      : await createChurchUpdateRequestInFirebase({
+          churchId: currentChurch.id,
+          submittedByUserId: input.submittedByUserId,
+          submittedByRepresentativeId: input.submittedByRepresentativeId,
+          proposedChanges,
+        });
 
   await createAuditLogInFirebase({
     entityType: "churchUpdateRequest",
     entityId: updateRequest.id,
-    action: "representative_listing_update_submitted",
+    action: resubmittedUpdateRequest
+      ? "representative_listing_update_resubmitted"
+      : "representative_listing_update_submitted",
     actorId: input.submittedByUserId,
     actorType: "church_rep",
+    before: resubmittedUpdateRequest ?? undefined,
     after: updateRequest,
-    note: "Representative listing changes were submitted for admin review.",
+    note: resubmittedUpdateRequest
+      ? "Representative revised a changes-requested listing update."
+      : "Representative listing changes were submitted for admin review.",
   });
   await sendRepresentativeUpdateSubmittedNotification({
     church: currentChurch,
@@ -253,6 +303,48 @@ export async function getRepresentativeUpdateActivity(churchId: string) {
     churchId,
     limit: 10,
   });
+}
+
+export async function getLatestChangesRequestedUpdateDraft(input: {
+  churchId: string;
+  submittedByUserId: string;
+}) {
+  const updateRequests = await listChurchUpdateRequests({
+    churchId: input.churchId,
+    submittedByUserId: input.submittedByUserId,
+    status: "changes_requested",
+    limit: 1,
+  });
+
+  return updateRequests[0] ?? null;
+}
+
+export function mergeChurchRecordWithDraft(
+  church: ChurchRecord,
+  proposedChanges: ChurchListingDraft,
+): ChurchRecord {
+  return {
+    ...church,
+    ...proposedChanges,
+    id: church.id,
+    slug: church.slug,
+    status: church.status,
+    primaryRepresentativeId: church.primaryRepresentativeId,
+    autoPublishUpdates: church.autoPublishUpdates,
+    listingVerificationStatus: church.listingVerificationStatus,
+    lastListingAcknowledgedAt: church.lastListingAcknowledgedAt,
+    lastRepresentativeActivityAt: church.lastRepresentativeActivityAt,
+    listingVerificationRequestedAt: church.listingVerificationRequestedAt,
+    listingVerificationGraceEndsAt: church.listingVerificationGraceEndsAt,
+    listingVerificationReminder7SentAt: church.listingVerificationReminder7SentAt,
+    listingVerificationReminder3SentAt: church.listingVerificationReminder3SentAt,
+    listingVerificationToken: church.listingVerificationToken,
+    archivedAt: church.archivedAt,
+    archivedReason: church.archivedReason,
+    createdAt: church.createdAt,
+    updatedAt: church.updatedAt,
+    publishedAt: church.publishedAt,
+  };
 }
 
 export async function buildApprovedChurchRecordFromDraft(input: {

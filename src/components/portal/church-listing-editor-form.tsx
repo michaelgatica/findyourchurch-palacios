@@ -10,6 +10,7 @@ import {
   createChurchListingFormState,
 } from "@/lib/portal-church-form-state";
 import { denominationOptions, worshipStyleOptions } from "@/lib/data/options";
+import { formatDateTime } from "@/lib/formatting";
 import type { ChurchRecord } from "@/lib/types/directory";
 
 const maximumUploadSizeInBytes = 8 * 1024 * 1024;
@@ -121,7 +122,17 @@ function UploadSelectionSummary({
   );
 }
 
-export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
+export function ChurchListingEditorForm({
+  church,
+  changesRequestedUpdate,
+}: {
+  church: ChurchRecord;
+  changesRequestedUpdate?: {
+    id: string;
+    adminMessage?: string;
+    requestedChangesAt?: string | null;
+  };
+}) {
   const initialState = createChurchListingFormState(church);
   const [state, formAction] = useActionState(updateChurchListingAction, initialState);
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
@@ -171,6 +182,13 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
     >
       <input type="hidden" name="churchId" value={formState.values.churchId} />
       <input type="hidden" name="churchSlug" value={formState.values.churchSlug} />
+      {changesRequestedUpdate ? (
+        <input
+          type="hidden"
+          name="resubmissionUpdateRequestId"
+          value={changesRequestedUpdate.id}
+        />
+      ) : null}
 
       <div className="panel">
         <p className="eyebrow eyebrow--gold">Church Listing Editor</p>
@@ -181,6 +199,24 @@ export function ChurchListingEditorForm({ church }: { church: ChurchRecord }) {
         </p>
         <FormErrorSummary message={formState.formError} errors={formState.errors} />
       </div>
+
+      {changesRequestedUpdate ? (
+        <div className="form-alert form-alert--info" role="status">
+          <p>
+            The review team requested changes
+            {changesRequestedUpdate.requestedChangesAt
+              ? ` on ${formatDateTime(changesRequestedUpdate.requestedChangesAt)}`
+              : ""}
+            . Your last submitted update is loaded below, so you only need to adjust the requested
+            fields and save again.
+          </p>
+          {changesRequestedUpdate.adminMessage ? (
+            <p>
+              <strong>Review note:</strong> {changesRequestedUpdate.adminMessage}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <section className="form-section panel">
         <h3>Church information</h3>

@@ -1,4 +1,8 @@
 import { ChurchListingEditorForm } from "@/components/portal/church-listing-editor-form";
+import {
+  getLatestChangesRequestedUpdateDraft,
+  mergeChurchRecordWithDraft,
+} from "@/lib/services/church-update-service";
 import { getRepresentativePortalContext } from "@/lib/services/representative-access-service";
 
 export default async function PortalChurchEditPage() {
@@ -7,6 +11,14 @@ export default async function PortalChurchEditPage() {
   if (!context?.church) {
     return null;
   }
+
+  const changesRequestedUpdate = await getLatestChangesRequestedUpdateDraft({
+    churchId: context.church.id,
+    submittedByUserId: context.profile.id,
+  });
+  const editableChurch = changesRequestedUpdate
+    ? mergeChurchRecordWithDraft(context.church, changesRequestedUpdate.proposedChanges)
+    : context.church;
 
   return (
     <div className="admin-content">
@@ -19,7 +31,18 @@ export default async function PortalChurchEditPage() {
         </p>
       </div>
 
-      <ChurchListingEditorForm church={context.church} />
+      <ChurchListingEditorForm
+        church={editableChurch}
+        changesRequestedUpdate={
+          changesRequestedUpdate
+            ? {
+                id: changesRequestedUpdate.id,
+                adminMessage: changesRequestedUpdate.adminMessage,
+                requestedChangesAt: changesRequestedUpdate.requestedChangesAt,
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }

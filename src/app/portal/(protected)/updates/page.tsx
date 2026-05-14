@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { formatDateTime } from "@/lib/formatting";
 import { getRepresentativePortalContext } from "@/lib/services/representative-access-service";
 import { getRepresentativeUpdateActivity } from "@/lib/services/church-update-service";
@@ -52,6 +54,11 @@ export default async function PortalUpdatesPage({ searchParams }: PortalUpdatesP
                     : "Changes were submitted to the admin review queue."}
                 </p>
                 {updateRequest.adminMessage ? <p>{updateRequest.adminMessage}</p> : null}
+                {updateRequest.status === "changes_requested" ? (
+                  <Link href="/portal/church/edit" className="button button--ghost">
+                    Edit requested changes
+                  </Link>
+                ) : null}
               </div>
             ))}
           </div>

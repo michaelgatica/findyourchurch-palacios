@@ -16,6 +16,7 @@ import type {
   ChurchListingFormValues,
 } from "@/lib/portal-church-form-state";
 import type {
+  ChurchListingDraft,
   ChurchPhoto,
   ChurchRecord,
   ServiceTime,
@@ -390,8 +391,8 @@ async function validateImageFile(
   }
 }
 
-function getSelectedExistingPhotos(formData: FormData, currentChurch: ChurchRecord) {
-  const selectedPhotos = currentChurch.photos
+function getSelectedExistingPhotos(formData: FormData, photos: ChurchPhoto[]) {
+  const selectedPhotos = photos
     .filter((photo) => formData.get(`keepPhoto_${photo.id}`) === "on")
     .map((photo) => {
       const orderValue = Number.parseInt(getString(formData, `photoOrder_${photo.id}`), 10);
@@ -457,6 +458,7 @@ export interface ValidatedChurchListingUpdateInput {
 export async function validateChurchListingUpdateFormData(
   formData: FormData,
   currentChurch: ChurchRecord,
+  existingDraft?: ChurchListingDraft,
 ) {
   const values = createValues(formData, currentChurch);
   const parsedServiceTimes = parseServiceTimesFromFormData(formData, values.serviceTimes);
@@ -515,7 +517,10 @@ export async function validateChurchListingUpdateFormData(
   } else if (normalizedCustomShareSlug && isReservedChurchShareSlug(normalizedCustomShareSlug)) {
     errors.customShareSlug = "That custom share link is reserved. Please choose another.";
   }
-  const selectedExistingPhotos = getSelectedExistingPhotos(formData, currentChurch);
+  const selectedExistingPhotos = getSelectedExistingPhotos(
+    formData,
+    existingDraft?.photos ?? currentChurch.photos,
+  );
   const logoCandidate = formData.get("churchLogo");
   const churchLogo =
     logoCandidate instanceof File && logoCandidate.size > 0 ? logoCandidate : undefined;
