@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { formatAddress } from "@/lib/church-utils";
 import { buildChurchProfilePath, buildChurchSharePath, buildAbsoluteUrl } from "@/lib/config/site";
 import { formatDate } from "@/lib/formatting";
 import { getRepresentativePortalContext } from "@/lib/services/representative-access-service";
@@ -45,10 +46,14 @@ export default async function PortalChurchPage() {
           <div className="detail-list">
             <div className="detail-row">
               <dt>Address</dt>
+              <dd>{formatAddress(church.address)}</dd>
+            </div>
+            <div className="detail-row">
+              <dt>Mailing address</dt>
               <dd>
-                {church.address.line1}
-                {church.address.line2 ? `, ${church.address.line2}` : ""}
-                {`, ${church.address.city}, ${church.address.stateCode} ${church.address.postalCode}`}
+                {church.mailingAddress
+                  ? formatAddress(church.mailingAddress)
+                  : "Not listed separately"}
               </dd>
             </div>
             <div className="detail-row">

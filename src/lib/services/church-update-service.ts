@@ -93,6 +93,18 @@ function buildChurchDraftFromUpdateInput(input: {
       latitude: input.currentChurch.address.latitude,
       longitude: input.currentChurch.address.longitude,
     },
+    mailingAddress: input.validatedInput.mailingAddressLine1
+      ? {
+          line1: input.validatedInput.mailingAddressLine1,
+          line2: input.validatedInput.mailingAddressLine2,
+          city: input.validatedInput.mailingCity ?? input.validatedInput.city,
+          stateCode: input.validatedInput.mailingStateCode ?? input.validatedInput.stateCode,
+          postalCode: input.validatedInput.mailingPostalCode ?? input.validatedInput.postalCode,
+          countryCode: "US",
+          latitude: null,
+          longitude: null,
+        }
+      : null,
     phone: input.validatedInput.phone,
     email: input.validatedInput.email,
     website: input.validatedInput.websiteUrl,

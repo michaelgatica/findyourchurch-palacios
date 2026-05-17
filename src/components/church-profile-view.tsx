@@ -302,6 +302,10 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
             <h2>Contact this church</h2>
             <dl className="detail-list">
               <DetailRow label="Address" value={formatAddress(church.address)} />
+              <DetailRow
+                label="Mailing address"
+                value={church.mailingAddress ? formatAddress(church.mailingAddress) : null}
+              />
               <DetailRow label="Phone" value={church.phone} />
               <DetailRow label="Email" value={church.email} />
               <DetailRow label="Website" value={church.website} />

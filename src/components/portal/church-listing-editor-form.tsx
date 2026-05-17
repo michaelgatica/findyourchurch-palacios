@@ -140,6 +140,9 @@ export function ChurchListingEditorForm({
   const [keptPhotoIds, setKeptPhotoIds] = useState(
     () => new Set(church.photos.map((photo) => photo.id)),
   );
+  const [hasMailingAddress, setHasMailingAddress] = useState(
+    () => initialState.values.hasMailingAddress,
+  );
   const formState = state ?? initialState;
   const selectedUploadError = useMemo(() => {
     const selectedFiles = [
@@ -315,13 +318,13 @@ export function ChurchListingEditorForm({
         <h3>Location and contact</h3>
         <div className="form-grid">
           <label className="field field--full">
-            <span className="field__label">Address line 1</span>
+            <span className="field__label">Physical address line 1</span>
             <input name="addressLine1" defaultValue={formState.values.addressLine1} required />
             <FieldError message={formState.errors.addressLine1} />
           </label>
 
           <label className="field field--full">
-            <span className="field__label">Address line 2</span>
+            <span className="field__label">Physical address line 2</span>
             <input name="addressLine2" defaultValue={formState.values.addressLine2} />
           </label>
 
@@ -352,6 +355,77 @@ export function ChurchListingEditorForm({
             <input name="postalCode" defaultValue={formState.values.postalCode} required />
             <FieldError message={formState.errors.postalCode} />
           </label>
+
+          <div className="field field--full">
+            <label className="checkbox-field">
+              <input
+                type="checkbox"
+                name="hasMailingAddress"
+                checked={hasMailingAddress}
+                onChange={(event) => setHasMailingAddress(event.currentTarget.checked)}
+              />
+              <span>Share a separate mailing address for this church</span>
+            </label>
+            <span className="field__hint">
+              Use this if mail should go to a PO Box, office, or address different from the
+              physical worship location.
+            </span>
+          </div>
+
+          {hasMailingAddress ? (
+            <>
+              <label className="field field--full">
+                <span className="field__label">Mailing address line 1</span>
+                <input
+                  name="mailingAddressLine1"
+                  defaultValue={formState.values.mailingAddressLine1}
+                  placeholder="PO Box or mailing street address"
+                  required={hasMailingAddress}
+                />
+                <FieldError message={formState.errors.mailingAddressLine1} />
+              </label>
+
+              <label className="field field--full">
+                <span className="field__label">Mailing address line 2</span>
+                <input
+                  name="mailingAddressLine2"
+                  defaultValue={formState.values.mailingAddressLine2}
+                />
+              </label>
+
+              <label className="field">
+                <span className="field__label">Mailing city</span>
+                <input
+                  name="mailingCity"
+                  defaultValue={formState.values.mailingCity}
+                  required={hasMailingAddress}
+                />
+                <FieldError message={formState.errors.mailingCity} />
+              </label>
+
+              <label className="field">
+                <span className="field__label">Mailing state</span>
+                <input
+                  name="mailingStateCode"
+                  maxLength={2}
+                  defaultValue={formState.values.mailingStateCode}
+                  placeholder="TX"
+                  required={hasMailingAddress}
+                />
+                <FieldError message={formState.errors.mailingStateCode} />
+              </label>
+
+              <label className="field">
+                <span className="field__label">Mailing ZIP code</span>
+                <input
+                  name="mailingPostalCode"
+                  defaultValue={formState.values.mailingPostalCode}
+                  required={hasMailingAddress}
+                />
+                <FieldError message={formState.errors.mailingPostalCode} />
+              </label>
+            </>
+          ) : null}
 
           <label className="field">
             <span className="field__label">Phone number</span>

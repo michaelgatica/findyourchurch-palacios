@@ -27,6 +27,12 @@
       "stateCode": "TX",
       "postalCode": "77465"
     },
+    "mailingAddress": {
+      "line1": "PO Box 123",
+      "city": "Palacios",
+      "stateCode": "TX",
+      "postalCode": "77465"
+    },
     "phone": "(361) 555-0100",
     "email": "support@examplechurch.org",
     "website": "https://www.examplechurch.org",

@@ -11,6 +11,12 @@ export interface ChurchListingFormValues {
   county: string;
   stateCode: string;
   postalCode: string;
+  hasMailingAddress: boolean;
+  mailingAddressLine1: string;
+  mailingAddressLine2: string;
+  mailingCity: string;
+  mailingStateCode: string;
+  mailingPostalCode: string;
   phone: string;
   email: string;
   websiteUrl: string;
@@ -67,6 +73,16 @@ export function createChurchListingFormValues(
     county: overrides?.county ?? (church.countyId ? "Matagorda County" : ""),
     stateCode: overrides?.stateCode ?? church.address.stateCode,
     postalCode: overrides?.postalCode ?? church.address.postalCode,
+    hasMailingAddress: overrides?.hasMailingAddress ?? Boolean(church.mailingAddress),
+    mailingAddressLine1:
+      overrides?.mailingAddressLine1 ?? church.mailingAddress?.line1 ?? "",
+    mailingAddressLine2:
+      overrides?.mailingAddressLine2 ?? church.mailingAddress?.line2 ?? "",
+    mailingCity: overrides?.mailingCity ?? church.mailingAddress?.city ?? "",
+    mailingStateCode:
+      overrides?.mailingStateCode ?? church.mailingAddress?.stateCode ?? "",
+    mailingPostalCode:
+      overrides?.mailingPostalCode ?? church.mailingAddress?.postalCode ?? "",
     phone: overrides?.phone ?? church.phone,
     email: overrides?.email ?? church.email ?? "",
     websiteUrl: overrides?.websiteUrl ?? church.website ?? "",

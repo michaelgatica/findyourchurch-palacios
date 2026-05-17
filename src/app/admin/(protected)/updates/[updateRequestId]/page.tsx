@@ -38,6 +38,18 @@ function formatAddress(church: ChurchListingDraft | ChurchRecord) {
     .join(", ");
 }
 
+function formatMailingAddress(church: ChurchListingDraft | ChurchRecord) {
+  return church.mailingAddress
+    ? [
+        church.mailingAddress.line1,
+        church.mailingAddress.line2,
+        `${church.mailingAddress.city}, ${church.mailingAddress.stateCode} ${church.mailingAddress.postalCode}`,
+      ]
+        .filter(Boolean)
+        .join(", ")
+    : "Not listed";
+}
+
 function formatFeatures(church: ChurchListingDraft | ChurchRecord) {
   return [
     `Children: ${formatBoolean(church.features.childrenMinistry)}`,
@@ -173,6 +185,7 @@ function ListingUpdateComparison(props: {
     ["Church name", church.name, proposedChanges.name],
     ["Custom share link", church.customShareSlug ?? "Not listed", proposedChanges.customShareSlug ?? "Not listed"],
     ["Address", formatAddress(church), formatAddress(proposedChanges)],
+    ["Mailing address", formatMailingAddress(church), formatMailingAddress(proposedChanges)],
     ["Phone", church.phone, proposedChanges.phone],
     ["Email", church.email ?? "Not listed", proposedChanges.email ?? "Not listed"],
     ["Website", church.website ?? "Not listed", proposedChanges.website ?? "Not listed"],

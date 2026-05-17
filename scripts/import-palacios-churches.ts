@@ -88,6 +88,16 @@ const importedChurchSchema = z.object({
     latitude: z.number().nullable().optional(),
     longitude: z.number().nullable().optional(),
   }),
+  mailingAddress: z
+    .object({
+      line1: z.string().min(1),
+      line2: z.string().optional(),
+      city: z.string().min(1),
+      stateCode: z.string().min(2).max(2).default("TX"),
+      postalCode: z.string().min(5),
+      countryCode: z.literal("US").optional().default("US"),
+    })
+    .optional(),
   phone: z.string().optional().default(""),
   email: z.email().optional(),
   website: z.url().optional(),
@@ -243,6 +253,18 @@ function buildChurchRecord(
       latitude: importedChurch.address.latitude ?? existingChurch?.address.latitude ?? null,
       longitude: importedChurch.address.longitude ?? existingChurch?.address.longitude ?? null,
     },
+    mailingAddress: importedChurch.mailingAddress
+      ? {
+          line1: importedChurch.mailingAddress.line1,
+          line2: importedChurch.mailingAddress.line2,
+          city: importedChurch.mailingAddress.city,
+          stateCode: importedChurch.mailingAddress.stateCode,
+          postalCode: importedChurch.mailingAddress.postalCode,
+          countryCode: importedChurch.mailingAddress.countryCode ?? "US",
+          latitude: null,
+          longitude: null,
+        }
+      : existingChurch?.mailingAddress,
     phone: importedChurch.phone.trim() || existingChurch?.phone || "",
     email: importedChurch.email ?? existingChurch?.email,
     website: importedChurch.website,

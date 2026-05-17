@@ -225,6 +225,7 @@ export interface ChurchListingDraft {
   statementOfFaith?: string;
   serviceTimes: ServiceTime[];
   address: StructuredAddress;
+  mailingAddress?: StructuredAddress | null;
   phone: string;
   email?: string;
   website?: string;
@@ -314,6 +315,11 @@ export interface CreateChurchSubmissionInput {
   city: string;
   stateCode: string;
   postalCode: string;
+  mailingAddressLine1?: string;
+  mailingAddressLine2?: string;
+  mailingCity?: string;
+  mailingStateCode?: string;
+  mailingPostalCode?: string;
   phone: string;
   email: string;
   denomination: string;
@@ -384,6 +390,12 @@ export interface SubmissionFormValues {
   city: string;
   stateCode: string;
   postalCode: string;
+  hasMailingAddress: boolean;
+  mailingAddressLine1: string;
+  mailingAddressLine2: string;
+  mailingCity: string;
+  mailingStateCode: string;
+  mailingPostalCode: string;
   phone: string;
   email: string;
   denomination: string;
@@ -465,6 +477,7 @@ export interface ChurchDocument {
   zip: string;
   latitude: number | null;
   longitude: number | null;
+  mailingAddress?: StructuredAddress | null;
   phone: string;
   email?: string;
   website?: string;
@@ -705,6 +718,12 @@ export const emptySubmissionFormValues: SubmissionFormValues = {
   city: "",
   stateCode: "",
   postalCode: "",
+  hasMailingAddress: false,
+  mailingAddressLine1: "",
+  mailingAddressLine2: "",
+  mailingCity: "",
+  mailingStateCode: "",
+  mailingPostalCode: "",
   phone: "",
   email: "",
   denomination: "",

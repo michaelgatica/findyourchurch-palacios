@@ -114,6 +114,7 @@ function createSearchableText(church: ChurchRecord) {
     church.worshipStyle,
     church.languages.join(" "),
     church.address.city,
+    church.mailingAddress ? formatAddress(church.mailingAddress) : null,
   ]
     .filter(Boolean)
     .join(" ")

@@ -224,6 +224,27 @@ function splitCommaSeparatedValues(value: string) {
     .filter(Boolean);
 }
 
+function hasMailingAddressValues(values: Pick<
+  SubmissionFormValues,
+  | "hasMailingAddress"
+  | "mailingAddressLine1"
+  | "mailingAddressLine2"
+  | "mailingCity"
+  | "mailingStateCode"
+  | "mailingPostalCode"
+>) {
+  return (
+    values.hasMailingAddress ||
+    Boolean(
+      values.mailingAddressLine1 ||
+        values.mailingAddressLine2 ||
+        values.mailingCity ||
+        values.mailingStateCode ||
+        values.mailingPostalCode,
+    )
+  );
+}
+
 function deriveUploadExtension(fileName: string, mimeType: string) {
   const normalizedFileName = fileName.toLowerCase();
 
@@ -259,6 +280,12 @@ function createValues(formData: FormData): SubmissionFormValues {
     city: getString(formData, "city"),
     stateCode: getString(formData, "stateCode").toUpperCase(),
     postalCode: getString(formData, "postalCode"),
+    hasMailingAddress: getBoolean(formData, "hasMailingAddress"),
+    mailingAddressLine1: getString(formData, "mailingAddressLine1"),
+    mailingAddressLine2: getString(formData, "mailingAddressLine2"),
+    mailingCity: getString(formData, "mailingCity"),
+    mailingStateCode: getString(formData, "mailingStateCode").toUpperCase(),
+    mailingPostalCode: getString(formData, "mailingPostalCode"),
     phone: getString(formData, "phone"),
     email: getString(formData, "email"),
     denomination: getString(formData, "denomination"),
@@ -462,6 +489,28 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
     errors.customShareSlug = "That custom share link is reserved. Please choose another.";
   }
 
+  const includeMailingAddress = hasMailingAddressValues(values);
+
+  if (includeMailingAddress) {
+    values.hasMailingAddress = true;
+
+    if (values.mailingAddressLine1.length < 4) {
+      errors.mailingAddressLine1 = "Enter the mailing address.";
+    }
+
+    if (values.mailingCity.length < 2) {
+      errors.mailingCity = "Enter the mailing city.";
+    }
+
+    if (!allowedStateCodes.has(values.mailingStateCode)) {
+      errors.mailingStateCode = "Enter a valid two-letter state code.";
+    }
+
+    if (!/^\d{5}(?:-\d{4})?$/.test(values.mailingPostalCode)) {
+      errors.mailingPostalCode = "Enter a valid mailing ZIP code.";
+    }
+  }
+
   if (values.createManagerAccount) {
     if (managerAccountPassword.length < 6) {
       errors.managerAccountPassword =
@@ -534,6 +583,11 @@ export async function validateChurchSubmissionFormData(formData: FormData) {
     city: schemaResult.data.city,
     stateCode: schemaResult.data.stateCode,
     postalCode: schemaResult.data.postalCode,
+    mailingAddressLine1: includeMailingAddress ? values.mailingAddressLine1 : undefined,
+    mailingAddressLine2: includeMailingAddress ? values.mailingAddressLine2 || undefined : undefined,
+    mailingCity: includeMailingAddress ? values.mailingCity : undefined,
+    mailingStateCode: includeMailingAddress ? values.mailingStateCode : undefined,
+    mailingPostalCode: includeMailingAddress ? values.mailingPostalCode : undefined,
     phone: schemaResult.data.phone,
     email: schemaResult.data.email,
     denomination: schemaResult.data.denomination,

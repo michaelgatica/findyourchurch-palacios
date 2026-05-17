@@ -196,6 +196,25 @@ export default async function AdminSubmissionDetailPage({
               </p>
             </div>
             <div>
+              <strong>Mailing address</strong>
+              <p>
+                {submission.churchDraft.mailingAddress ? (
+                  <>
+                    {submission.churchDraft.mailingAddress.line1}
+                    {submission.churchDraft.mailingAddress.line2
+                      ? `, ${submission.churchDraft.mailingAddress.line2}`
+                      : ""}
+                    <br />
+                    {submission.churchDraft.mailingAddress.city},{" "}
+                    {submission.churchDraft.mailingAddress.stateCode}{" "}
+                    {submission.churchDraft.mailingAddress.postalCode}
+                  </>
+                ) : (
+                  "Not provided"
+                )}
+              </p>
+            </div>
+            <div>
               <strong>Pastor / clergy</strong>
               <p>{submission.churchDraft.primaryClergyName ?? "Not provided"}</p>
             </div>

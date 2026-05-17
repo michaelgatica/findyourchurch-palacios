@@ -225,6 +225,27 @@ function splitCommaSeparatedValues(value: string) {
     .filter(Boolean);
 }
 
+function hasMailingAddressValues(values: Pick<
+  ChurchListingFormValues,
+  | "hasMailingAddress"
+  | "mailingAddressLine1"
+  | "mailingAddressLine2"
+  | "mailingCity"
+  | "mailingStateCode"
+  | "mailingPostalCode"
+>) {
+  return (
+    values.hasMailingAddress ||
+    Boolean(
+      values.mailingAddressLine1 ||
+        values.mailingAddressLine2 ||
+        values.mailingCity ||
+        values.mailingStateCode ||
+        values.mailingPostalCode,
+    )
+  );
+}
+
 function deriveUploadExtension(fileName: string, mimeType: string) {
   const normalizedFileName = fileName.toLowerCase();
 
@@ -263,6 +284,12 @@ function createValues(formData: FormData, currentChurch: ChurchRecord): ChurchLi
     county: getString(formData, "county"),
     stateCode: getString(formData, "stateCode").toUpperCase(),
     postalCode: getString(formData, "postalCode"),
+    hasMailingAddress: getBoolean(formData, "hasMailingAddress"),
+    mailingAddressLine1: getString(formData, "mailingAddressLine1"),
+    mailingAddressLine2: getString(formData, "mailingAddressLine2"),
+    mailingCity: getString(formData, "mailingCity"),
+    mailingStateCode: getString(formData, "mailingStateCode").toUpperCase(),
+    mailingPostalCode: getString(formData, "mailingPostalCode"),
     phone: getString(formData, "phone"),
     email: getString(formData, "email"),
     websiteUrl: getString(formData, "websiteUrl"),
@@ -422,6 +449,11 @@ export interface ValidatedChurchListingUpdateInput {
   county?: string;
   stateCode: string;
   postalCode: string;
+  mailingAddressLine1?: string;
+  mailingAddressLine2?: string;
+  mailingCity?: string;
+  mailingStateCode?: string;
+  mailingPostalCode?: string;
   phone: string;
   email: string;
   websiteUrl?: string;
@@ -517,6 +549,29 @@ export async function validateChurchListingUpdateFormData(
   } else if (normalizedCustomShareSlug && isReservedChurchShareSlug(normalizedCustomShareSlug)) {
     errors.customShareSlug = "That custom share link is reserved. Please choose another.";
   }
+
+  const includeMailingAddress = hasMailingAddressValues(values);
+
+  if (includeMailingAddress) {
+    values.hasMailingAddress = true;
+
+    if (values.mailingAddressLine1.length < 4) {
+      errors.mailingAddressLine1 = "Enter the mailing address.";
+    }
+
+    if (values.mailingCity.length < 2) {
+      errors.mailingCity = "Enter the mailing city.";
+    }
+
+    if (!allowedStateCodes.has(values.mailingStateCode)) {
+      errors.mailingStateCode = "Enter a valid two-letter state code.";
+    }
+
+    if (!/^\d{5}(?:-\d{4})?$/.test(values.mailingPostalCode)) {
+      errors.mailingPostalCode = "Enter a valid mailing ZIP code.";
+    }
+  }
+
   const selectedExistingPhotos = getSelectedExistingPhotos(
     formData,
     existingDraft?.photos ?? currentChurch.photos,
@@ -593,6 +648,11 @@ export async function validateChurchListingUpdateFormData(
       county: schemaResult.data.county,
       stateCode: schemaResult.data.stateCode,
       postalCode: schemaResult.data.postalCode,
+      mailingAddressLine1: includeMailingAddress ? values.mailingAddressLine1 : undefined,
+      mailingAddressLine2: includeMailingAddress ? values.mailingAddressLine2 || undefined : undefined,
+      mailingCity: includeMailingAddress ? values.mailingCity : undefined,
+      mailingStateCode: includeMailingAddress ? values.mailingStateCode : undefined,
+      mailingPostalCode: includeMailingAddress ? values.mailingPostalCode : undefined,
       phone: schemaResult.data.phone,
       email: schemaResult.data.email,
       websiteUrl: schemaResult.data.websiteUrl,
