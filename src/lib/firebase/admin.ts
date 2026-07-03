@@ -21,6 +21,7 @@ import {
   getFirebaseStorageBucketName,
   isGoogleManagedFirebaseRuntime,
   isProductionEnvironment,
+  shouldAllowMissingFirebaseAdminDuringBuild,
   shouldUseFirebaseEmulators,
 } from "@/lib/firebase/config";
 
@@ -31,16 +32,26 @@ interface ServiceAccountFromFile {
 }
 
 const firebaseAdminAppName = "find-your-church-admin";
+const warnedFirebaseAdminMessages = new Set<string>();
+
+function warnFirebaseAdminOnce(message: string) {
+  if (warnedFirebaseAdminMessages.has(message)) {
+    return;
+  }
+
+  warnedFirebaseAdminMessages.add(message);
+  console.warn(message);
+}
 
 function loadServiceAccountFromFile(serviceAccountKeyPath: string) {
   if (!existsSync(serviceAccountKeyPath)) {
     const message = `Firebase service account file was not found at "${serviceAccountKeyPath}".`;
 
-    if (isProductionEnvironment()) {
+    if (isProductionEnvironment() && !shouldAllowMissingFirebaseAdminDuringBuild()) {
       throw new Error(message);
     }
 
-    console.warn(message);
+    warnFirebaseAdminOnce(message);
     return null;
   }
 
@@ -59,7 +70,7 @@ function loadServiceAccountFromFile(serviceAccountKeyPath: string) {
       privateKey: parsed.private_key,
     };
   } catch (error) {
-    if (isProductionEnvironment()) {
+    if (isProductionEnvironment() && !shouldAllowMissingFirebaseAdminDuringBuild()) {
       throw new Error("Unable to read the configured Firebase service account file.");
     }
 
@@ -127,7 +138,7 @@ export function getFirebaseAdminApp(): App | null {
     appOptions.credential = applicationDefault();
   } else if (emulatorMode) {
     // The local Firebase Emulator Suite can run without live service account credentials.
-  } else if (isProductionEnvironment()) {
+  } else if (isProductionEnvironment() && !shouldAllowMissingFirebaseAdminDuringBuild()) {
     throw new Error("Firebase Admin SDK credentials are not available in production.");
   } else {
     return null;

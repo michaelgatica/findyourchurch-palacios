@@ -219,6 +219,13 @@ function shouldAllowMissingFirebaseAdminInCiBuild() {
   );
 }
 
+export function shouldAllowMissingFirebaseAdminDuringBuild() {
+  return (
+    process.env.NEXT_PHASE === "phase-production-build" ||
+    shouldAllowMissingFirebaseAdminInCiBuild()
+  );
+}
+
 function hasFirebaseServerCredentials(config: FirebaseServerConfig) {
   if (shouldUseFirebaseEmulators()) {
     return Boolean(config.projectId);
@@ -267,9 +274,9 @@ export function assertFirebaseServerConfig() {
       ", ",
     )}.`;
 
-    if (shouldAllowMissingFirebaseAdminInCiBuild()) {
+    if (shouldAllowMissingFirebaseAdminDuringBuild()) {
       warnFirebaseConfigurationOnce(
-        `${message} CI build validation will continue without Firebase Admin data.`,
+        `${message} Build validation will continue without Firebase Admin data.`,
       );
       return false;
     }
