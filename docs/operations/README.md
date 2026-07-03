@@ -16,9 +16,16 @@ Run these from the repo root:
 
 ```powershell
 git status --short
+npm.cmd run ops:launch-check -- --allow-blocked-firebase
+```
+
+Or run the individual checks manually:
+
+```powershell
 npm.cmd run lint
 npm.cmd run build
 npm.cmd run import:palacios -- --input data/palacios-churches.example.json --dry-run
+npm.cmd run audit:firebase
 npm.cmd run cleanup:test-data -- --dry-run
 npm.cmd run cleanup:demo-data -- --dry-run
 ```
@@ -28,7 +35,9 @@ Expected result:
 - Lint passes with no warnings or errors.
 - Production build completes.
 - Palacios import reports records it would import without writing.
+- Firebase data audit prints read-only collection counts.
 - Cleanup scripts print matched records and do not delete anything.
+- `npm.cmd run ops:launch-check` writes a timestamped log under `logs/launch-checks/`.
 
 If a cleanup dry run fails with `Firebase Firestore is not configured`, fix local Firebase Admin
 credentials before attempting a live cleanup. Common fixes:
@@ -36,6 +45,14 @@ credentials before attempting a live cleanup. Common fixes:
 - restore the service account JSON at the path configured in `FIREBASE_SERVICE_ACCOUNT_KEY_PATH`
 - remove the stale file path and set `FIREBASE_CLIENT_EMAIL` plus `FIREBASE_PRIVATE_KEY`
 - use Firebase managed credentials in the deployed runtime instead of local files
+
+For CI or another environment without Firebase Admin credentials, use:
+
+```powershell
+npm.cmd run ops:launch-check -- --skip-firebase
+```
+
+That still validates lint, build, and the Palacios import example without trying to read live Firestore.
 
 ## Real Palacios import flow
 
@@ -84,6 +101,8 @@ Never run cleanup blindly against production.
 ## Deployment checks
 
 - GitHub Actions build validation should pass after pushing to `main`.
+- GitHub Actions has an on-demand `Launch readiness` workflow for non-destructive launch checks.
+- The `Launch readiness` workflow uploads `logs/launch-checks/` as a downloadable artifact.
 - Firebase App Hosting should deploy automatically from `main`.
 - Confirm production environment variables in Firebase App Hosting before assuming runtime behavior.
 - Confirm Firebase Auth authorized domains include the live domain.
@@ -107,8 +126,5 @@ Then test one real church profile and its claim route.
 
 ## What to automate next
 
-- A single `npm run ops:launch-check` command that runs lint, build, import dry run, cleanup dry runs, and writes a timestamped log.
-- A GitHub Actions workflow that runs the same launch-readiness dry run on demand.
-- A non-destructive Firebase data audit that counts published, pending, archived, claimed, unclaimed, test-looking, and demo-looking records.
-- A visual smoke test for the public pages and auth pages using browser automation.
+- A full browser-based visual smoke test for the public pages and auth pages.
 - A scheduled report that confirms annual listing verification ran successfully and logs the number of reminders sent.
