@@ -697,7 +697,6 @@ Additional launch docs:
 - [docs/production-setup.md](docs/production-setup.md)
 - [docs/church-outreach-summary.md](docs/church-outreach-summary.md)
 - [docs/automatic-email-reference.md](docs/automatic-email-reference.md)
-- [docs/claude-deployment-handoff.md](docs/claude-deployment-handoff.md)
 - [docs/operations/README.md](docs/operations/README.md)
 - [docs/operations/2026-07-03-dry-run-manifest.md](docs/operations/2026-07-03-dry-run-manifest.md)
 

@@ -5,8 +5,8 @@ This log records the launch-readiness checks run during the operations pass.
 ## Repository inspection
 
 - Command: `git status --short`
-- Result before documentation changes: only `.claude/` was untracked.
-- Action: left `.claude/` untouched because it is unrelated local tooling state.
+- Result before documentation changes: only a local assistant/tooling folder was untracked.
+- Action: left unrelated local tooling state untouched.
 
 ## Configuration inspection
 

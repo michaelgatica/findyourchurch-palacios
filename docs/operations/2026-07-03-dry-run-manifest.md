@@ -37,7 +37,7 @@ npm.cmd run cleanup:demo-data -- --confirm
 
 - `data/palacios-churches.json` is gitignored and should contain real data only when preparing import.
 - `.env.local` is gitignored and must remain uncommitted.
-- `.claude/` is currently untracked and unrelated to launch operations.
+- Untracked local assistant/tooling folders are unrelated to launch operations.
 - Cleanup scripts require `--dry-run` or `--confirm`; they refuse to run without one of those flags.
 
 ## Expected outcomes
