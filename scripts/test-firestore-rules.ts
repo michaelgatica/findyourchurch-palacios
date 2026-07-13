@@ -70,8 +70,10 @@ export async function runFirestoreRuleTests() {
       "eventRegistrationConfirmations",
       "eventRegistrationIdempotency",
       "eventRegistrationRateLimits",
+      "eventReports",
       "eventExports",
       "eventScheduledJobs",
+      "operationalEvents",
     ]) {
       await assertFails(getDoc(doc(anonymous, `${privateCollection}/private-record`)));
       await assertFails(getDocs(collection(anonymous, privateCollection)));
@@ -112,6 +114,18 @@ export async function runFirestoreRuleTests() {
       }),
     );
     await assertFails(
+      setDoc(doc(anonymous, "eventReports/public-forgery"), {
+        eventId: "published-event",
+        message: "Forged browser report",
+      }),
+    );
+    await assertFails(
+      setDoc(doc(representativeA, "eventReports/rep-forgery"), {
+        eventId: "published-event",
+        message: "Forged representative report",
+      }),
+    );
+    await assertFails(
       setDoc(doc(representativeA, "eventFormVersions/forged-version"), {
         churchId: "church-b",
         version: 1,
@@ -139,6 +153,7 @@ export async function runFirestoreRuleTests() {
             "unlisted direct read works but enumeration is denied",
             "only previously published cancelled events can be read",
             "registration, form, token, export, job, and counter records are private",
+            "public event reports cannot be forged directly through Firestore",
             "representatives cannot forge protected records or roles",
             "platform admin can read protected records but cannot forge server-maintained event data",
           ],
@@ -207,8 +222,10 @@ async function seedFirestore(testEnvironment: RulesTestEnvironment) {
       "eventRegistrationConfirmations",
       "eventRegistrationIdempotency",
       "eventRegistrationRateLimits",
+      "eventReports",
       "eventExports",
       "eventScheduledJobs",
+      "operationalEvents",
     ]) {
       await setDoc(doc(firestore, `${privateCollection}/private-record`), {
         churchId: "church-a",

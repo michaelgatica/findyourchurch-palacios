@@ -164,10 +164,10 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="empty-state">
-            <h3>Community events are coming soon</h3>
+            <h3>No upcoming events listed yet</h3>
             <p>
-              As verified churches begin adding events, the next gatherings and outreach
-              opportunities will appear here.
+              Verified churches can add gatherings, outreach opportunities, and community events
+              from their representative portal.
             </p>
           </div>
         )}

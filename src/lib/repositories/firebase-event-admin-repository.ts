@@ -1,0 +1,203 @@
+import { randomUUID } from "crypto";
+
+import { getFirebaseAdminFirestore } from "@/lib/firebase/admin";
+import {
+  createSlug,
+  firestoreCollectionNames,
+  stripUndefinedDeep,
+} from "@/lib/firebase/firestore";
+import type {
+  EventCategoryGroup,
+  EventCategoryRecord,
+  EventReportRecord,
+  EventReportStatus,
+  EventStatus,
+} from "@/lib/types/events";
+
+function firestoreOrThrow() {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    throw new Error("Firebase Firestore is not configured.");
+  }
+
+  return firestore;
+}
+
+export interface AdminEventListFilters {
+  keyword?: string;
+  status?: EventStatus | "all";
+  churchId?: string;
+  city?: string;
+  primaryType?: string;
+  audienceTag?: string;
+  registrationMode?: string;
+  sort?: "startsAt_desc" | "startsAt_asc" | "updatedAt_desc" | "createdAt_desc";
+  limit?: number;
+}
+
+export async function listAdminEventsFromFirebase(filters: AdminEventListFilters = {}) {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return [];
+  }
+
+  let query: FirebaseFirestore.Query = firestore.collection(firestoreCollectionNames.events);
+
+  if (filters.status && filters.status !== "all") {
+    query = query.where("status", "==", filters.status);
+  }
+
+  if (filters.churchId) {
+    query = query.where("churchId", "==", filters.churchId);
+  }
+
+  if (filters.primaryType) {
+    query = query.where("primaryType", "==", filters.primaryType);
+  }
+
+  if (filters.audienceTag) {
+    query = query.where("audienceTags", "array-contains", filters.audienceTag);
+  }
+
+  const sort = filters.sort ?? "startsAt_desc";
+  if (sort === "startsAt_asc") query = query.orderBy("startsAt", "asc");
+  if (sort === "startsAt_desc") query = query.orderBy("startsAt", "desc");
+  if (sort === "updatedAt_desc") query = query.orderBy("updatedAt", "desc");
+  if (sort === "createdAt_desc") query = query.orderBy("createdAt", "desc");
+
+  const snapshot = await query.limit(filters.limit ?? 50).get();
+  let events = snapshot.docs.map((documentSnapshot) => documentSnapshot.data());
+
+  if (filters.keyword) {
+    const normalizedKeyword = filters.keyword.trim().toLowerCase();
+    events = events.filter((event) =>
+      [
+        event.title,
+        event.summary,
+        event.churchName,
+        event.primaryType,
+        ...(Array.isArray(event.audienceTags) ? event.audienceTags : []),
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedKeyword),
+    );
+  }
+
+  if (filters.city) {
+    const normalizedCity = filters.city.trim().toLowerCase();
+    events = events.filter((event) =>
+      String(event.address?.city ?? "").toLowerCase().includes(normalizedCity),
+    );
+  }
+
+  if (filters.registrationMode) {
+    events = events.filter((event) => event.registration?.mode === filters.registrationMode);
+  }
+
+  return events;
+}
+
+export async function listEventCategoriesFromFirebase(group?: EventCategoryGroup | "all") {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return [];
+  }
+
+  let query: FirebaseFirestore.Query = firestore.collection(firestoreCollectionNames.eventCategories);
+
+  if (group && group !== "all") {
+    query = query.where("group", "==", group);
+  }
+
+  const snapshot = await query.orderBy("sortOrder", "asc").get();
+  return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as EventCategoryRecord);
+}
+
+export async function upsertEventCategoryInFirebase(input: {
+  id?: string;
+  key?: string;
+  group: EventCategoryGroup;
+  label: string;
+  description?: string | null;
+  icon?: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  isPrimary: boolean;
+  actorUserId: string;
+}) {
+  const firestore = firestoreOrThrow();
+  const now = new Date().toISOString();
+  const id = input.id || randomUUID();
+  const existing = input.id
+    ? await firestore.collection(firestoreCollectionNames.eventCategories).doc(input.id).get()
+    : null;
+  const existingData = existing?.exists ? (existing.data() as EventCategoryRecord) : null;
+  const key = existingData?.key ?? input.key ?? createSlug(input.label);
+  const record: EventCategoryRecord = {
+    id,
+    key,
+    group: input.group,
+    label: input.label,
+    description: input.description ?? null,
+    icon: input.icon ?? null,
+    sortOrder: input.sortOrder,
+    isActive: input.isActive,
+    isPrimary: input.isPrimary,
+    isSystem: existingData?.isSystem ?? false,
+    createdAt: existingData?.createdAt ?? now,
+    updatedAt: now,
+    updatedByUserId: input.actorUserId,
+  };
+
+  await firestore.collection(firestoreCollectionNames.eventCategories).doc(id).set(stripUndefinedDeep(record));
+  return record;
+}
+
+export async function createEventReportInFirebase(report: Omit<EventReportRecord, "id" | "createdAt" | "updatedAt" | "status">) {
+  const firestore = firestoreOrThrow();
+  const now = new Date().toISOString();
+  const record: EventReportRecord = {
+    ...report,
+    id: randomUUID(),
+    status: "new",
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await firestore.collection(firestoreCollectionNames.eventReports).doc(record.id).set(stripUndefinedDeep(record));
+  return record;
+}
+
+export async function listEventReportsFromFirebase(status?: EventReportStatus | "all") {
+  const firestore = getFirebaseAdminFirestore();
+
+  if (!firestore) {
+    return [];
+  }
+
+  let query: FirebaseFirestore.Query = firestore.collection(firestoreCollectionNames.eventReports);
+
+  if (status && status !== "all") {
+    query = query.where("status", "==", status);
+  }
+
+  const snapshot = await query.orderBy("createdAt", "desc").limit(100).get();
+  return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as EventReportRecord);
+}
+
+export async function updateEventReportInFirebase(reportId: string, updates: Partial<EventReportRecord>) {
+  const firestore = firestoreOrThrow();
+  const payload = stripUndefinedDeep({
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  });
+
+  await firestore.collection(firestoreCollectionNames.eventReports).doc(reportId).update(payload);
+  const updated = await firestore.collection(firestoreCollectionNames.eventReports).doc(reportId).get();
+  return updated.data() as EventReportRecord;
+}
+

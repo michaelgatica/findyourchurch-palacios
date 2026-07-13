@@ -8,6 +8,7 @@ import {
   createPageMetadata,
   siteConfig,
 } from "@/lib/config/site";
+import { submitEventReportAction } from "@/lib/actions/event-reports";
 import { formatAddress } from "@/lib/church-utils";
 import {
   buildEventPath,
@@ -18,6 +19,7 @@ import {
 } from "@/lib/event-utils";
 import { getPublicEventBySlug } from "@/lib/repositories/event-repository";
 import { getExternalRegistrationDestination } from "@/lib/validation/external-registration-url";
+import { eventReportReasons } from "@/lib/types/events";
 
 export const dynamic = "force-dynamic";
 
@@ -224,6 +226,42 @@ export default async function EventPage({ params }: EventPageProps) {
                 ))}
               </div>
             </div>
+
+            <form action={submitEventReportAction} className="panel event-report-form">
+              <input type="hidden" name="eventSlug" value={event.slug} />
+              <label className="registration-honeypot" aria-hidden="true">
+                Website
+                <input name="website" tabIndex={-1} autoComplete="off" />
+              </label>
+              <h2>Report event information</h2>
+              <p className="supporting-text">
+                Let the review team know if something appears inaccurate. Reports are reviewed
+                privately and do not automatically remove an event.
+              </p>
+              <label className="field">
+                <span className="field__label">Reason</span>
+                <select name="reason" required>
+                  {eventReportReasons.map((reason) => (
+                    <option key={reason} value={reason}>
+                      {reason.replaceAll("_", " ")}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span className="field__label">What should we review?</span>
+                <textarea name="message" minLength={10} maxLength={1200} required />
+              </label>
+              <label className="field">
+                <span className="field__label">Your name, optional</span>
+                <input name="reporterName" maxLength={120} />
+              </label>
+              <label className="field">
+                <span className="field__label">Your email, optional</span>
+                <input name="reporterEmail" type="email" maxLength={160} />
+              </label>
+              <button className="button button--ghost">Submit report</button>
+            </form>
           </aside>
         </div>
       </section>

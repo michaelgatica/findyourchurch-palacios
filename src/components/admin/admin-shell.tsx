@@ -16,6 +16,22 @@ const adminNavigationItems = [
     label: "Churches",
   },
   {
+    href: "/admin/events",
+    label: "Events",
+  },
+  {
+    href: "/admin/event-reports",
+    label: "Reports",
+  },
+  {
+    href: "/admin/event-categories",
+    label: "Categories",
+  },
+  {
+    href: "/admin/ops",
+    label: "Ops",
+  },
+  {
     href: "/admin/updates",
     label: "Updates",
   },

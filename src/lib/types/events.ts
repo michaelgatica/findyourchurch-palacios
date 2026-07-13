@@ -42,6 +42,72 @@ export interface EventTaxonomyOption {
   sortOrder: number;
 }
 
+export const eventCategoryGroups = [
+  "primary_type",
+  "audience_tag",
+  "language",
+  "accessibility",
+  "registration_label",
+  "cost_status",
+  "seasonal",
+] as const;
+
+export type EventCategoryGroup = (typeof eventCategoryGroups)[number];
+
+export interface EventCategoryRecord {
+  id: string;
+  key: string;
+  group: EventCategoryGroup;
+  label: string;
+  description?: string | null;
+  icon?: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  isPrimary: boolean;
+  isSystem?: boolean;
+  createdAt: string;
+  updatedAt: string;
+  updatedByUserId?: string | null;
+}
+
+export const eventReportReasons = [
+  "incorrect_information",
+  "cancelled_not_marked",
+  "broken_registration_link",
+  "misleading_content",
+  "spam",
+  "duplicate_event",
+  "inappropriate_content",
+  "impersonation",
+  "other",
+] as const;
+
+export type EventReportReason = (typeof eventReportReasons)[number];
+
+export const eventReportStatuses = ["new", "investigating", "resolved", "dismissed"] as const;
+
+export type EventReportStatus = (typeof eventReportStatuses)[number];
+
+export interface EventReportRecord {
+  id: string;
+  eventId: string;
+  eventTitle: string;
+  eventSlug: string;
+  churchId: string;
+  churchName: string;
+  reason: EventReportReason;
+  message: string;
+  reporterName?: string | null;
+  reporterEmail?: string | null;
+  status: EventReportStatus;
+  internalNote?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string | null;
+  ipHash?: string | null;
+  userAgentHash?: string | null;
+}
+
 export interface EventRegistrationSummary {
   mode: EventRegistrationMode;
   opensAt?: string | null;
@@ -82,6 +148,10 @@ export interface EventRecord {
   status: EventStatus;
   visibility: EventVisibility;
   isFeatured: boolean;
+  editingLocked?: boolean;
+  editingLockedAt?: string | null;
+  editingLockedByUserId?: string | null;
+  moderationNote?: string | null;
   flyerImage?: EventFlyerImage | null;
   additionalImages: ChurchPhoto[];
   startsAt: string;

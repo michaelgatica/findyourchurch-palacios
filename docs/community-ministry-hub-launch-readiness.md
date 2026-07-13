@@ -1,0 +1,510 @@
+# Community Ministry Hub Launch Readiness
+
+This document covers the controlled launch-readiness pass for Community Ministry Hub events and registration. It is intentionally operational: it tells a platform administrator what exists, what still needs staging or production verification, and how to roll back safely.
+
+## Branch Baseline
+
+- Registration base commit: `5d67e21`.
+- Launch-readiness branch: `feature/community-ministry-hub-launch-readiness`.
+- Production deployment: not performed in this phase.
+- Production data mutation: not performed in this phase.
+
+## Implementation Audit
+
+Production-ready code paths:
+
+- Public `/events` listing and `/events/[eventSlug]` detail pages read sanitized `publicEvents`.
+- Church representatives create and manage events through trusted server actions.
+- Internal registration forms, capacity, waitlist, idempotency, secure management tokens, exports, scheduled jobs, and email templates are implemented server-side.
+- Firestore and Storage rules deny direct browser writes to event, registration, export, job, token, and audit records.
+- Private registration exports are served through an authorized API route, not direct public Storage reads.
+
+Intentionally development-only:
+
+- `EMAIL_PROVIDER=console`.
+- Local emulator tests using `demo-find-your-church`.
+- Seed/sample scripts when explicitly run outside production.
+- Local Firebase fallback behavior outside production.
+
+Incomplete or requiring verification:
+
+- Live SMTP delivery and DNS reputation must be tested with approved recipients.
+- Production cron must be configured and observed outside production data first.
+- Firebase App Check is documented but not enforced in code.
+- Full manual browser QA requires actual staged data and signed-in test users.
+- Large-event export strategy is synchronous and should be revisited for very large events.
+
+Removed or corrected in this pass:
+
+- Homepage event empty-state copy no longer implies the event feature itself is not implemented.
+- Platform-admin event moderation, reports, categories, and ops visibility were added.
+- Event report writes are trusted-server-only in Firestore rules.
+- Editing locks are enforced against church representative event mutations.
+
+## Platform Administrator Functionality
+
+Routes:
+
+- `/admin/events`
+- `/admin/event-reports`
+- `/admin/event-categories`
+- `/admin/ops`
+
+Platform administrators can:
+
+- Search and filter events across churches.
+- Review event status, owner, church ID, visibility, registration mode, featured state, and editing lock.
+- Preview public event pages.
+- Publish, unlist, cancel, archive, restore, or move events through validated server transitions.
+- Feature or unfeature events.
+- Temporarily lock or unlock church representative editing.
+- Add moderation notes.
+- Review public event reports.
+- Mark reports as new, investigating, resolved, or dismissed.
+- Add private moderation notes.
+- Add, edit, deactivate, restore, and reorder category records.
+- View production configuration readiness without printing secrets.
+
+Deferred platform-admin items:
+
+- Bulk actions.
+- Direct retry controls for failed transactional emails.
+- Direct retry controls for failed scheduled jobs from the admin UI.
+- A dedicated audit-history detail page, though event/report/category actions write audit records.
+
+## Category Management
+
+Managed groups:
+
+- Primary event types.
+- Audience and ministry tags.
+- Languages.
+- Accessibility attributes.
+- Registration labels.
+- Cost-status options.
+- Seasonal and holiday categories.
+
+Category rules:
+
+- Internal keys are stable after creation.
+- Public labels may change without rewriting historical event records.
+- Deactivated categories remain available for historical context.
+- Church representatives cannot create global categories.
+- The existing `Other` event category behavior remains available through event custom tags.
+
+## Public Event Reporting
+
+Visitors can report an event from the public event detail page for:
+
+- Incorrect information.
+- Event cancelled but not marked cancelled.
+- Broken registration link.
+- Misleading content.
+- Spam.
+- Duplicate event.
+- Inappropriate content.
+- Impersonation.
+- Other.
+
+Protections:
+
+- Honeypot field.
+- Server-side reason validation.
+- Message length limits.
+- Reporter name/email optional and private.
+- IP and user agent hashed when present.
+- Firestore direct public writes denied.
+- Reports do not automatically remove events.
+
+## Production Configuration Validation
+
+Admin route:
+
+- `/admin/ops`
+
+Validated settings include:
+
+- Firebase client and Admin configuration.
+- Firebase Storage bucket.
+- Public canonical site URL.
+- SMTP provider and credentials.
+- Admin notification email.
+- Registration token secret.
+- Registration scheduler secret.
+- Listing verification scheduler secret.
+- SMTP reply-to.
+- Export signing/revocation planning secret.
+- App Check planning key.
+- Error monitoring DSN.
+- Retention job flag.
+- Analytics/Search Console settings.
+
+Secrets are never printed. Missing production-critical settings fail the check only when `NODE_ENV=production`.
+
+## Domain and Canonical Host
+
+Recommended canonical host for the Palacios launch:
+
+- `https://findyourchurchpalacios.org`
+
+Required production behavior:
+
+- `NEXT_PUBLIC_SITE_URL=https://findyourchurchpalacios.org`.
+- `www.findyourchurchpalacios.org` redirects to the canonical host if configured.
+- HTTP redirects to HTTPS.
+- Firebase Hosting/App Hosting preview domains must not be the canonical host.
+- `findyourchurch.org` remains a future platform domain unless its hosting, DNS, Firebase Auth domain, sitemap, and canonical configuration are completed.
+
+Sensitive URLs must not appear in canonical tags, analytics, sitemap entries, or public logs:
+
+- Registration management tokens.
+- Private export routes.
+- Cron secrets.
+- Session tokens.
+
+## SEO and Discoverability
+
+Verified expectations:
+
+- Published public events can appear in `/events` and public event detail pages.
+- Draft, pending-review, archived, and registration management routes are not public listing paths.
+- Cancelled events are `noindex` through page metadata because `generateMetadata` marks non-published events as noindex.
+- Public event structured data is generated from sanitized event records.
+- Legacy church routes continue to redirect through existing route helpers.
+
+Still requiring manual/live verification:
+
+- Sitemap includes only appropriate published events.
+- Open Graph images render correctly for live event flyers.
+- Google Calendar URLs use correct live event URLs.
+- Search Console sees the intended canonical host.
+
+## Email Readiness
+
+Templates reviewed in code:
+
+- Registration confirmation.
+- Waitlist confirmation.
+- Waitlist promotion.
+- Registration cancellation.
+- Event reminders.
+- Daily digest.
+- Final report.
+- Report/export email.
+
+Email requirements:
+
+- `EMAIL_PROVIDER=smtp` or supported production provider.
+- `EMAIL_FROM=support@findyourchurchpalacios.org`.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASSWORD`.
+- `SMTP_REPLY_TO` recommended.
+- `ADMIN_NOTIFICATION_EMAIL` may be comma-separated for launch.
+- SPF, DKIM, and DMARC should be configured for the sending domain.
+
+Do not claim production email verified until a real provider test is sent and received by an approved test recipient.
+
+## Scheduler and Cron Readiness
+
+Endpoint:
+
+- `POST /api/jobs/registration`
+
+Required header:
+
+- `x-cron-secret: <REGISTRATION_JOBS_CRON_SECRET>`
+
+Jobs:
+
+- Daily digests.
+- Registration-closing reports.
+- Pre-event reports.
+- Event reminders.
+- Event cancellation notices.
+- Export cleanup.
+- Registration retention cleanup.
+
+Operational requirements:
+
+- Use bounded batches.
+- Keep jobs idempotent.
+- Record attempts, status, errors, and completion.
+- Avoid duplicate sends by using deterministic job IDs.
+- Configure scheduler first in staging or production-like environment.
+
+Local preview:
+
+```powershell
+npm run process:registration-jobs -- --dry-run
+```
+
+## Export and Report Security
+
+Verified design:
+
+- Export records are private Firestore documents.
+- Export files are written to private Storage paths.
+- Direct Storage reads are denied.
+- Download route requires authenticated representative access.
+- Export links expire by record metadata.
+- Sensitive fields are excluded unless explicitly selected and confirmed.
+- Spreadsheet formula injection is neutralized.
+- Export creation and download are audited without storing registration answer values.
+
+Remaining production check:
+
+- Confirm expired export cleanup deletes files in the real bucket.
+- Confirm revoked users cannot use old sessions after revocation.
+
+## Data Retention and Privacy
+
+Defaults:
+
+- Registration retention is configured per event registration setup.
+- Export retention is 24 hours.
+- Access tokens expire and cleanup jobs remove expired records.
+- Audit records should keep minimal metadata and avoid answer values.
+
+Operational process:
+
+1. Locate a registration by confirmation number or authorized event search.
+2. Verify the requester and event/church relationship.
+3. Cancel the registration if needed.
+4. Delete or anonymize eligible personal data.
+5. Record that deletion occurred without retaining deleted sensitive content.
+6. Preserve minimal audit/security records when legally or operationally necessary.
+
+Special handling:
+
+- Child, health, emergency, allergy, and accessibility information should be collected only when necessary and excluded from general email/report output by default.
+- Policy language requires legal review before production launch.
+
+## Accessibility Review
+
+Automated accessibility tooling is not configured in this repo. Manual review is required for:
+
+- Keyboard navigation.
+- Focus order and visible focus.
+- Form labels and required-field notices.
+- Error summaries.
+- Screen-reader status messages.
+- Conditional fields.
+- Tables and mobile table alternatives.
+- Touch target size.
+- 200 percent zoom.
+- Color contrast.
+- Reduced-motion behavior.
+- Meaningful flyer alt text.
+
+Current status:
+
+- Not fully manually verified in this phase.
+- Recommendation cannot be full GO until manual accessibility QA is complete.
+
+## Manual QA Matrix
+
+Record results as `Pass`, `Fail`, `Not tested`, or `Environment limitation`.
+
+Viewports:
+
+- Small mobile phone.
+- Standard mobile phone.
+- Large mobile phone.
+- Tablet portrait.
+- Tablet landscape.
+- Laptop.
+- Desktop.
+
+Public workflows:
+
+- Browse events.
+- Filter events.
+- Open event.
+- Share event.
+- Add to calendar.
+- Report event information.
+- Register.
+- Join waitlist.
+- Receive confirmation.
+- Open management link.
+- Edit or cancel registration if enabled.
+
+Church administrator workflows:
+
+- Create event.
+- Upload flyer.
+- Save draft.
+- Publish.
+- Edit.
+- Duplicate.
+- Cancel.
+- Archive.
+- Build registration form.
+- View registrations.
+- Add manual registration.
+- Check in attendee.
+- Export PDF.
+- Export XLSX.
+- Email report.
+
+Platform administrator workflows:
+
+- Find event.
+- Moderate event.
+- Feature event.
+- Lock editing.
+- Review public report.
+- Update report status.
+- Manage categories.
+- Review configuration checks.
+
+Current matrix result:
+
+- Automated coverage: pass for tested scripts.
+- Manual browser QA: not completed in this phase.
+
+## Performance Review
+
+Current safeguards:
+
+- Public event lists are limited.
+- Registration dashboard uses pagination.
+- Capacity checks are transactional.
+- Search prefixes are indexed.
+- Large private answer values are not loaded publicly.
+
+Risks:
+
+- PDF/XLSX exports are generated in memory.
+- Very large events may need async export chunking.
+- Admin event filters currently limit result counts and then apply some filters in memory.
+- Manual load testing with hundreds of registrations is still needed.
+
+Recommended practical limits before national expansion:
+
+- Document maximum public registration payload size.
+- Add async export jobs for events above a registration threshold.
+- Add monitoring for slow export generation.
+
+## Dependency Security Results
+
+Previous safe remediation:
+
+- `nodemailer` upgraded to `9.0.3`, clearing the high advisory.
+- Next upgraded within the 15.5 patch line during safe audit fix.
+
+Remaining advisories after `npm audit --omit=dev`:
+
+- 11 moderate advisories.
+- Next/PostCSS advisory remains reported by npm audit, with `npm audit fix --force` suggesting an unsafe downgrade path.
+- Firebase Admin transitive `uuid` advisories remain through Google Cloud dependencies.
+- `npm audit fix --omit=dev --dry-run` did not produce a safe production remediation path; it still left the same 11 moderate advisories and pointed to force-level/breaking changes.
+
+Accepted residual risk for this phase:
+
+- Do not run `npm audit fix --force`.
+- Do not downgrade Next or ExcelJS.
+- Track upstream Firebase Admin/Google Cloud and Next patch releases.
+- Re-run audit before production launch.
+
+## Monitoring and Alerts
+
+Operational visibility added:
+
+- `/admin/ops` configuration checks.
+- `/admin/events` event status/moderation visibility.
+- `/admin/event-reports` public report queue.
+- Audit logs for platform event actions, report actions, and category changes.
+
+Recommended alerts:
+
+- Any failed scheduled registration job.
+- More than 3 failed email sends in 15 minutes.
+- Export generation failures.
+- Registration counter mismatch.
+- Repeated authorization denials from the same account/IP.
+- Storage cleanup failures.
+- Cron endpoint unauthorized attempts.
+
+Response process:
+
+1. Check `/admin/ops`.
+2. Review email logs and audit logs.
+3. Disable registration for the affected event if needed.
+4. Disable scheduler if duplicate sends are suspected.
+5. Preserve logs before cleanup.
+
+## Backup, Recovery, and Rollback
+
+Before launch:
+
+- Enable Firestore backups or scheduled exports.
+- Confirm Storage bucket retention/backup expectations.
+- Deploy indexes before code that requires them.
+- Deploy Firestore and Storage rules before enabling public registration.
+- Configure env vars before traffic reaches new routes.
+
+Rollback steps:
+
+1. Disable scheduler calls to `/api/jobs/registration`.
+2. Set events to external registration or `none` if internal registration must pause.
+3. Redeploy previous application release.
+4. Keep Firestore data intact unless a tested migration rollback exists.
+5. Preserve `eventRegistrations`, counters, tokens, exports, and audit logs.
+6. If token secret is compromised, rotate `REGISTRATION_TOKEN_SECRET` and treat existing management links as revoked.
+7. If export secret/access is compromised, delete unexpired export files and records.
+8. Rebuild registration counters from registrations if counts drift.
+
+Do not test destructive recovery steps against production.
+
+## Deployment Order
+
+1. Review and approve code.
+2. Configure production env vars.
+3. Deploy Firestore indexes.
+4. Deploy Firestore rules.
+5. Deploy Storage rules.
+6. Deploy application.
+7. Verify `/admin/ops`.
+8. Create test event in staging or approved production test window.
+9. Test registration and emails.
+10. Configure scheduler.
+11. Verify scheduled job logs.
+12. Run manual browser QA.
+13. Decide go/no-go.
+
+## Automated Verification Results
+
+Executed in this phase:
+
+- `npx tsc --noEmit`: passed.
+- `npm run test:event-validation`: passed.
+- `npm run test:directory-routing`: passed.
+- `npm run test:registration-validation`: passed.
+- `npm run test:registration-reports`: passed.
+- `npm run test:registration-scheduler`: passed.
+- `npm run test:platform-launch-readiness`: passed.
+- `npm run test:event-security`: passed through Firebase emulators for Firestore, Storage, and Auth.
+- `npm run test:registration-emulator`: passed through the Firestore emulator.
+- `npm run lint`: passed with no ESLint warnings or errors.
+- `npm run build`: passed.
+- `npm audit --omit=dev`: completed with 11 moderate advisories.
+- `npm audit fix --omit=dev --dry-run`: reviewed only; no changes kept.
+
+Manual/staging verification still required:
+
+- Live SMTP delivery and bounce behavior.
+- Real scheduler trigger behavior.
+- Browser/device QA matrix.
+- Accessibility review with signed-in representative/admin flows.
+- Sitemap/Open Graph verification on the final canonical host.
+
+## Final Recommendation
+
+Current recommendation: `CONDITIONAL GO`.
+
+Reasons:
+
+- Automated tests and rules checks can validate the core architecture.
+- Platform admin moderation/category/config surfaces now exist.
+- Production live email, scheduler, App Check, accessibility, and manual browser QA still need environment-backed verification.
+- Remaining dependency advisories require explicit acceptance or future upstream-safe updates.

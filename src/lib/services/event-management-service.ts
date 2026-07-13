@@ -172,6 +172,10 @@ async function assertEventChurchAccess(input: {
     throw new Error("This event does not belong to the selected church.");
   }
 
+  if (event.editingLocked) {
+    throw new Error("This event is temporarily locked by a platform administrator.");
+  }
+
   const access = await requireChurchEventManagementAccess({
     userId: input.actorUserId,
     churchId: event.churchId,

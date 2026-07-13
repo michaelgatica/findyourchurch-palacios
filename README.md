@@ -156,9 +156,14 @@ SMTP_HOST=
 SMTP_PORT=
 SMTP_USER=
 SMTP_PASSWORD=
+SMTP_REPLY_TO=
 LISTING_VERIFICATION_CRON_SECRET=
 REGISTRATION_JOBS_CRON_SECRET=
 REGISTRATION_TOKEN_SECRET=
+EXPORT_SIGNING_SECRET=
+APP_CHECK_SITE_KEY=
+ERROR_MONITORING_DSN=
+RETENTION_JOB_ENABLED=false
 ```
 
 `ADMIN_NOTIFICATION_EMAIL` can be a single inbox or a comma-separated list, for example:
@@ -208,7 +213,11 @@ REGISTRATION_JOBS_CRON_SECRET=
 
 - `REGISTRATION_TOKEN_SECRET` protects registration management links and form challenges. Use a strong production-only secret and never expose it through `NEXT_PUBLIC_*`.
 - `REGISTRATION_JOBS_CRON_SECRET` protects `POST /api/jobs/registration`. Scheduled callers must send it in the `x-cron-secret` header.
+- `SMTP_REPLY_TO` should point to the monitored ministry inbox for replies when supported by the provider.
+- `EXPORT_SIGNING_SECRET` is reserved for export revocation/signing planning and should be a strong server-only secret before broad export use.
+- `APP_CHECK_SITE_KEY`, `ERROR_MONITORING_DSN`, and `RETENTION_JOB_ENABLED` are optional launch-readiness controls tracked by `/admin/ops`.
 - See `docs/community-ministry-hub-implementation.md` for the full events and registration runbook.
+- See `docs/community-ministry-hub-launch-readiness.md` for platform admin, moderation, deployment order, rollback, dependency risk, and go/no-go launch guidance.
 
 ## Firebase setup
 
@@ -646,8 +655,10 @@ Production deployment notes:
 - set server Firebase env vars or rely on managed credentials where supported
 - configure the Zeffy donation settings you want to use
 - set `EMAIL_PROVIDER`, `EMAIL_FROM`, and provider credentials
+- set `SMTP_REPLY_TO` to the monitored reply inbox when using SMTP
 - set `REGISTRATION_TOKEN_SECRET`
 - set `REGISTRATION_JOBS_CRON_SECRET`
+- set or intentionally defer `EXPORT_SIGNING_SECRET`, `APP_CHECK_SITE_KEY`, `ERROR_MONITORING_DSN`, and `RETENTION_JOB_ENABLED`
 - schedule the registration job endpoint if event registration is enabled
 - connect the custom domain for `FindYourChurchPalacios.org`
 - confirm production email with `npm run test:email`
@@ -699,6 +710,7 @@ npm run test:directory-routing
 npm run test:registration-validation
 npm run test:registration-reports
 npm run test:registration-scheduler
+npm run test:platform-launch-readiness
 npm run test:event-security
 npm run test:registration-emulator
 npm run import:palacios -- --input data/palacios-churches.example.json --dry-run

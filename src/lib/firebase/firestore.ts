@@ -37,6 +37,7 @@ export const firestoreCollectionNames = {
   events: "events",
   publicEvents: "publicEvents",
   eventCategories: "eventCategories",
+  eventReports: "eventReports",
   eventRegistrations: "eventRegistrations",
   eventRegistrationConfigurations: "eventRegistrationConfigurations",
   eventFormVersions: "eventFormVersions",
@@ -47,6 +48,7 @@ export const firestoreCollectionNames = {
   eventRegistrationRateLimits: "eventRegistrationRateLimits",
   eventExports: "eventExports",
   eventScheduledJobs: "eventScheduledJobs",
+  operationalEvents: "operationalEvents",
 } as const;
 
 export function createSlug(value: string) {

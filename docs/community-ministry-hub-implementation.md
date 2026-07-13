@@ -4,6 +4,8 @@ Find Your Church Palacios remains a free church directory first. The Community M
 
 This document is the implementation/runbook for the current Community Ministry Hub work. It covers the public events foundation, church administrator event management, and internal registration management.
 
+Launch-readiness, platform administration, production verification, rollback, monitoring, and the current go/no-go recommendation are tracked in `docs/community-ministry-hub-launch-readiness.md`.
+
 ## Branches and Scope
 
 - Public events foundation was already pushed to `main`.
@@ -419,9 +421,8 @@ Also run `npx tsc --noEmit` when changing shared types or server services.
 
 Recommended next phase:
 
-- production cron wiring and monitoring
-- live SMTP registration email test
-- manual browser QA on event create/edit/register/manage/export flows
-- App Check planning
-- operational retry tooling for failed registration jobs
-- high-volume export strategy
+- complete staging manual browser QA
+- verify live SMTP registration emails
+- configure and observe production-like scheduler
+- decide whether to enforce Firebase App Check
+- add async export processing for very large events

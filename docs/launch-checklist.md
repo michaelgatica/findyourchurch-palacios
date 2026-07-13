@@ -87,6 +87,7 @@
 ## Deployment checks
 
 - `NEXT_PUBLIC_SITE_URL` matches the live domain.
+- `docs/community-ministry-hub-launch-readiness.md` has been reviewed.
 - Firebase Auth is enabled.
 - Firestore named database is configured.
 - Firestore indexes from `firestore.indexes.json` are deployed.
@@ -99,6 +100,10 @@
 - `REGISTRATION_TOKEN_SECRET` is configured in production.
 - `REGISTRATION_JOBS_CRON_SECRET` is configured in production.
 - Registration cron calls `POST /api/jobs/registration` with the `x-cron-secret` header.
+- `/admin/ops` shows no critical production failures.
+- `/admin/events` opens for the platform admin account.
+- `/admin/event-reports` opens for the platform admin account.
+- `/admin/event-categories` opens for the platform admin account.
 - Registration confirmation, waitlist, reminder, digest, and final-report emails are tested with the real provider.
 - Registration exports expire and are not readable through direct Storage URLs.
 - Email provider configured and tested.
@@ -265,6 +270,7 @@ npm run test:directory-routing
 npm run test:registration-validation
 npm run test:registration-reports
 npm run test:registration-scheduler
+npm run test:platform-launch-readiness
 npm run test:event-security
 npm run test:registration-emulator
 npm run lint
