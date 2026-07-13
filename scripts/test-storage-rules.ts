@@ -4,28 +4,24 @@ import {
   assertFails,
   assertSucceeds,
   initializeTestEnvironment,
+  type RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
 
 const projectId = process.env.GCLOUD_PROJECT ?? "demo-find-your-church";
 const bucketName = `${projectId}.appspot.com`;
 
-async function seedStorageObject(path: string, contentType: string, body: string) {
-  const emulatorHost = process.env.FIREBASE_STORAGE_EMULATOR_HOST ?? "127.0.0.1:9199";
-  const response = await fetch(
-    `http://${emulatorHost}/v0/b/${bucketName}/o?name=${encodeURIComponent(path)}`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer owner",
-        "Content-Type": contentType,
-      },
-      body,
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(`Unable to seed Storage emulator object: ${response.status} ${await response.text()}`);
-  }
+async function seedStorageObject(
+  testEnvironment: RulesTestEnvironment,
+  path: string,
+  contentType: string,
+  body: string,
+) {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await context
+      .storage(`gs://${bucketName}`)
+      .ref(path)
+      .put(new TextEncoder().encode(body), { contentType });
+  });
 }
 
 export async function runStorageRuleTests() {
@@ -38,9 +34,21 @@ export async function runStorageRuleTests() {
 
   try {
     const flyerPath = "churches/church-a/events/event-a/flyer/flyer.jpg";
+    const misroutedExportPath = "churches/church-a/events/event-a/flyer/private-report.xlsx";
     const privateExportPath = "private/event-exports/church-a/event-a/report.xlsx";
-    await seedStorageObject(flyerPath, "image/jpeg", "test-image");
-    await seedStorageObject(privateExportPath, "application/octet-stream", "private-report");
+    await seedStorageObject(testEnvironment, flyerPath, "image/jpeg", "test-image");
+    await seedStorageObject(
+      testEnvironment,
+      misroutedExportPath,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "misrouted-private-report",
+    );
+    await seedStorageObject(
+      testEnvironment,
+      privateExportPath,
+      "application/octet-stream",
+      "private-report",
+    );
 
     const anonymousStorage = testEnvironment
       .unauthenticatedContext()
@@ -57,10 +65,16 @@ export async function runStorageRuleTests() {
       anonymousStorage.ref("churches/church-a/events/event-a/flyer").listAll(),
     );
     await assertFails(anonymousStorage.ref(privateExportPath).getDownloadURL());
+    await assertFails(anonymousStorage.ref(misroutedExportPath).getDownloadURL());
     await assertFails(representativeAStorage.ref(privateExportPath).getDownloadURL());
     await assertFails(representativeBStorage.ref(privateExportPath).getDownloadURL());
 
     const imageBytes = new TextEncoder().encode("browser-image");
+    await assertFails(
+      Promise.resolve(
+        anonymousStorage.ref(flyerPath).put(imageBytes, { contentType: "image/jpeg" }),
+      ),
+    );
     await assertFails(
       Promise.resolve(
         representativeAStorage.ref(flyerPath).put(imageBytes, { contentType: "image/jpeg" }),
@@ -80,6 +94,7 @@ export async function runStorageRuleTests() {
         }),
       ),
     );
+    await assertFails(representativeAStorage.ref(flyerPath).delete());
 
     console.log(
       JSON.stringify(
@@ -90,8 +105,11 @@ export async function runStorageRuleTests() {
             "public flyer object can be read",
             "public flyer directories cannot be listed",
             "private exports cannot be read by public or representatives",
+            "export content cannot be exposed from a public flyer path",
+            "anonymous flyer uploads are denied",
             "all direct flyer and export writes are denied",
             "cross-church writes are denied",
+            "unauthorized flyer deletion is denied",
           ],
         },
         null,

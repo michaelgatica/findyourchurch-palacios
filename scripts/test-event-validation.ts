@@ -1,4 +1,7 @@
-import { validateEventFormData } from "@/lib/validation/event-management";
+import {
+  eventFlyerMaximumSizeInBytes,
+  validateEventFormData,
+} from "@/lib/validation/event-management";
 
 function assert(condition: unknown, message: string) {
   if (!condition) {
@@ -114,6 +117,24 @@ async function main() {
     "Add a secure online meeting",
   );
 
+  const invalidFlyerForm = createBaseEventFormData();
+  invalidFlyerForm.set(
+    "flyer",
+    new File(["not-an-image"], "private-report.pdf", { type: "application/pdf" }),
+  );
+  await expectValidationError(invalidFlyerForm, "Flyers must be JPG, PNG, or WebP images.");
+
+  const oversizedFlyerForm = createBaseEventFormData();
+  oversizedFlyerForm.set(
+    "flyer",
+    new File(
+      [new Uint8Array(eventFlyerMaximumSizeInBytes + 1)],
+      "oversized-flyer.png",
+      { type: "image/png" },
+    ),
+  );
+  await expectValidationError(oversizedFlyerForm, "Flyers must be 8 MB or smaller.");
+
   console.log(
     JSON.stringify(
       {
@@ -126,6 +147,8 @@ async function main() {
           "end date must be after start",
           "capacity must be positive",
           "online events require HTTPS online URL",
+          "invalid flyer file types are rejected",
+          "oversized flyers are rejected",
         ],
       },
       null,

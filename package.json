@@ -34,6 +34,7 @@
     "test:registration-emulator": "firebase emulators:exec --project demo-find-your-church --only firestore \"tsx scripts/test-registration-emulator.ts\"",
     "test:firestore-rules": "firebase emulators:exec --project demo-find-your-church --only firestore \"tsx scripts/test-firestore-rules.ts\"",
     "test:storage-rules": "firebase emulators:exec --project demo-find-your-church --only storage \"tsx scripts/test-storage-rules.ts\"",
+    "test:staging-storage": "tsx scripts/test-staging-storage.ts",
     "test:event-security": "firebase emulators:exec --project demo-find-your-church --only firestore,storage,auth \"tsx scripts/test-firestore-rules.ts && tsx scripts/test-storage-rules.ts\"",
     "process:registration-jobs": "tsx scripts/process-registration-jobs.ts",
     "seed:community-hub-staging": "tsx scripts/seed-community-hub-staging.ts",

@@ -26,7 +26,10 @@ service firebase.storage {
     }
 
     match /churches/{churchId}/events/{eventId}/flyer/{fileName} {
-      allow get: if true;
+      allow get: if resource != null
+        && resource.size <= 8 * 1024 * 1024
+        && resource.contentType != null
+        && resource.contentType.matches('image/(jpeg|png|webp)');
       allow list: if false;
       allow write: if false;
       // Server-side flyer upload enforces JPG/PNG/WebP, 8 MB maximum, safe

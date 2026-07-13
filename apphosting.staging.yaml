@@ -1,0 +1,124 @@
+runConfig:
+  runtime: nodejs20
+  concurrency: 20
+  minInstances: 0
+  maxInstances: 3
+
+env:
+  - variable: APP_ENV
+    value: staging
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_APP_ENV
+    value: staging
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_SITE_URL
+    value: https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_ACTIVE_MARKET_KEY
+    value: palacios
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_ENABLE_DONATIONS
+    value: "false"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: FYC_STAGING_FIREBASE_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: findyourchurch-staging-2026.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: findyourchurch-staging-2026
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: findyourchurch-staging-2026.firebasestorage.app
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "286552720158"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:286552720158:web:1ef2dc258ecc545106bf0f
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_DATABASE_ID
+    value: findyourchurchpal
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_USE_FIREBASE_EMULATORS
+    value: "false"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: FIREBASE_PROJECT_ID
+    value: findyourchurch-staging-2026
+    availability:
+      - RUNTIME
+
+  - variable: FIREBASE_STORAGE_BUCKET
+    value: findyourchurch-staging-2026.firebasestorage.app
+    availability:
+      - RUNTIME
+
+  - variable: FIREBASE_DATABASE_ID
+    value: findyourchurchpal
+    availability:
+      - RUNTIME
+
+  - variable: EMAIL_PROVIDER
+    value: console
+    availability:
+      - RUNTIME
+
+  - variable: REGISTRATION_TOKEN_SECRET
+    secret: FYC_STAGING_REGISTRATION_TOKEN
+    availability:
+      - RUNTIME
+
+  - variable: EXPORT_SIGNING_SECRET
+    secret: FYC_STAGING_EXPORT_SIGNING
+    availability:
+      - RUNTIME
+
+  - variable: REGISTRATION_JOBS_CRON_SECRET
+    secret: FYC_STAGING_SCHEDULER_TOKEN
+    availability:
+      - RUNTIME
+
+  - variable: PRODUCTION_FIREBASE_PROJECT_ID
+    value: findyourchurch-24562
+    availability:
+      - RUNTIME
