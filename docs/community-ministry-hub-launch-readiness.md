@@ -483,12 +483,16 @@ Executed in this phase:
 - `npm run test:registration-reports`: passed.
 - `npm run test:registration-scheduler`: passed.
 - `npm run test:platform-launch-readiness`: passed.
+- `npm run test:staging-validation`: passed.
 - `npm run test:event-security`: passed through Firebase emulators for Firestore, Storage, and Auth.
 - `npm run test:registration-emulator`: passed through the Firestore emulator.
 - `npm run lint`: passed with no ESLint warnings or errors.
 - `npm run build`: passed.
 - `npm audit --omit=dev`: completed with 11 moderate advisories.
 - `npm audit fix --omit=dev --dry-run`: reviewed only; no changes kept.
+- `npm run seed:community-hub-staging -- --dry-run`: passed.
+- `npm run seed:community-hub-staging -- --dry-run --large`: passed.
+- Emulator seed/reset round trip: passed without touching live Firebase.
 
 Manual/staging verification still required:
 
@@ -497,6 +501,31 @@ Manual/staging verification still required:
 - Browser/device QA matrix.
 - Accessibility review with signed-in representative/admin flows.
 - Sitemap/Open Graph verification on the final canonical host.
+
+## Traceability Matrix
+
+| Requirement | Implemented | Automatically tested | Manually tested | Staging verified | Production verification required | Evidence | Remaining risk |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Platform administration | Yes | Partial | No | No | Yes | `/admin/events`, server actions, `test:platform-launch-readiness` | Needs browser/auth staging verification |
+| Event moderation | Yes | Partial | No | No | Yes | Public report form, `/admin/event-reports`, Firestore rules | Needs report workflow tested in staging |
+| Category management | Yes | Partial | No | No | Yes | `/admin/event-categories`, category repository/actions | Needs admin browser verification |
+| Configuration validation | Yes | Yes | No | No | Yes | `/admin/ops`, `production-config-service`, `test:platform-launch-readiness`, `test:staging-validation` | Needs real staging/prod env review |
+| Domain behavior | Documented | Partial | No | No | Yes | `NEXT_PUBLIC_SITE_URL`, sitemap/build checks | Requires preview/canonical URL inspection |
+| SEO | Implemented for public events | Partial | No | No | Yes | Metadata and public event tests/build | Requires Search Console/canonical host review |
+| SMTP | Templates implemented | Yes for rendering | No live send | No | Yes | `test:registration-reports` | Live SMTP delivery blocked |
+| Scheduler | Implemented | Yes local | No live scheduler | No | Yes | `test:registration-scheduler`, protected endpoint | Needs staging scheduler/idempotency run |
+| Exports | Implemented | Partial | No file-open inspection | No | Yes | Export services, emulator/private Storage rules | Needs deployed PDF/XLSX manual inspection |
+| Data retention | Implemented/documented | Partial | No | No | Yes | Registration emulator deletion/expired token checks | Needs real cleanup job run |
+| Accessibility | Not fully verified | No dedicated a11y automation | No | No | Yes | `docs/community-ministry-hub-accessibility.md` | Full-GO blocker until manual review |
+| Responsive browser QA | Not verified | No | No | No | Yes | QA matrix prepared | Full-GO blocker until browser testing |
+| Performance | Seed/load plan added | No load run | No | No | Yes | `seed:community-hub-staging -- --large` | Needs staging load validation |
+| Dependency advisories | Documented | Yes audit | N/A | N/A | Yes | `npm audit --omit=dev --json`, security acceptance doc | 11 moderate advisories need owner acceptance |
+| Monitoring | Basic ops visibility | Partial | No | No | Yes | `/admin/ops`, operational events service | Needs external alerting or manual process verified |
+| Backup | Documented | No | No | No | Yes | Rollback/deployment docs | Needs managed backup confirmation |
+| Rollback | Documented | No | No exercise | No | Yes | `docs/community-ministry-hub-rollback.md` | Needs nonproduction exercise |
+| Existing church workflows | Existing tests pass | Partial | No staging browser | No | Yes | directory routing/build/regression tests | Needs staging regression pass |
+
+The current evidence supports `CONDITIONAL GO` only. Full `GO` remains blocked until staging SMTP, scheduler, browser QA, accessibility, export inspection, and production-owner risk acceptance are completed.
 
 ## Final Recommendation
 

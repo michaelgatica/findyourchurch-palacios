@@ -711,6 +711,7 @@ npm run test:registration-validation
 npm run test:registration-reports
 npm run test:registration-scheduler
 npm run test:platform-launch-readiness
+npm run test:staging-validation
 npm run test:event-security
 npm run test:registration-emulator
 npm run import:palacios -- --input data/palacios-churches.example.json --dry-run
@@ -725,7 +726,27 @@ Notes:
 - a real admin login test still requires a real Firebase Authentication admin user
 - if those tests are run against a shared live Firebase project, use the cleanup scripts afterward
 - `test:event-security` and `test:registration-emulator` run against the Firebase emulator project `demo-find-your-church`; install Java or point `JAVA_HOME` to a compatible JDK before running them
+- `test:staging-validation` verifies nonproduction environment guards and does not contact Firebase
 - registration jobs can be previewed with `npm run process:registration-jobs -- --dry-run` and executed only when intentionally configured with `--confirm`
+
+### Community Hub staging QA
+
+Use only a staging project, preview channel connected to nonproduction Firebase, or the local Firebase Emulator Suite.
+
+```bash
+npm run seed:community-hub-staging -- --dry-run
+npm run seed:community-hub-staging -- --confirm
+npm run reset:community-hub-staging -- --dry-run
+npm run reset:community-hub-staging -- --confirm
+```
+
+For larger performance validation:
+
+```bash
+npm run seed:community-hub-staging -- --confirm --large
+```
+
+The staging seed/reset scripts refuse `APP_ENV=production`, the known production Firebase project, and the production canonical host.
 
 ## Launch checklist
 
@@ -738,6 +759,11 @@ Additional launch docs:
 - [docs/automatic-email-reference.md](docs/automatic-email-reference.md)
 - [docs/operations/README.md](docs/operations/README.md)
 - [docs/operations/2026-07-03-dry-run-manifest.md](docs/operations/2026-07-03-dry-run-manifest.md)
+- [docs/community-ministry-hub-staging-qa.md](docs/community-ministry-hub-staging-qa.md)
+- [docs/community-ministry-hub-production-deployment.md](docs/community-ministry-hub-production-deployment.md)
+- [docs/community-ministry-hub-rollback.md](docs/community-ministry-hub-rollback.md)
+- [docs/community-ministry-hub-accessibility.md](docs/community-ministry-hub-accessibility.md)
+- [docs/community-ministry-hub-security-acceptance.md](docs/community-ministry-hub-security-acceptance.md)
 
 Production checklist highlights:
 

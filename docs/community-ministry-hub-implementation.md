@@ -6,6 +6,14 @@ This document is the implementation/runbook for the current Community Ministry H
 
 Launch-readiness, platform administration, production verification, rollback, monitoring, and the current go/no-go recommendation are tracked in `docs/community-ministry-hub-launch-readiness.md`.
 
+Staging and production certification runbooks:
+
+- `docs/community-ministry-hub-staging-qa.md`
+- `docs/community-ministry-hub-production-deployment.md`
+- `docs/community-ministry-hub-rollback.md`
+- `docs/community-ministry-hub-accessibility.md`
+- `docs/community-ministry-hub-security-acceptance.md`
+
 ## Branches and Scope
 
 - Public events foundation was already pushed to `main`.
@@ -400,6 +408,7 @@ npm run test:directory-routing
 npm run test:registration-validation
 npm run test:registration-reports
 npm run test:registration-scheduler
+npm run test:staging-validation
 npm run test:event-security
 npm run test:registration-emulator
 npm run lint

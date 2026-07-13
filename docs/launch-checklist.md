@@ -88,6 +88,10 @@
 
 - `NEXT_PUBLIC_SITE_URL` matches the live domain.
 - `docs/community-ministry-hub-launch-readiness.md` has been reviewed.
+- `docs/community-ministry-hub-staging-qa.md` has been completed against a nonproduction environment.
+- `docs/community-ministry-hub-security-acceptance.md` has a launch-owner decision for residual risks.
+- `APP_ENV` and `NEXT_PUBLIC_APP_ENV` are set correctly for the target environment.
+- The admin nonproduction banner appears in staging and does not appear in production.
 - Firebase Auth is enabled.
 - Firestore named database is configured.
 - Firestore indexes from `firestore.indexes.json` are deployed.
@@ -115,6 +119,7 @@
 
 - Preview demo cleanup with `npm run cleanup:demo-data -- --dry-run`.
 - Preview workflow cleanup with `npm run cleanup:test-data -- --dry-run`.
+- Preview Community Hub staging reset with `npm run reset:community-hub-staging -- --dry-run` when using staging seed data.
 - Only use `--confirm` after reviewing what will be removed.
 - Do not run destructive cleanup against production unless you understand exactly what the script will delete.
 
@@ -271,6 +276,7 @@ npm run test:registration-validation
 npm run test:registration-reports
 npm run test:registration-scheduler
 npm run test:platform-launch-readiness
+npm run test:staging-validation
 npm run test:event-security
 npm run test:registration-emulator
 npm run lint
