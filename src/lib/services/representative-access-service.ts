@@ -258,3 +258,53 @@ export async function requireRepresentativeChurchAccess(input: {
     church,
   };
 }
+
+/**
+ * Authorizes event and registration operations without widening church-listing
+ * ownership permissions. Platform admins may manage any church's events;
+ * representatives remain limited to churches where they have an active role.
+ */
+export async function requireChurchEventManagementAccess(input: {
+  userId: string;
+  churchId: string;
+}) {
+  const [profile, church] = await Promise.all([
+    getUserById(input.userId),
+    getChurchByIdFromFirebase(input.churchId),
+  ]);
+
+  if (!profile) {
+    throw new Error("The signed-in user profile could not be found.");
+  }
+
+  if (!church) {
+    throw new Error("The church listing could not be found.");
+  }
+
+  if (profile.role === "admin") {
+    return {
+      profile,
+      representative: null,
+      church,
+      actorType: "admin" as const,
+      actorRole: profile.role,
+    };
+  }
+
+  const representative = await getRepresentativeForChurchUser(
+    input.churchId,
+    input.userId,
+  );
+
+  if (!representative || !isRepresentativeActive(representative)) {
+    throw new Error("You do not have access to manage events for this church.");
+  }
+
+  return {
+    profile,
+    representative,
+    church,
+    actorType: "church_rep" as const,
+    actorRole: representative.permissionRole,
+  };
+}

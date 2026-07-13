@@ -1,19 +1,11 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    function isAcceptedChurchImageUpload() {
-      return request.resource != null &&
-        request.resource.size <= 8 * 1024 * 1024 &&
-        request.resource.contentType.matches('image/(png|jpeg|webp)');
-    }
-
     match /church-submissions/{submissionId}/logo/{fileName} {
       allow read: if false;
       allow write: if false;
-      // Current public submission uploads are handled server-side by the Firebase
-      // Admin SDK, so direct client writes stay disabled for now.
-      // TODO: If uploads ever move client-side, require isSignedIn(),
-      // isAcceptedChurchImageUpload(), and a verified submission ownership flow.
+      // Submission uploads are authorized, validated, and stored only by trusted
+      // Firebase Admin operations. Browser access is intentionally unavailable.
     }
 
     match /church-submissions/{submissionId}/photos/{fileName} {
@@ -24,10 +16,8 @@ service firebase.storage {
     match /churches/{churchId}/logo/{fileName} {
       allow read: if true;
       allow write: if false;
-      // Phase 4 representative uploads are handled by trusted server actions
-      // through the Firebase Admin SDK, so direct browser uploads remain disabled.
-      // TODO before any direct client uploads: enforce representative/admin auth,
-      // church ownership checks, and keep isAcceptedChurchImageUpload().
+      // Representative uploads are authorized, validated, and stored by trusted
+      // server actions. Direct browser writes are intentionally unavailable.
     }
 
     match /churches/{churchId}/photos/{fileName} {
@@ -35,19 +25,18 @@ service firebase.storage {
       allow write: if false;
     }
 
-    match /churches/{churchId}/events/{eventId}/{fileName} {
-      allow read: if true;
-      allow write: if false;
-      // Event flyer/media uploads are performed only by trusted server actions
-      // after representative access is verified. Direct browser writes remain
-      // blocked to prevent cross-church path writes and unsafe file metadata.
-    }
-
     match /churches/{churchId}/events/{eventId}/flyer/{fileName} {
-      allow read: if true;
+      allow get: if true;
+      allow list: if false;
       allow write: if false;
       // Server-side flyer upload enforces JPG/PNG/WebP, 8 MB maximum, safe
       // generated filenames, dimension checks, and church/event ownership.
+    }
+
+    match /private/event-exports/{churchId}/{eventId}/{fileName} {
+      allow read, write: if false;
+      // Reports are created and delivered by trusted server operations only.
+      // Public flyer access never applies to this private path.
     }
 
     match /{allPaths=**} {

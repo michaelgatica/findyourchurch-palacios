@@ -25,7 +25,15 @@
     "test:phase3-workflows": "tsx scripts/test-phase3-workflows.ts",
     "test:phase4-workflows": "tsx scripts/test-phase4-workflows.ts",
     "test:directory-routing": "tsx scripts/test-directory-routing.ts",
-    "test:event-validation": "tsx scripts/test-event-validation.ts"
+    "test:event-validation": "tsx scripts/test-event-validation.ts",
+    "test:registration-validation": "tsx scripts/test-registration-validation.ts",
+    "test:registration-reports": "tsx scripts/test-registration-reports-email.ts",
+    "test:registration-scheduler": "tsx scripts/test-registration-scheduler.ts",
+    "test:registration-emulator": "firebase emulators:exec --project demo-find-your-church --only firestore \"tsx scripts/test-registration-emulator.ts\"",
+    "test:firestore-rules": "firebase emulators:exec --project demo-find-your-church --only firestore \"tsx scripts/test-firestore-rules.ts\"",
+    "test:storage-rules": "firebase emulators:exec --project demo-find-your-church --only storage \"tsx scripts/test-storage-rules.ts\"",
+    "test:event-security": "firebase emulators:exec --project demo-find-your-church --only firestore,storage,auth \"tsx scripts/test-firestore-rules.ts && tsx scripts/test-storage-rules.ts\"",
+    "process:registration-jobs": "tsx scripts/process-registration-jobs.ts"
   },
   "keywords": [
     "ministry",
@@ -36,18 +44,21 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
     "firebase": "^12.12.1",
     "firebase-admin": "^13.8.0",
     "image-size": "^2.0.2",
     "leaflet": "^1.9.4",
     "next": "^15.5.15",
-    "nodemailer": "^8.0.7",
+    "nodemailer": "^9.0.3",
+    "pdf-lib": "^1.17.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-leaflet": "^5.0.0",
     "zod": "^4.4.2"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^25.6.0",
     "@types/nodemailer": "^8.0.0",

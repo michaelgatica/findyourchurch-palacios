@@ -12,6 +12,7 @@ import type {
   EventStatus,
   EventVisibility,
 } from "@/lib/types/events";
+import { validateExternalRegistrationUrl } from "@/lib/validation/external-registration-url";
 
 const eventStatusSet = new Set<EventStatus>([
   "draft",
@@ -421,20 +422,13 @@ export async function validateEventFormData(formData: FormData): Promise<Validat
     throw new Error("Add a secure online meeting or streaming link.");
   }
 
-  if (
-    (values.registrationMode === "google_forms" || values.registrationMode === "external") &&
-    !values.externalRegistrationUrl
-  ) {
-    throw new Error("Add the secure external registration URL.");
-  }
-
-  if (values.registrationMode === "google_forms" && values.externalRegistrationUrl) {
-    const hostName = new URL(values.externalRegistrationUrl).hostname.toLowerCase();
-
-    if (!hostName.includes("google.com") && !hostName.includes("forms.gle")) {
-      throw new Error("Use a Google Forms URL for Google Forms registration.");
-    }
-  }
+  const externalRegistrationUrl =
+    values.registrationMode === "google_forms" || values.registrationMode === "external"
+      ? validateExternalRegistrationUrl(
+          values.externalRegistrationUrl,
+          values.registrationMode,
+        )
+      : null;
 
   const flyerUpload = await validateFlyerUpload(formData);
 
@@ -490,7 +484,7 @@ export async function validateEventFormData(formData: FormData): Promise<Validat
     registrationClosesAt: values.registrationClosesAt
       ? new Date(values.registrationClosesAt).toISOString()
       : null,
-    externalRegistrationUrl: normalizeOptionalString(values.externalRegistrationUrl) ?? null,
+    externalRegistrationUrl,
     externalRegistrationLabel: normalizeOptionalString(values.externalRegistrationLabel) ?? null,
     flyerAlt: normalizeOptionalString(values.flyerAlt),
     cancellationMessage: normalizeOptionalString(values.cancellationMessage),

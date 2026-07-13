@@ -21,6 +21,7 @@ export async function createAuditLogInFirebase(input: CreateAuditLogInput) {
     action: input.action,
     actorId: input.actorId,
     actorType: input.actorType,
+    actorRole: input.actorRole,
     before: input.before,
     after: input.after,
     note: input.note,

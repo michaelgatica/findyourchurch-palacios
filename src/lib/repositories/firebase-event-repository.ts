@@ -4,11 +4,33 @@ import {
   firestoreCollectionNames,
   stripUndefinedDeep,
 } from "@/lib/firebase/firestore";
-import type { EventDocument, EventRecord, EventStatus } from "@/lib/types/events";
+import type {
+  EventDocument,
+  EventRecord,
+  EventStatus,
+  PublicEventRecord,
+} from "@/lib/types/events";
 
 function mapEventDocumentToEventRecord(eventDocument: EventDocument): EventRecord {
   return {
     ...eventDocument,
+    wasPublished: eventDocument.wasPublished ?? Boolean(eventDocument.publishedAt),
+  };
+}
+
+function mapPublicEventDocumentToEventRecord(eventDocument: PublicEventRecord): EventRecord {
+  return {
+    ...eventDocument,
+    createdByUserId: null,
+    createdByName: null,
+    lastEditedByUserId: null,
+    lastEditedByName: null,
+    isRecurring: false,
+    recurrenceRule: null,
+    recurrenceExceptions: [],
+    coHostDescription: null,
+    createdAt: eventDocument.publishedAt,
+    archivedAt: null,
   };
 }
 
@@ -26,6 +48,90 @@ function eventsCollection() {
   return getFirestoreOrThrow().collection(firestoreCollectionNames.events);
 }
 
+function publicEventsCollection() {
+  return getFirestoreOrThrow().collection(firestoreCollectionNames.publicEvents);
+}
+
+export function createPublicEventRecord(event: EventRecord): PublicEventRecord | null {
+  if (
+    !event.wasPublished ||
+    !event.publishedAt ||
+    (event.status !== "published" && event.status !== "unlisted" && event.status !== "cancelled")
+  ) {
+    return null;
+  }
+
+  return stripUndefinedDeep({
+    id: event.id,
+    churchId: event.churchId,
+    churchName: event.churchName,
+    churchSlug: event.churchSlug,
+    churchRoutePath: event.churchRoutePath ?? null,
+    title: event.title,
+    slug: event.slug,
+    summary: event.summary,
+    description: event.description,
+    primaryType: event.primaryType,
+    audienceTags: event.audienceTags,
+    customTags: event.customTags,
+    status: event.status,
+    visibility: event.visibility,
+    wasPublished: true,
+    isFeatured: event.isFeatured,
+    flyerImage: event.flyerImage ?? null,
+    additionalImages: event.additionalImages,
+    startsAt: event.startsAt,
+    endsAt: event.endsAt ?? null,
+    allDay: event.allDay,
+    timeZone: event.timeZone,
+    locationMode: event.locationMode,
+    venueName: event.venueName ?? null,
+    address: event.address ?? null,
+    onlineUrl: event.onlineUrl ?? null,
+    mapUrl: event.mapUrl ?? null,
+    hostMinistry: event.hostMinistry ?? null,
+    contactName: event.contactName ?? null,
+    contactPhone: event.contactPhone ?? null,
+    contactEmail: event.contactEmail ?? null,
+    languages: event.languages,
+    accessibilityDetails: event.accessibilityDetails ?? null,
+    childcareProvided: event.childcareProvided,
+    mealProvided: event.mealProvided,
+    mealDetails: event.mealDetails ?? null,
+    costStatus: event.costStatus,
+    costDetails: event.costDetails ?? null,
+    informationUrl: event.informationUrl ?? null,
+    additionalInstructions: event.additionalInstructions ?? null,
+    registration: {
+      mode: event.registration.mode,
+      opensAt: event.registration.opensAt ?? null,
+      closesAt: event.registration.closesAt ?? null,
+      capacity: event.registration.capacity ?? null,
+      waitlistEnabled: event.registration.waitlistEnabled,
+      externalRegistrationUrl: event.registration.externalRegistrationUrl ?? null,
+      externalRegistrationLabel: event.registration.externalRegistrationLabel ?? null,
+      setupEnabled: event.registration.setupEnabled ?? false,
+    },
+    cancellationMessage: event.cancellationMessage ?? null,
+    publishedAt: event.publishedAt,
+    updatedAt: event.updatedAt,
+    cancelledAt: event.cancelledAt ?? null,
+  });
+}
+
+export async function syncPublicEventFromFirebase(event: EventRecord) {
+  const publicEvent = createPublicEventRecord(event);
+  const reference = publicEventsCollection().doc(event.id);
+
+  if (!publicEvent) {
+    await reference.delete();
+    return null;
+  }
+
+  await reference.set(publicEvent);
+  return publicEvent;
+}
+
 export async function getUpcomingPublishedEventsFromFirebase(limit = 12) {
   const firestore = getFirebaseAdminFirestore();
 
@@ -35,16 +141,17 @@ export async function getUpcomingPublishedEventsFromFirebase(limit = 12) {
 
   const now = new Date().toISOString();
   const snapshot = await firestore
-    .collection(firestoreCollectionNames.events)
+    .collection(firestoreCollectionNames.publicEvents)
     .where("status", "==", "published")
     .where("visibility", "==", "public")
+    .where("wasPublished", "==", true)
     .where("startsAt", ">=", now)
     .orderBy("startsAt", "asc")
     .limit(limit)
     .get();
 
   return snapshot.docs.map((documentSnapshot) =>
-    mapEventDocumentToEventRecord(documentSnapshot.data() as EventDocument),
+    mapPublicEventDocumentToEventRecord(documentSnapshot.data() as PublicEventRecord),
   );
 }
 
@@ -70,7 +177,7 @@ export async function listEventsForChurchFromFirebase(input: {
   const snapshot = await query.orderBy("startsAt", "desc").limit(input.limit ?? 25).get();
 
   return snapshot.docs.map((documentSnapshot) =>
-    mapEventDocumentToEventRecord(documentSnapshot.data() as EventDocument),
+    mapPublicEventDocumentToEventRecord(documentSnapshot.data() as PublicEventRecord),
   );
 }
 
@@ -86,10 +193,11 @@ export async function getUpcomingPublishedEventsForChurchFromFirebase(
 
   const now = new Date().toISOString();
   const snapshot = await firestore
-    .collection(firestoreCollectionNames.events)
+    .collection(firestoreCollectionNames.publicEvents)
     .where("churchId", "==", churchId)
     .where("status", "==", "published")
     .where("visibility", "==", "public")
+    .where("wasPublished", "==", true)
     .where("startsAt", ">=", now)
     .orderBy("startsAt", "asc")
     .limit(limit)
@@ -108,11 +216,11 @@ export async function getPublicEventBySlugFromFirebase(eventSlug: string) {
   }
 
   const snapshot = await firestore
-    .collection(firestoreCollectionNames.events)
+    .collection(firestoreCollectionNames.publicEvents)
     .where("slug", "==", eventSlug)
     .limit(1)
     .get();
-  const eventDocument = snapshot.docs[0]?.data() as EventDocument | undefined;
+  const eventDocument = snapshot.docs[0]?.data() as PublicEventRecord | undefined;
 
   if (
     !eventDocument ||
@@ -123,7 +231,7 @@ export async function getPublicEventBySlugFromFirebase(eventSlug: string) {
     return null;
   }
 
-  return mapEventDocumentToEventRecord(eventDocument);
+  return mapPublicEventDocumentToEventRecord(eventDocument);
 }
 
 export async function getEventByIdFromFirebase(eventId: string) {
@@ -209,5 +317,9 @@ export async function updateEventInFirebase(eventId: string, updates: Partial<Ev
 }
 
 export async function deleteEventFromFirebase(eventId: string) {
-  await eventsCollection().doc(eventId).delete();
+  const firestore = getFirestoreOrThrow();
+  const batch = firestore.batch();
+  batch.delete(eventsCollection().doc(eventId));
+  batch.delete(publicEventsCollection().doc(eventId));
+  await batch.commit();
 }

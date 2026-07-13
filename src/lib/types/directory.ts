@@ -609,6 +609,7 @@ export interface AuditLogRecord {
   action: string;
   actorId?: string;
   actorType?: string;
+  actorRole?: string;
   before?: unknown;
   after?: unknown;
   note?: string;
@@ -621,6 +622,7 @@ export interface CreateAuditLogInput {
   action: string;
   actorId?: string;
   actorType?: string;
+  actorRole?: string;
   before?: unknown;
   after?: unknown;
   note?: string;

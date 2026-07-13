@@ -458,3 +458,55 @@ export async function deleteFirebaseStorageObjectIfPresent(storagePath?: string 
     );
   }
 }
+
+export function buildPrivateEventExportStoragePath(input: {
+  churchId: string;
+  eventId: string;
+  exportId: string;
+  extension: "pdf" | "xlsx";
+}) {
+  const safeSegment = (value: string) => value.replace(/[^a-zA-Z0-9_-]/g, "");
+  return path
+    .join(
+      "private",
+      "event-exports",
+      safeSegment(input.churchId),
+      safeSegment(input.eventId),
+      `${safeSegment(input.exportId)}.${input.extension}`,
+    )
+    .replace(/\\/g, "/");
+}
+
+export async function uploadPrivateEventExport(input: {
+  churchId: string;
+  eventId: string;
+  exportId: string;
+  extension: "pdf" | "xlsx";
+  contentType: string;
+  buffer: Buffer;
+}) {
+  const bucket = await getVerifiedFirebaseAdminBucket();
+  const storagePath = buildPrivateEventExportStoragePath(input);
+  await bucket.file(storagePath).save(input.buffer, {
+    resumable: false,
+    metadata: {
+      contentType: input.contentType,
+      cacheControl: "private, no-store, max-age=0",
+      metadata: {
+        exportId: input.exportId,
+        churchId: input.churchId,
+        eventId: input.eventId,
+      },
+    },
+  });
+  return storagePath;
+}
+
+export async function downloadPrivateEventExport(storagePath: string) {
+  if (!storagePath.startsWith("private/event-exports/")) {
+    throw new Error("The requested export path is not valid.");
+  }
+  const bucket = await getVerifiedFirebaseAdminBucket();
+  const [buffer] = await bucket.file(storagePath).download();
+  return buffer;
+}

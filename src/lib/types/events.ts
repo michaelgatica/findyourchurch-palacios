@@ -117,9 +117,58 @@ export interface EventRecord {
   updatedAt: string;
   cancelledAt?: string | null;
   archivedAt?: string | null;
+  wasPublished: boolean;
 }
 
 export interface EventDocument extends EventRecord {}
+
+export interface PublicEventRecord {
+  id: string;
+  churchId: string;
+  churchName: string;
+  churchSlug: string;
+  churchRoutePath?: string | null;
+  title: string;
+  slug: string;
+  summary: string;
+  description: string;
+  primaryType: string;
+  audienceTags: string[];
+  customTags: string[];
+  status: "published" | "unlisted" | "cancelled";
+  visibility: EventVisibility;
+  wasPublished: true;
+  isFeatured: boolean;
+  flyerImage?: EventFlyerImage | null;
+  additionalImages: ChurchPhoto[];
+  startsAt: string;
+  endsAt?: string | null;
+  allDay: boolean;
+  timeZone: string;
+  locationMode: EventLocationMode;
+  venueName?: string | null;
+  address?: StructuredAddress | null;
+  onlineUrl?: string | null;
+  mapUrl?: string | null;
+  hostMinistry?: string | null;
+  contactName?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  languages: string[];
+  accessibilityDetails?: string | null;
+  childcareProvided: boolean;
+  mealProvided: boolean;
+  mealDetails?: string | null;
+  costStatus: EventCostStatus;
+  costDetails?: string | null;
+  informationUrl?: string | null;
+  additionalInstructions?: string | null;
+  registration: EventRegistrationSummary;
+  cancellationMessage?: string | null;
+  publishedAt: string;
+  updatedAt: string;
+  cancelledAt?: string | null;
+}
 
 export interface EventFilters {
   keyword: string;

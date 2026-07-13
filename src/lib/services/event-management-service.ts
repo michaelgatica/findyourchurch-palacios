@@ -12,9 +12,11 @@ import {
   getEventByIdFromFirebase,
   listEventsForChurchFromFirebase,
   saveEventToFirebase,
+  syncPublicEventFromFirebase,
   updateEventInFirebase,
 } from "@/lib/repositories/firebase-event-repository";
-import { requireRepresentativeChurchAccess } from "@/lib/services/representative-access-service";
+import { requireChurchEventManagementAccess } from "@/lib/services/representative-access-service";
+import { scheduleEventCancellationNotifications } from "@/lib/services/registration-job-service";
 import type { ChurchRecord } from "@/lib/types/directory";
 import type { EventRecord, EventStatus } from "@/lib/types/events";
 import type { ValidatedEventInput } from "@/lib/validation/event-management";
@@ -66,8 +68,31 @@ function buildEventRecord(input: {
   const now = new Date().toISOString();
   const existingEvent = input.existingEvent;
   const flyerImage = existingEvent?.flyerImage ?? null;
-  const statusChangedToPublished =
-    input.status === "published" && existingEvent?.status !== "published";
+  const isPubliclyReleased = input.status === "published" || input.status === "unlisted";
+  const statusChangedToPublished = isPubliclyReleased && !existingEvent?.wasPublished;
+  const isInternalRegistrationMode =
+    input.validatedInput.registrationMode === "simple_rsvp" ||
+    input.validatedInput.registrationMode === "internal_custom";
+  const preserveActiveInternalRegistration = Boolean(
+    existingEvent?.registration.setupEnabled &&
+      isInternalRegistrationMode &&
+      existingEvent.registration.mode === input.validatedInput.registrationMode,
+  );
+  const registration = preserveActiveInternalRegistration
+    ? existingEvent!.registration
+    : {
+        mode: input.validatedInput.registrationMode,
+        opensAt: input.validatedInput.registrationOpensAt,
+        closesAt: input.validatedInput.registrationClosesAt,
+        capacity: input.validatedInput.capacity,
+        waitlistEnabled: false,
+        externalRegistrationUrl: input.validatedInput.externalRegistrationUrl,
+        externalRegistrationLabel: input.validatedInput.externalRegistrationLabel,
+        setupEnabled:
+          input.validatedInput.registrationMode === "google_forms" ||
+          input.validatedInput.registrationMode === "external" ||
+          input.validatedInput.registrationMode === "none",
+      };
 
   return {
     id: input.eventId,
@@ -117,19 +142,7 @@ function buildEventRecord(input: {
     costDetails: input.validatedInput.costDetails,
     informationUrl: input.validatedInput.informationUrl,
     additionalInstructions: input.validatedInput.additionalInstructions,
-    registration: {
-      mode: input.validatedInput.registrationMode,
-      opensAt: input.validatedInput.registrationOpensAt,
-      closesAt: input.validatedInput.registrationClosesAt,
-      capacity: input.validatedInput.capacity,
-      waitlistEnabled: false,
-      externalRegistrationUrl: input.validatedInput.externalRegistrationUrl,
-      externalRegistrationLabel: input.validatedInput.externalRegistrationLabel,
-      setupEnabled:
-        input.validatedInput.registrationMode === "google_forms" ||
-        input.validatedInput.registrationMode === "external" ||
-        input.validatedInput.registrationMode === "none",
-    },
+    registration,
     cancellationMessage: input.validatedInput.cancellationMessage,
     createdAt: existingEvent?.createdAt ?? now,
     publishedAt: statusChangedToPublished
@@ -140,6 +153,7 @@ function buildEventRecord(input: {
     updatedAt: now,
     cancelledAt: input.status === "cancelled" ? now : existingEvent?.cancelledAt ?? null,
     archivedAt: input.status === "archived" ? now : existingEvent?.archivedAt ?? null,
+    wasPublished: existingEvent?.wasPublished || isPubliclyReleased,
   };
 }
 
@@ -158,7 +172,7 @@ async function assertEventChurchAccess(input: {
     throw new Error("This event does not belong to the selected church.");
   }
 
-  const access = await requireRepresentativeChurchAccess({
+  const access = await requireChurchEventManagementAccess({
     userId: input.actorUserId,
     churchId: event.churchId,
   });
@@ -174,6 +188,8 @@ async function maybeApplyFlyer(input: {
   validatedInput: ValidatedEventInput;
   action: "event_created" | "event_updated";
   actorUserId: string;
+  actorType: "admin" | "church_rep";
+  actorRole: string;
 }) {
   let nextEvent = input.event;
   const previousFlyer = input.event.flyerImage;
@@ -188,7 +204,8 @@ async function maybeApplyFlyer(input: {
       entityId: input.event.id,
       action: "event_flyer_deleted",
       actorId: input.actorUserId,
-      actorType: "church_rep",
+      actorType: input.actorType,
+      actorRole: input.actorRole,
       before: { flyerImage: previousFlyer },
       after: { flyerImage: null },
       note: "Event flyer removed.",
@@ -218,7 +235,8 @@ async function maybeApplyFlyer(input: {
       entityId: input.event.id,
       action: previousFlyer ? "event_flyer_replaced" : "event_flyer_uploaded",
       actorId: input.actorUserId,
-      actorType: "church_rep",
+      actorType: input.actorType,
+      actorRole: input.actorRole,
       before: { flyerImage: previousFlyer ?? null },
       after: { flyerImage },
       note: previousFlyer ? "Event flyer replaced." : "Event flyer uploaded.",
@@ -241,7 +259,7 @@ export async function listManageableEventsForChurch(input: {
   status?: EventStatus | "all";
   limit?: number;
 }) {
-  await requireRepresentativeChurchAccess({
+  await requireChurchEventManagementAccess({
     userId: input.actorUserId,
     churchId: input.churchId,
   });
@@ -259,7 +277,7 @@ export async function createManagedEvent(input: {
   validatedInput: ValidatedEventInput;
   publishNow: boolean;
 }) {
-  const access = await requireRepresentativeChurchAccess({
+  const access = await requireChurchEventManagementAccess({
     userId: input.actorUserId,
     churchId: input.churchId,
   });
@@ -288,7 +306,8 @@ export async function createManagedEvent(input: {
     entityId: savedEvent.id,
     action: "event_created",
     actorId: input.actorUserId,
-    actorType: "church_rep",
+    actorType: access.actorType,
+    actorRole: access.actorRole,
     after: { eventId: savedEvent.id, churchId: savedEvent.churchId, status: savedEvent.status },
     note: `Event created for ${access.church.name}.`,
   });
@@ -299,7 +318,8 @@ export async function createManagedEvent(input: {
       entityId: savedEvent.id,
       action: "event_published",
       actorId: input.actorUserId,
-      actorType: "church_rep",
+      actorType: access.actorType,
+      actorRole: access.actorRole,
       after: { eventId: savedEvent.id, status: savedEvent.status },
       note: "Event published from the event editor.",
     });
@@ -310,7 +330,10 @@ export async function createManagedEvent(input: {
     validatedInput: input.validatedInput,
     action: "event_created",
     actorUserId: input.actorUserId,
+    actorType: access.actorType,
+    actorRole: access.actorRole,
   });
+  await syncPublicEventFromFirebase(savedEvent);
 
   return savedEvent;
 }
@@ -352,7 +375,8 @@ export async function updateManagedEvent(input: {
     entityId: savedEvent.id,
     action: "event_updated",
     actorId: input.actorUserId,
-    actorType: "church_rep",
+    actorType: access.actorType,
+    actorRole: access.actorRole,
     before: { status: access.event.status, updatedAt: access.event.updatedAt },
     after: { status: savedEvent.status, updatedAt: savedEvent.updatedAt },
     note: "Event details updated.",
@@ -364,7 +388,8 @@ export async function updateManagedEvent(input: {
       entityId: savedEvent.id,
       action: "event_published",
       actorId: input.actorUserId,
-      actorType: "church_rep",
+      actorType: access.actorType,
+      actorRole: access.actorRole,
       before: { status: access.event.status },
       after: { status: savedEvent.status },
       note: "Event published.",
@@ -376,7 +401,10 @@ export async function updateManagedEvent(input: {
     validatedInput: input.validatedInput,
     action: "event_updated",
     actorUserId: input.actorUserId,
+    actorType: access.actorType,
+    actorRole: access.actorRole,
   });
+  await syncPublicEventFromFirebase(savedEvent);
 
   return savedEvent;
 }
@@ -418,18 +446,45 @@ export async function transitionManagedEvent(input: {
           : access.event.archivedAt ?? null,
     lastEditedByUserId: input.actorUserId,
     lastEditedByName: access.profile.name,
+    wasPublished:
+      access.event.wasPublished || input.nextStatus === "published" || input.nextStatus === "unlisted",
+    publishedAt:
+      (input.nextStatus === "published" || input.nextStatus === "unlisted") && !access.event.publishedAt
+        ? now
+        : access.event.publishedAt ?? null,
   });
+  await syncPublicEventFromFirebase(updatedEvent);
 
   await createAuditLogInFirebase({
     entityType: "event",
     entityId: access.event.id,
     action: `event_${input.nextStatus}`,
     actorId: input.actorUserId,
-    actorType: "church_rep",
+    actorType: access.actorType,
+    actorRole: access.actorRole,
     before: { status: access.event.status },
     after: { status: updatedEvent.status },
     note: `Event status changed to ${input.nextStatus}.`,
   });
+
+  if (input.nextStatus === "cancelled") {
+    const notificationCount = await scheduleEventCancellationNotifications({
+      eventId: updatedEvent.id,
+      churchId: updatedEvent.churchId,
+      actorUserId: input.actorUserId,
+      cancelledAt: updatedEvent.cancelledAt ?? now,
+    });
+    await createAuditLogInFirebase({
+      entityType: "event",
+      entityId: updatedEvent.id,
+      action: "event_cancellation_notifications_scheduled",
+      actorId: input.actorUserId,
+      actorType: access.actorType,
+      actorRole: access.actorRole,
+      after: { notificationCount },
+      note: "Cancellation notification jobs scheduled without registration answers.",
+    });
+  }
 
   return updatedEvent;
 }
@@ -468,6 +523,7 @@ export async function duplicateManagedEvent(input: {
     cancelledAt: null,
     archivedAt: null,
     cancellationMessage: null,
+    wasPublished: false,
   };
   const savedEvent = await saveEventToFirebase(duplicateEvent);
 
@@ -476,7 +532,8 @@ export async function duplicateManagedEvent(input: {
     entityId: access.event.id,
     action: "event_duplicated",
     actorId: input.actorUserId,
-    actorType: "church_rep",
+    actorType: access.actorType,
+    actorRole: access.actorRole,
     after: { duplicateEventId: savedEvent.id },
     note: "Event duplicated into a new draft.",
   });
@@ -486,7 +543,8 @@ export async function duplicateManagedEvent(input: {
     entityId: savedEvent.id,
     action: "event_created",
     actorId: input.actorUserId,
-    actorType: "church_rep",
+    actorType: access.actorType,
+    actorRole: access.actorRole,
     after: { sourceEventId: access.event.id, eventId: savedEvent.id, status: "draft" },
     note: "Draft event created from duplicate action.",
   });
@@ -519,7 +577,8 @@ export async function deleteManagedDraftEvent(input: {
     entityId: access.event.id,
     action: "event_draft_deleted",
     actorId: input.actorUserId,
-    actorType: "church_rep",
+    actorType: access.actorType,
+    actorRole: access.actorRole,
     before: { eventId: access.event.id, churchId: access.event.churchId },
     note: "Draft event deleted.",
   });

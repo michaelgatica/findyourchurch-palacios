@@ -5,6 +5,12 @@ import { createEmailLogInFirebase } from "@/lib/repositories/firebase-email-log-
 
 export type EmailProvider = "console" | "resend" | "smtp";
 
+export interface EmailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+}
+
 function normalizeOptionalValue(value?: string) {
   const normalizedValue = value?.trim();
   return normalizedValue ? normalizedValue : undefined;
@@ -185,9 +191,10 @@ async function sendConsoleEmail(input: {
   body: string;
   relatedEntityType?: string;
   relatedEntityId?: string;
+  attachments?: EmailAttachment[];
 }) {
   console.log(
-    `[email:console] to=${input.to} subject=${input.subject}\n${createTextEmailBody(input.body)}`,
+    `[email:console] to=${input.to} subject=${input.subject} attachments=${input.attachments?.map((attachment) => attachment.filename).join(",") || "none"}\n${createTextEmailBody(input.body)}`,
   );
 
   await logEmailRecord({
@@ -204,6 +211,7 @@ async function sendResendEmail(input: {
   body: string;
   relatedEntityType?: string;
   relatedEntityId?: string;
+  attachments?: EmailAttachment[];
 }) {
   const apiKey = normalizeOptionalValue(process.env.RESEND_API_KEY);
 
@@ -225,6 +233,10 @@ async function sendResendEmail(input: {
       subject: input.subject,
       text: createTextEmailBody(input.body),
       html: createHtmlEmailBody(input.body),
+      attachments: input.attachments?.map((attachment) => ({
+        filename: attachment.filename,
+        content: attachment.content.toString("base64"),
+      })),
     }),
   });
 
@@ -248,6 +260,7 @@ async function sendSmtpEmail(input: {
   body: string;
   relatedEntityType?: string;
   relatedEntityId?: string;
+  attachments?: EmailAttachment[];
 }) {
   const smtpHost = normalizeOptionalValue(process.env.SMTP_HOST);
   const smtpPort = normalizeOptionalValue(process.env.SMTP_PORT);
@@ -276,6 +289,11 @@ async function sendSmtpEmail(input: {
     subject: input.subject,
     text: createTextEmailBody(input.body),
     html: createHtmlEmailBody(input.body),
+    attachments: input.attachments?.map((attachment) => ({
+      filename: attachment.filename,
+      content: attachment.content,
+      contentType: attachment.contentType,
+    })),
   });
 
   await logEmailRecord({
@@ -292,6 +310,7 @@ export async function sendTransactionalEmail(input: {
   relatedEntityType?: string;
   relatedEntityId?: string;
   required?: boolean;
+  attachments?: EmailAttachment[];
 }) {
   const provider = getConfiguredEmailProvider();
   const from = getEmailFromAddress();
@@ -305,6 +324,7 @@ export async function sendTransactionalEmail(input: {
         body: input.body,
         relatedEntityType: input.relatedEntityType,
         relatedEntityId: input.relatedEntityId,
+        attachments: input.attachments,
       });
       return;
     }
@@ -323,6 +343,7 @@ export async function sendTransactionalEmail(input: {
         body: input.body,
         relatedEntityType: input.relatedEntityType,
         relatedEntityId: input.relatedEntityId,
+        attachments: input.attachments,
       });
       return;
     }
@@ -334,6 +355,7 @@ export async function sendTransactionalEmail(input: {
       body: input.body,
       relatedEntityType: input.relatedEntityType,
       relatedEntityId: input.relatedEntityId,
+      attachments: input.attachments,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

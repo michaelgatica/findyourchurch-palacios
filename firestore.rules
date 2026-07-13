@@ -20,8 +20,15 @@ service cloud.firestore {
       return currentUserRole() == 'admin';
     }
 
-    function isPublicEventStatus(status) {
-      return status == 'published' || status == 'unlisted' || status == 'cancelled';
+    function isPublicListedEvent() {
+      return resource.data.status == 'published' &&
+        resource.data.visibility == 'public' &&
+        resource.data.wasPublished == true;
+    }
+
+    function isDirectLinkEvent() {
+      return resource.data.wasPublished == true &&
+        (resource.data.status == 'unlisted' || resource.data.status == 'cancelled');
     }
 
     function isOwnerOfUserScopedRecord(fieldName) {
@@ -50,8 +57,8 @@ service cloud.firestore {
     match /churchRepresentatives/{representativeId} {
       allow read: if isAdmin() || isOwnerOfUserScopedRecord('userId');
       allow write: if isAdmin();
-      // TODO: If representative document list queries move client-side, require
-      // query constraints that scope results to request.auth.uid.
+      // Representative-scoped list operations are resolved by trusted server
+      // repositories; browser access is limited to a known owned document.
     }
 
     match /churchClaimRequests/{claimRequestId} {
@@ -93,12 +100,19 @@ service cloud.firestore {
     }
 
     match /events/{eventId} {
-      allow read: if isPublicEventStatus(resource.data.status) || isAdmin();
-      allow write: if isAdmin();
-      // Representative event management is intentionally routed through trusted
-      // server actions using the Firebase Admin SDK. Direct client writes remain
-      // blocked so users cannot forge churchId, createdBy, audit, counters,
-      // status transitions, or server-maintained timestamps.
+      allow read: if isAdmin();
+      allow write: if false;
+      // Administrative event records include ownership and workflow fields. Church
+      // representatives use trusted server actions; browser access is blocked.
+    }
+
+    match /publicEvents/{eventId} {
+      allow get: if isPublicListedEvent() || isDirectLinkEvent() || isAdmin();
+      allow list: if isPublicListedEvent() || isAdmin();
+      allow write: if false;
+      // Public records are sanitized server-generated projections. Unlisted and
+      // cancelled records can be fetched by a known document link but cannot be
+      // enumerated through public collection queries.
     }
 
     match /eventCategories/{categoryId} {
@@ -107,14 +121,53 @@ service cloud.firestore {
     }
 
     match /eventRegistrations/{registrationId} {
-      allow read, write: if isAdmin();
-      // Private registration reads/writes must stay behind trusted server
-      // authorization. Do not expose registration lists to public clients.
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /eventRegistrationConfigurations/{configurationId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /eventFormVersions/{formVersionId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /eventRegistrationCounters/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /eventRegistrationTokens/{tokenId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /eventRegistrationConfirmations/{confirmationNumber} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /eventRegistrationIdempotency/{idempotencyId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /eventRegistrationRateLimits/{rateLimitId} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     match /eventExports/{exportId} {
-      allow read, write: if isAdmin();
-      // Export files and metadata must be authorized server-side and expire.
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /eventScheduledJobs/{jobId} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
   }
 }
