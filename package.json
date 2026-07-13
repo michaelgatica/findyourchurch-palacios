@@ -30,11 +30,14 @@
     "test:registration-reports": "tsx scripts/test-registration-reports-email.ts",
     "test:registration-scheduler": "tsx scripts/test-registration-scheduler.ts",
     "test:platform-launch-readiness": "tsx scripts/test-platform-launch-readiness.ts",
+    "test:staging-validation": "tsx scripts/test-staging-validation.ts",
     "test:registration-emulator": "firebase emulators:exec --project demo-find-your-church --only firestore \"tsx scripts/test-registration-emulator.ts\"",
     "test:firestore-rules": "firebase emulators:exec --project demo-find-your-church --only firestore \"tsx scripts/test-firestore-rules.ts\"",
     "test:storage-rules": "firebase emulators:exec --project demo-find-your-church --only storage \"tsx scripts/test-storage-rules.ts\"",
     "test:event-security": "firebase emulators:exec --project demo-find-your-church --only firestore,storage,auth \"tsx scripts/test-firestore-rules.ts && tsx scripts/test-storage-rules.ts\"",
-    "process:registration-jobs": "tsx scripts/process-registration-jobs.ts"
+    "process:registration-jobs": "tsx scripts/process-registration-jobs.ts",
+    "seed:community-hub-staging": "tsx scripts/seed-community-hub-staging.ts",
+    "reset:community-hub-staging": "tsx scripts/reset-community-hub-staging.ts"
   },
   "keywords": [
     "ministry",

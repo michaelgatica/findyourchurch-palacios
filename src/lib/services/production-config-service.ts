@@ -1,7 +1,8 @@
+import { getApplicationEnvironment, getConfiguredProjectIds } from "@/lib/app-environment";
 import { getSiteUrl } from "@/lib/config/site";
 
 function isProductionEnvironment() {
-  return process.env.NODE_ENV === "production";
+  return getApplicationEnvironment() === "production";
 }
 
 export type ConfigCheckStatus = "pass" | "warn" | "fail";
@@ -32,7 +33,10 @@ function checkEnv(name: string, label: string, scope: ConfigCheckResult["scope"]
 
 export function getProductionConfigurationReport(): ConfigCheckResult[] {
   const siteUrl = getSiteUrl();
+  const appEnvironment = getApplicationEnvironment();
+  const configuredProjectIds = getConfiguredProjectIds();
   const checks: ConfigCheckResult[] = [
+    checkEnv("APP_ENV", "Application environment", "required", true),
     checkEnv("NEXT_PUBLIC_SITE_URL", "Public site URL / canonical host", "required", true),
     checkEnv("NEXT_PUBLIC_FIREBASE_API_KEY", "Firebase client API key", "required", true),
     checkEnv("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN", "Firebase Auth domain", "required", true),
@@ -56,6 +60,26 @@ export function getProductionConfigurationReport(): ConfigCheckResult[] {
     checkEnv("APP_CHECK_SITE_KEY", "Firebase App Check site key", "recommended"),
   ];
 
+  if (process.env.NEXT_PUBLIC_APP_ENV && process.env.NEXT_PUBLIC_APP_ENV !== appEnvironment) {
+    checks.push({
+      key: "NEXT_PUBLIC_APP_ENV",
+      label: "Public application environment",
+      scope: "recommended",
+      status: "warn",
+      message: "NEXT_PUBLIC_APP_ENV does not match APP_ENV.",
+    });
+  }
+
+  if (appEnvironment === "staging") {
+    checks.push({
+      key: "APP_ENV",
+      label: "Staging environment mode",
+      scope: "required",
+      status: "pass",
+      message: "Staging mode is active. Admin users should see a nonproduction banner.",
+    });
+  }
+
   if (siteUrl.startsWith("http://") && isProductionEnvironment()) {
     checks.push({
       key: "NEXT_PUBLIC_SITE_URL",
@@ -63,6 +87,19 @@ export function getProductionConfigurationReport(): ConfigCheckResult[] {
       scope: "required",
       status: "fail",
       message: "Production canonical URLs must use HTTPS.",
+    });
+  }
+
+  if (
+    appEnvironment === "staging" &&
+    configuredProjectIds.some((projectId) => projectId === "findyourchurch-24562")
+  ) {
+    checks.push({
+      key: "FIREBASE_PROJECT_ID",
+      label: "Staging Firebase project",
+      scope: "required",
+      status: "fail",
+      message: "Staging must not point at the known production Firebase project.",
     });
   }
 

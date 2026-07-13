@@ -63,6 +63,7 @@ function run() {
   assert.ok(failingSummary.checks.every((check) => !check.message.includes("secret-value")));
 
   setProductionEnv({
+    APP_ENV: "production",
     NEXT_PUBLIC_SITE_URL: "https://findyourchurchpalacios.org",
     NEXT_PUBLIC_FIREBASE_API_KEY: "configured",
     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "configured",

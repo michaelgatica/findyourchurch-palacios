@@ -1982,6 +1982,20 @@ input[type="checkbox"] {
   box-shadow: var(--shadow);
 }
 
+.nonproduction-banner {
+  border: 1px solid rgba(217, 162, 27, 0.45);
+  border-radius: 999px;
+  background: rgba(217, 162, 27, 0.12);
+  color: var(--color-dark-green);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+  padding: 0.55rem 0.9rem;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
 .admin-shell__header,
 .portal-shell__header,
 .admin-panel__header,

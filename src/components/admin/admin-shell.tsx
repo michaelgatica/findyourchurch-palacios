@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AdminSignOutButton } from "@/components/admin/admin-signout-button";
+import { getNonProductionEnvironmentLabel } from "@/lib/app-environment";
 
 const adminNavigationItems = [
   {
@@ -48,9 +49,17 @@ interface AdminShellProps {
 }
 
 export function AdminShell({ adminName, adminEmail, children }: AdminShellProps) {
+  const nonProductionLabel = getNonProductionEnvironmentLabel();
+
   return (
     <section className="shell page-section admin-page">
       <div className="admin-shell">
+        {nonProductionLabel ? (
+          <div className="nonproduction-banner" role="status">
+            {nonProductionLabel} environment - use fictitious test data only
+          </div>
+        ) : null}
+
         <div className="admin-shell__header">
           <div>
             <p className="eyebrow eyebrow--gold">Internal Admin Portal</p>
