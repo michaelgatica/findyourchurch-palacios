@@ -11,6 +11,12 @@ import type {
   RegistrationFormVersionRecord,
   RegistrationRecord,
 } from "@/lib/types/registrations";
+import {
+  commitStagingRecordsWithOAuth,
+  getStagingOAuthAuth,
+  hasStagingOAuthAccessToken,
+  verifyStagingOAuthTarget,
+} from "./staging-oauth-rest";
 
 const marker = "community-hub-staging-qa";
 const idPrefix = "staging-qa";
@@ -392,15 +398,25 @@ function registration(event: EventRecord, index: number, status: RegistrationRec
 }
 
 async function commitBatches(records: Array<{ collection: string; id: string; data: unknown }>) {
+  const markedRecords = records.map((record) => ({
+    ...record,
+    data: stripUndefinedDeep({ ...(record.data as Record<string, unknown>), stagingQaMarker: marker }),
+  }));
+
+  if (hasStagingOAuthAccessToken()) {
+    await commitStagingRecordsWithOAuth(markedRecords);
+    return;
+  }
+
   const firestore = getFirebaseAdminFirestore();
   if (!firestore) throw new Error("Firebase Firestore is not configured.");
 
-  for (let index = 0; index < records.length; index += 400) {
+  for (let index = 0; index < markedRecords.length; index += 400) {
     const batch = firestore.batch();
-    records.slice(index, index + 400).forEach((record) => {
+    markedRecords.slice(index, index + 400).forEach((record) => {
       batch.set(
         firestore.collection(record.collection).doc(record.id),
-        stripUndefinedDeep({ ...(record.data as Record<string, unknown>), stagingQaMarker: marker }),
+        record.data,
       );
     });
     await batch.commit();
@@ -408,7 +424,7 @@ async function commitBatches(records: Array<{ collection: string; id: string; da
 }
 
 async function upsertAuthUsers(users: AppUserRecord[], password: string) {
-  const auth = getFirebaseAdminAuth();
+  const auth = await getStagingOAuthAuth() ?? getFirebaseAdminAuth();
   if (!auth) return { created: 0, skipped: users.length };
 
   let created = 0;
@@ -418,6 +434,7 @@ async function upsertAuthUsers(users: AppUserRecord[], password: string) {
       await auth.getUser(record.firebaseUid);
       skipped += 1;
     } catch {
+      await verifyStagingOAuthTarget();
       await auth.createUser({
         uid: record.firebaseUid,
         email: record.email,

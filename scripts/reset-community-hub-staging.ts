@@ -1,6 +1,13 @@
 import { assertSafeNonProductionTarget } from "@/lib/app-environment";
 import { getFirebaseAdminAuth, getFirebaseAdminFirestore } from "@/lib/firebase/admin";
 import { firestoreCollectionNames } from "@/lib/firebase/firestore";
+import {
+  deleteStagingDocumentsWithOAuth,
+  getStagingOAuthAuth,
+  hasStagingOAuthAccessToken,
+  listMarkedStagingDocumentsWithOAuth,
+  verifyStagingOAuthTarget,
+} from "./staging-oauth-rest";
 
 const marker = "community-hub-staging-qa";
 const idPrefix = "staging-qa";
@@ -42,7 +49,7 @@ async function deleteFirestoreDocuments(collectionNames: string[]) {
 }
 
 async function deleteAuthUsers() {
-  const auth = getFirebaseAdminAuth();
+  const auth = await getStagingOAuthAuth() ?? getFirebaseAdminAuth();
   if (!auth) return { deleted: 0, skipped: 0 };
 
   const users = [
@@ -59,6 +66,7 @@ async function deleteAuthUsers() {
     try {
       const user = await auth.getUser(uid);
       if (user.email?.endsWith(`@${testEmailDomain}`)) {
+        await verifyStagingOAuthTarget();
         await auth.deleteUser(uid);
         deleted += 1;
       } else {
@@ -103,6 +111,29 @@ async function main() {
     firestoreCollectionNames.auditLogs,
     firestoreCollectionNames.emailLogs,
   ];
+  if (hasStagingOAuthAccessToken()) {
+    const matchedPaths = await listMarkedStagingDocumentsWithOAuth(collectionNames, marker, idPrefix);
+    console.log(JSON.stringify({
+      dryRun,
+      confirm,
+      environment: target.environment,
+      projectIds: target.projectIds,
+      marker,
+      totalDocuments: matchedPaths.length,
+      oauth: true,
+    }, null, 2));
+
+    if (dryRun) {
+      console.log("Dry run complete. No staging records were deleted.");
+      return;
+    }
+
+    await deleteStagingDocumentsWithOAuth(matchedPaths);
+    const authResult = await deleteAuthUsers();
+    console.log(JSON.stringify({ ok: true, deletedDocuments: matchedPaths.length, authResult }, null, 2));
+    return;
+  }
+
   const matched = (await Promise.all(collectionNames.map(async (collectionName) => ({
     collectionName,
     documents: await listMarkedDocuments(collectionName),

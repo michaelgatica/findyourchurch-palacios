@@ -733,6 +733,14 @@ Notes:
 
 Use only a staging project, preview channel connected to nonproduction Firebase, or the local Firebase Emulator Suite.
 
+For the dedicated project, copy `.env.staging.example` to ignored `.env.staging.local`, add the staging web API key and staging-only secrets locally, and use the `staging` alias. `firebase.staging.json` pins Firestore deployment to the named `findyourchurchpal` database. The default Firebase alias remains production, so every staging deploy must use an explicit project selector.
+
+```bash
+firebase deploy --config firebase.staging.json --project findyourchurch-staging-2026 --only firestore:findyourchurchpal
+```
+
+Do not add Storage to that command until the staging bucket exists.
+
 ```bash
 npm run seed:community-hub-staging -- --dry-run
 npm run seed:community-hub-staging -- --confirm

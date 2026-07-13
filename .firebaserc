@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "findyourchurch-24562"
+    "default": "findyourchurch-24562",
+    "staging": "findyourchurch-staging-2026"
   }
 }

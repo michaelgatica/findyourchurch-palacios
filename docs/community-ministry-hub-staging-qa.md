@@ -48,6 +48,15 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-find-your-church-staging
 
 The admin area displays a visible nonproduction banner whenever `APP_ENV` is not `production`.
 
+Dedicated staging selectors:
+
+- `.firebaserc` keeps production as the default and adds the explicit `staging` alias for `findyourchurch-staging-2026`.
+- `firebase.staging.json` pins Firestore rules and indexes to the named database `findyourchurchpal`.
+- `.env.staging.example` contains the non-secret staging shape; copy it to ignored `.env.staging.local` and add the web API key and staging-only secrets locally.
+- Use an explicit project and named-database selector for every deploy. Do not deploy staging through the default alias.
+
+The seed/reset tools also accept a short-lived `FIREBASE_OAUTH_ACCESS_TOKEN` when no staging service-account key is available. This path verifies the nonproduction project and live named database before each Auth or Firestore write. Never commit or log the token.
+
 ## Deterministic Test Data
 
 Dry run:
@@ -154,7 +163,53 @@ Verify:
 
 ## Current Staging Status
 
-No real staging URL or dedicated staging Firebase project was provided in this phase. Local/emulator automated validation can run, but full staging certification remains blocked.
+Live staging checkpoint recorded July 13, 2026:
+
+- Firebase project: `findyourchurch-staging-2026`.
+- Firebase web app: `Find Your Church Staging Web` (`1:286552720158:web:1ef2dc258ecc545106bf0f`).
+- Firestore database: `findyourchurchpal`, Native mode, `nam5`.
+- Authentication: initialized; Email/Password enabled with password required.
+- Firestore rules: compiled and released to `findyourchurchpal`.
+- Firestore indexes: 25 composite indexes deployed to `findyourchurchpal`; all 25 report `READY`.
+- Deterministic seed: 5 fictitious Auth users and 72 marked Firestore documents created.
+- Reset proof: live dry run finds all 72 marked/prefixed documents; no live reset was executed.
+- Production project `findyourchurch-24562`: not deployed or mutated.
+
+Deployed staging access checks passed:
+
+- Anonymous published public-event read allowed.
+- Anonymous unlisted direct-link event read allowed.
+- Anonymous private event read denied.
+- Church representative own user and representative records allowed.
+- Cross-user and cross-representative reads denied.
+- Church representative private registration read denied.
+- Platform admin private registration read allowed.
+- Three seeded Email/Password accounts signed in successfully during automated verification.
+
+Automated validation passed in this checkpoint:
+
+- TypeScript (`tsc --noEmit`).
+- Event and directory routing validation.
+- Registration validation, report/export generation, and scheduler tests.
+- Platform launch-readiness and staging-guard tests.
+- Firestore/Storage/Auth emulator security suite.
+- Registration emulator suite.
+- ESLint.
+- Next.js production build with staging client values; the only production project reference in the output is the server-side safety guard.
+- `git diff --check`.
+
+Remaining full-certification blockers:
+
+- App Hosting is unavailable on the current Spark plan; no hosted staging application URL exists.
+- The configured staging Storage bucket does not exist (`404`), so Storage rules, flyer upload, private export, and cleanup behavior cannot be deployed or verified.
+- Staging SMTP/mail testing is not configured.
+- A deployed scheduler endpoint is unavailable for authentication and idempotency checks.
+- Manual browser, responsive, and accessibility QA remains blocked without a hosted staging application.
+- The generated test-user credential is intentionally not committed; establish a QA-owned credential before manual tester handoff.
+
+Current recommendation: Firestore/Auth staging foundation is certified for the automated checks above, but full Community Ministry Hub staging certification remains **NO GO** until Hosting/Storage, SMTP, scheduler, and manual accessibility/browser evidence are complete.
+
+Earlier local/emulator evidence retained from the staging-readiness phase:
 
 Executed locally in the Firebase Emulator Suite:
 
