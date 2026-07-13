@@ -73,7 +73,7 @@ export default async function EventPage({ params }: EventPageProps) {
     notFound();
   }
 
-  const churchPath = buildChurchProfilePath(event.churchSlug);
+  const churchPath = event.churchRoutePath ?? buildChurchProfilePath(event.churchSlug);
   const eventUrl = buildAbsoluteUrl(buildEventPath(event));
 
   return (
@@ -139,9 +139,13 @@ export default async function EventPage({ params }: EventPageProps) {
                   </>
                 ) : event.registration.mode === "none" ? (
                   <p className="supporting-text">No registration is required for this event.</p>
-                ) : (
+                ) : process.env.NODE_ENV !== "production" ? (
                   <p className="supporting-text">
                     Internal registration will be available after the registration phase is enabled.
+                  </p>
+                ) : (
+                  <p className="supporting-text">
+                    Registration details are being managed by the host church.
                   </p>
                 )}
               </div>

@@ -50,6 +50,16 @@ export interface EventRegistrationSummary {
   waitlistEnabled: boolean;
   externalRegistrationUrl?: string | null;
   externalRegistrationLabel?: string | null;
+  setupEnabled?: boolean;
+}
+
+export interface EventFlyerImage extends ChurchPhoto {
+  storagePath?: string | null;
+  downloadUrl?: string | null;
+  mimeType?: string | null;
+  size?: number | null;
+  width?: number | null;
+  height?: number | null;
 }
 
 export interface EventRecord {
@@ -57,8 +67,11 @@ export interface EventRecord {
   churchId: string;
   churchName: string;
   churchSlug: string;
+  churchRoutePath?: string | null;
   createdByUserId?: string | null;
+  createdByName?: string | null;
   lastEditedByUserId?: string | null;
+  lastEditedByName?: string | null;
   title: string;
   slug: string;
   summary: string;
@@ -69,7 +82,7 @@ export interface EventRecord {
   status: EventStatus;
   visibility: EventVisibility;
   isFeatured: boolean;
-  flyerImage?: ChurchPhoto | null;
+  flyerImage?: EventFlyerImage | null;
   additionalImages: ChurchPhoto[];
   startsAt: string;
   endsAt?: string | null;
@@ -96,6 +109,7 @@ export interface EventRecord {
   costStatus: EventCostStatus;
   costDetails?: string | null;
   informationUrl?: string | null;
+  additionalInstructions?: string | null;
   registration: EventRegistrationSummary;
   cancellationMessage?: string | null;
   createdAt: string;

@@ -37,6 +37,12 @@
 - Portal login works.
 - Non-representative cannot access `/portal`.
 - Approved representative can access `/portal`.
+- Representative can open `/portal/events`.
+- Representative can create an event draft.
+- Representative can upload a JPG, PNG, or WebP flyer.
+- Representative can publish an event.
+- Published event appears on `/events`, the church profile, and its event detail page.
+- Representative can edit, duplicate, cancel, archive, restore, and delete draft events according to status rules.
 - Edit church works.
 - Auto-publish true works.
 - Auto-publish false creates pending update request.
@@ -51,6 +57,9 @@
 - Public users cannot view pending submissions.
 - Public users cannot view internal notes.
 - Representative cannot edit another church.
+- Representative cannot read or edit another church's event in `/portal/events/[eventId]/edit`.
+- Direct browser Firestore writes to event records remain blocked unless using trusted server actions.
+- Direct browser Storage uploads to event flyer paths remain blocked.
 - Only primary owner can invite editor.
 - Only primary owner can request ownership transfer.
 - Admin-only actions are still protected server-side.
@@ -70,9 +79,13 @@
 - `NEXT_PUBLIC_SITE_URL` matches the live domain.
 - Firebase Auth is enabled.
 - Firestore named database is configured.
+- Firestore indexes from `firestore.indexes.json` are deployed.
 - Storage bucket exists and uploads work.
 - Firestore rules reviewed.
 - Storage rules reviewed.
+- Event flyer upload is tested with a representative-owned church.
+- Unsafe flyer uploads are rejected.
+- External registration URLs require HTTPS.
 - Email provider configured and tested.
 - Donation URL configured.
 - Sitemap verified.
@@ -122,6 +135,23 @@
 11. Send an admin message from the portal.
 12. Invite an editor.
 13. Submit an ownership transfer request.
+
+### Community events
+
+1. Sign in as a verified representative.
+2. Open `/portal/events`.
+3. Create a draft event.
+4. Upload a valid flyer image.
+5. Publish the event.
+6. Confirm it appears on `/events`.
+7. Open the event detail page.
+8. Confirm the church profile shows the event.
+9. Test an external HTTPS registration URL.
+10. Confirm an HTTP registration URL is rejected.
+11. Duplicate the event and confirm the copy is a draft.
+12. Cancel the published event and confirm the public page shows the cancellation notice.
+13. Archive the event.
+14. Confirm a representative from another church cannot edit the event.
 
 ### Security
 

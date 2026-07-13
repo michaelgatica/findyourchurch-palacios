@@ -20,6 +20,10 @@ service cloud.firestore {
       return currentUserRole() == 'admin';
     }
 
+    function isPublicEventStatus(status) {
+      return status == 'published' || status == 'unlisted' || status == 'cancelled';
+    }
+
     function isOwnerOfUserScopedRecord(fieldName) {
       return signedIn() && resource.data[fieldName] == request.auth.uid;
     }
@@ -89,12 +93,12 @@ service cloud.firestore {
     }
 
     match /events/{eventId} {
-      allow read: if resource.data.status == 'published' ||
-        resource.data.status == 'unlisted' ||
-        isAdmin();
+      allow read: if isPublicEventStatus(resource.data.status) || isAdmin();
       allow write: if isAdmin();
-      // Church event writes will be routed through trusted server actions
-      // that verify representative access before using the Firebase Admin SDK.
+      // Representative event management is intentionally routed through trusted
+      // server actions using the Firebase Admin SDK. Direct client writes remain
+      // blocked so users cannot forge churchId, createdBy, audit, counters,
+      // status transitions, or server-maintained timestamps.
     }
 
     match /eventCategories/{categoryId} {

@@ -24,7 +24,8 @@
     "ops:launch-check": "tsx scripts/ops-launch-check.ts",
     "test:phase3-workflows": "tsx scripts/test-phase3-workflows.ts",
     "test:phase4-workflows": "tsx scripts/test-phase4-workflows.ts",
-    "test:directory-routing": "tsx scripts/test-directory-routing.ts"
+    "test:directory-routing": "tsx scripts/test-directory-routing.ts",
+    "test:event-validation": "tsx scripts/test-event-validation.ts"
   },
   "keywords": [
     "ministry",

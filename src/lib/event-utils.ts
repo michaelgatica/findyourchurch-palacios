@@ -82,7 +82,7 @@ export function buildEventStructuredData(event: EventRecord) {
     organizer: {
       "@type": "Organization",
       name: event.churchName,
-      url: buildAbsoluteUrl(`/churches/${event.churchSlug}`),
+      url: buildAbsoluteUrl(event.churchRoutePath ?? `/churches/${event.churchSlug}`),
     },
     url: buildAbsoluteUrl(buildEventPath(event)),
     isAccessibleForFree: event.costStatus !== "fee_required",

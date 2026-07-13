@@ -38,9 +38,16 @@ service firebase.storage {
     match /churches/{churchId}/events/{eventId}/{fileName} {
       allow read: if true;
       allow write: if false;
-      // Event flyer/media uploads will use trusted server actions first.
-      // Direct browser writes must remain disabled until representative
-      // ownership checks are enforced in rules and App Check is configured.
+      // Event flyer/media uploads are performed only by trusted server actions
+      // after representative access is verified. Direct browser writes remain
+      // blocked to prevent cross-church path writes and unsafe file metadata.
+    }
+
+    match /churches/{churchId}/events/{eventId}/flyer/{fileName} {
+      allow read: if true;
+      allow write: if false;
+      // Server-side flyer upload enforces JPG/PNG/WebP, 8 MB maximum, safe
+      // generated filenames, dimension checks, and church/event ownership.
     }
 
     match /{allPaths=**} {

@@ -8,6 +8,8 @@ import {
   getFirebaseStorageBucketName,
 } from "@/lib/firebase/config";
 import type { UploadAssetRecord } from "@/lib/types/directory";
+import type { EventFlyerImage } from "@/lib/types/events";
+import type { ValidatedEventFlyerUpload } from "@/lib/validation/event-management";
 import type { ValidatedUploadFile } from "@/lib/validation/church-submission";
 
 type FirebaseAdminBucket = NonNullable<ReturnType<typeof getFirebaseAdminBucket>>;
@@ -123,6 +125,22 @@ export function buildChurchStoragePath(
   };
 }
 
+export function buildEventFlyerStoragePath(input: {
+  churchId: string;
+  eventId: string;
+  uploadFile: ValidatedEventFlyerUpload;
+}) {
+  const safeEventId = input.eventId.replace(/[^a-zA-Z0-9_-]/g, "");
+  const storedName = `event-flyer-${Date.now()}-${randomUUID()}${input.uploadFile.extension}`;
+
+  return {
+    storedName,
+    storagePath: path
+      .join("churches", input.churchId, "events", safeEventId, "flyer", storedName)
+      .replace(/\\/g, "/"),
+  };
+}
+
 async function getVerifiedFirebaseAdminBucket(): Promise<FirebaseAdminBucket> {
   const bucketName = getFirebaseStorageBucketName();
 
@@ -224,6 +242,56 @@ async function uploadBufferToFirebaseStorage(
     size: uploadFile.size,
     width: uploadFile.width,
     height: uploadFile.height,
+  };
+}
+
+async function uploadEventFlyerBufferToFirebaseStorage(input: {
+  bucket: FirebaseAdminBucket;
+  churchId: string;
+  eventId: string;
+  uploadFile: ValidatedEventFlyerUpload;
+  alt: string;
+}): Promise<EventFlyerImage> {
+  const { storedName, storagePath } = buildEventFlyerStoragePath({
+    churchId: input.churchId,
+    eventId: input.eventId,
+    uploadFile: input.uploadFile,
+  });
+  const file = input.bucket.file(storagePath);
+  const publicDownload = buildDownloadUrl(storagePath);
+  const tokenizedDownload =
+    typeof publicDownload === "object" && publicDownload !== null ? publicDownload : null;
+  const resolvedDownloadUrl =
+    typeof publicDownload === "string" ? publicDownload : tokenizedDownload?.url;
+  const metadata =
+    tokenizedDownload
+      ? {
+          contentType: input.uploadFile.mimeType,
+          metadata: {
+            firebaseStorageDownloadTokens: tokenizedDownload.token,
+          },
+        }
+      : {
+          contentType: input.uploadFile.mimeType,
+        };
+
+  await file.save(input.uploadFile.buffer, {
+    resumable: false,
+    metadata,
+  });
+
+  return {
+    id: "event-flyer",
+    src: resolvedDownloadUrl ?? storagePath,
+    alt: input.alt,
+    caption: undefined,
+    sortOrder: 1,
+    storagePath,
+    downloadUrl: resolvedDownloadUrl,
+    mimeType: input.uploadFile.mimeType,
+    size: input.uploadFile.size,
+    width: input.uploadFile.width,
+    height: input.uploadFile.height,
   };
 }
 
@@ -347,4 +415,46 @@ export async function uploadChurchAssetsToFirebaseStorage(
       );
     }),
   );
+}
+
+export async function uploadEventFlyerToFirebaseStorage(input: {
+  churchId: string;
+  eventId: string;
+  uploadFile: ValidatedEventFlyerUpload;
+  alt: string;
+}) {
+  const bucket = await getVerifiedFirebaseAdminBucket();
+
+  return uploadEventFlyerBufferToFirebaseStorage({
+    bucket,
+    churchId: input.churchId,
+    eventId: input.eventId,
+    uploadFile: input.uploadFile,
+    alt: input.alt,
+  });
+}
+
+export async function deleteFirebaseStorageObjectIfPresent(storagePath?: string | null) {
+  if (!storagePath) {
+    return false;
+  }
+
+  const bucket = await getVerifiedFirebaseAdminBucket();
+  const file = bucket.file(storagePath);
+
+  try {
+    const [exists] = await file.exists();
+
+    if (!exists) {
+      return false;
+    }
+
+    await file.delete();
+    return true;
+  } catch (error) {
+    throw createFirebaseStorageConfigurationError(
+      `Unable to delete Firebase Storage object "${storagePath}".`,
+      error,
+    );
+  }
 }
