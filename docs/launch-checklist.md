@@ -43,6 +43,14 @@
 - Representative can publish an event.
 - Published event appears on `/events`, the church profile, and its event detail page.
 - Representative can edit, duplicate, cancel, archive, restore, and delete draft events according to status rules.
+- Representative can open `/portal/events/[eventId]/registration`.
+- Representative can configure an internal registration form.
+- Representative can submit a manual registration.
+- Representative can view registration details and audit history.
+- Representative can check in a registration.
+- Representative can export a PDF roster.
+- Representative can export an XLSX workbook.
+- Representative cannot access another church's registration dashboard or exports.
 - Edit church works.
 - Auto-publish true works.
 - Auto-publish false creates pending update request.
@@ -59,7 +67,9 @@
 - Representative cannot edit another church.
 - Representative cannot read or edit another church's event in `/portal/events/[eventId]/edit`.
 - Direct browser Firestore writes to event records remain blocked unless using trusted server actions.
+- Direct browser Firestore writes to registration records, forms, counters, tokens, exports, jobs, and audit logs are blocked.
 - Direct browser Storage uploads to event flyer paths remain blocked.
+- Direct browser Storage reads of private registration exports are blocked.
 - Only primary owner can invite editor.
 - Only primary owner can request ownership transfer.
 - Admin-only actions are still protected server-side.
@@ -86,6 +96,11 @@
 - Event flyer upload is tested with a representative-owned church.
 - Unsafe flyer uploads are rejected.
 - External registration URLs require HTTPS.
+- `REGISTRATION_TOKEN_SECRET` is configured in production.
+- `REGISTRATION_JOBS_CRON_SECRET` is configured in production.
+- Registration cron calls `POST /api/jobs/registration` with the `x-cron-secret` header.
+- Registration confirmation, waitlist, reminder, digest, and final-report emails are tested with the real provider.
+- Registration exports expire and are not readable through direct Storage URLs.
 - Email provider configured and tested.
 - Donation URL configured.
 - Sitemap verified.
@@ -153,6 +168,27 @@
 13. Archive the event.
 14. Confirm a representative from another church cannot edit the event.
 
+### Event registration
+
+1. Create or edit an event with `Internal custom registration`.
+2. Configure the registration form using a preset.
+3. Add one custom optional field and one required field.
+4. Publish the event.
+5. Visit `/events/[eventSlug]/register`.
+6. Submit a registration.
+7. Confirm the confirmation page shows a nonsequential confirmation number.
+8. Confirm the registrant receives the registration email.
+9. Submit until capacity is reached and confirm waitlist behavior if enabled.
+10. Open `/portal/events/[eventId]/registration`.
+11. Search by name and confirmation number.
+12. Open the registration detail page.
+13. Check in the registrant.
+14. Cancel a registration and confirm capacity/waitlist behavior.
+15. Export a PDF roster.
+16. Export an XLSX workbook.
+17. Email a final report to an authorized recipient.
+18. Confirm another church representative cannot view the registrations.
+
 ### Security
 
 1. Confirm a non-admin cannot use `/admin`.
@@ -213,3 +249,26 @@
 4. Confirm a representative cannot edit another church.
 5. Confirm pending submissions do not appear publicly.
 6. Confirm pending claims do not appear publicly.
+7. Confirm draft events do not appear publicly.
+8. Confirm private registration data does not appear on public event pages.
+9. Confirm private registration exports cannot be opened directly from Storage.
+
+## Automated Pre-Launch Checks
+
+Run these locally before requesting deployment:
+
+```powershell
+$env:JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'
+$env:PATH="$env:JAVA_HOME\bin;$env:PATH"
+npm run test:event-validation
+npm run test:directory-routing
+npm run test:registration-validation
+npm run test:registration-reports
+npm run test:registration-scheduler
+npm run test:event-security
+npm run test:registration-emulator
+npm run lint
+npm run build
+```
+
+Only run live Firebase workflow tests when the environment is intentionally pointed at a non-production project or when production test data has been explicitly approved.

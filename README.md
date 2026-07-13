@@ -157,6 +157,8 @@ SMTP_PORT=
 SMTP_USER=
 SMTP_PASSWORD=
 LISTING_VERIFICATION_CRON_SECRET=
+REGISTRATION_JOBS_CRON_SECRET=
+REGISTRATION_TOKEN_SECRET=
 ```
 
 `ADMIN_NOTIFICATION_EMAIL` can be a single inbox or a comma-separated list, for example:
@@ -191,9 +193,22 @@ FIREBASE_ADMIN_SEED_PHONE=
 
 ```bash
 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
-FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
+FIRESTORE_EMULATOR_HOST=127.0.0.1:8180
 FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199
 ```
+
+The Firestore emulator is configured on port `8180` in `firebase.json`.
+
+### Community event registration variables
+
+```bash
+REGISTRATION_TOKEN_SECRET=
+REGISTRATION_JOBS_CRON_SECRET=
+```
+
+- `REGISTRATION_TOKEN_SECRET` protects registration management links and form challenges. Use a strong production-only secret and never expose it through `NEXT_PUBLIC_*`.
+- `REGISTRATION_JOBS_CRON_SECRET` protects `POST /api/jobs/registration`. Scheduled callers must send it in the `x-cron-secret` header.
+- See `docs/community-ministry-hub-implementation.md` for the full events and registration runbook.
 
 ## Firebase setup
 
@@ -631,6 +646,9 @@ Production deployment notes:
 - set server Firebase env vars or rely on managed credentials where supported
 - configure the Zeffy donation settings you want to use
 - set `EMAIL_PROVIDER`, `EMAIL_FROM`, and provider credentials
+- set `REGISTRATION_TOKEN_SECRET`
+- set `REGISTRATION_JOBS_CRON_SECRET`
+- schedule the registration job endpoint if event registration is enabled
 - connect the custom domain for `FindYourChurchPalacios.org`
 - confirm production email with `npm run test:email`
 
@@ -676,6 +694,13 @@ npm run test:email
 npm run process:listing-verifications -- --dry-run
 npm run test:phase3-workflows
 npm run test:phase4-workflows
+npm run test:event-validation
+npm run test:directory-routing
+npm run test:registration-validation
+npm run test:registration-reports
+npm run test:registration-scheduler
+npm run test:event-security
+npm run test:registration-emulator
 npm run import:palacios -- --input data/palacios-churches.example.json --dry-run
 npm run cleanup:test-data -- --dry-run
 npm run cleanup:demo-data -- --dry-run
@@ -687,6 +712,8 @@ Notes:
 - if no matching Firebase Auth admin exists yet, the workflow scripts can create a backend-only admin profile for verification
 - a real admin login test still requires a real Firebase Authentication admin user
 - if those tests are run against a shared live Firebase project, use the cleanup scripts afterward
+- `test:event-security` and `test:registration-emulator` run against the Firebase emulator project `demo-find-your-church`; install Java or point `JAVA_HOME` to a compatible JDK before running them
+- registration jobs can be previewed with `npm run process:registration-jobs -- --dry-run` and executed only when intentionally configured with `--confirm`
 
 ## Launch checklist
 
