@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import { saveEventAction } from "@/lib/actions/portal-events";
 import {
@@ -26,6 +27,26 @@ function toTimeInputValue(value?: string | null) {
   })
     .format(new Date(value))
     .replace("24:", "00:");
+}
+
+function toDateTimeInputValue(value?: string | null) {
+  if (!value) {
+    return "";
+  }
+
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "America/Chicago",
+  }).formatToParts(new Date(value));
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((valuePart) => valuePart.type === type)?.value ?? "";
+
+  return `${part("year")}-${part("month")}-${part("day")}T${part("hour").replace("24", "00")}:${part("minute")}`;
 }
 
 function getDefaultStartDate() {
@@ -58,6 +79,10 @@ export function EventEditorForm({
   const externalRegistrationLabel =
     event?.registration.externalRegistrationLabel ??
     (event?.registration.mode === "google_forms" ? "Register with Google Forms" : "Register");
+  const hasActiveInternalRegistration = Boolean(
+    event?.registration.setupEnabled &&
+      (event.registration.mode === "simple_rsvp" || event.registration.mode === "internal_custom"),
+  );
 
   return (
     <form action={saveEventAction} className="event-editor-form" encType="multipart/form-data">
@@ -260,7 +285,7 @@ export function EventEditorForm({
           </label>
           <label className="field">
             <span className="field__label">Capacity</span>
-            <input name="capacity" type="number" min={1} defaultValue={event?.registration.capacity ?? ""} />
+            <input name="capacity" type="number" min={1} defaultValue={event?.registration.capacity ?? ""} readOnly={hasActiveInternalRegistration} />
           </label>
         </div>
         <div className="event-inline-options">
@@ -300,11 +325,11 @@ export function EventEditorForm({
           </label>
           <label className="field">
             <span className="field__label">Registration opens</span>
-            <input name="registrationOpensAt" type="datetime-local" defaultValue="" />
+            <input name="registrationOpensAt" type="datetime-local" defaultValue={toDateTimeInputValue(event?.registration.opensAt)} readOnly={hasActiveInternalRegistration} />
           </label>
           <label className="field">
             <span className="field__label">Registration closes</span>
-            <input name="registrationClosesAt" type="datetime-local" defaultValue="" />
+            <input name="registrationClosesAt" type="datetime-local" defaultValue={toDateTimeInputValue(event?.registration.closesAt)} readOnly={hasActiveInternalRegistration} />
           </label>
           <label className="field">
             <span className="field__label">External registration URL</span>
@@ -315,9 +340,16 @@ export function EventEditorForm({
             <input name="externalRegistrationLabel" defaultValue={externalRegistrationLabel} />
           </label>
         </div>
-        <p className="field__hint">
-          Simple RSVP and internal custom registration are stored now, but the public signup workflow will be activated in the next registration phase.
-        </p>
+        {hasActiveInternalRegistration && event ? (
+          <p className="field__hint">
+            This event has an active internal form. Manage capacity, waitlist, dates, messages, and questions in{" "}
+            <Link href={`/portal/events/${event.id}/registration/form`} className="text-link">registration setup</Link>.
+          </p>
+        ) : (
+          <p className="field__hint">
+            Choose Simple RSVP or Internal custom registration, save the event, then activate its registration form before publishing a signup button.
+          </p>
+        )}
       </section>
 
       <section className="panel event-editor-section">

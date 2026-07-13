@@ -2930,6 +2930,522 @@ input[type="checkbox"] {
   }
 }
 
+/* Event registration and reporting */
+.registration-public-page,
+.registration-management-page,
+.registration-builder,
+.registration-form-sections {
+  display: grid;
+  gap: 1rem;
+}
+
+.registration-public-hero {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.1rem, 3vw, 2rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(223, 230, 216, 0.72));
+  box-shadow: var(--shadow);
+}
+
+.registration-public-hero h1,
+.registration-builder h2,
+.registration-confirmation-card h1 {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.registration-event-summary {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.registration-event-summary div {
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.registration-event-summary dt {
+  color: var(--deep-green);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.registration-event-summary dd {
+  margin: 0.15rem 0 0;
+  font-weight: 650;
+}
+
+.registration-status-banner {
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(11, 74, 36, 0.15);
+  border-radius: var(--radius-sm);
+  background: rgba(223, 230, 216, 0.75);
+  color: var(--dark-green);
+  font-weight: 750;
+}
+
+.registration-status-banner--almost_full,
+.registration-status-banner--waitlist_available {
+  border-color: rgba(217, 162, 27, 0.35);
+  background: rgba(227, 180, 55, 0.14);
+}
+
+.registration-status-banner--closed,
+.registration-status-banner--full,
+.registration-status-banner--waitlist_full,
+.registration-status-banner--event_cancelled,
+.registration-status-banner--event_completed {
+  border-color: rgba(138, 45, 37, 0.22);
+  background: rgba(138, 45, 37, 0.08);
+  color: #76271f;
+}
+
+.registration-public-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.registration-honeypot {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.registration-form-section,
+.registration-privacy-note {
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+}
+
+.registration-form-section__heading {
+  margin-bottom: 1rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.registration-form-section__heading h2,
+.registration-form-section__heading p,
+.registration-privacy-note p,
+.registration-participant-card p {
+  margin: 0;
+}
+
+.registration-form-section__heading p {
+  margin-top: 0.25rem;
+  color: var(--muted);
+}
+
+.registration-form-grid {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.registration-field {
+  min-width: 0;
+}
+
+.registration-subheading,
+.registration-information {
+  grid-column: 1 / -1;
+}
+
+.registration-subheading {
+  margin: 0.5rem 0 0;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+}
+
+.registration-information {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: rgba(227, 180, 55, 0.08);
+  color: var(--muted);
+}
+
+.registration-choice-grid {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.registration-choice,
+.registration-consent,
+.registration-toggle-grid label,
+.registration-export-field,
+.registration-sensitive-confirmation {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  min-height: 42px;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  cursor: pointer;
+}
+
+.registration-choice input,
+.registration-consent input,
+.registration-toggle-grid input,
+.registration-export-fields input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0.15rem 0 0;
+  flex: 0 0 auto;
+  accent-color: var(--deep-green);
+}
+
+.registration-repeating-group {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.registration-participant-card {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.85rem;
+  border: 1px solid rgba(11, 74, 36, 0.16);
+  border-radius: var(--radius-sm);
+  background: rgba(247, 245, 239, 0.64);
+}
+
+.registration-participant-card legend {
+  padding: 0 0.35rem;
+  color: var(--deep-green);
+  font-weight: 800;
+}
+
+.registration-privacy-note {
+  box-shadow: none;
+  background: rgba(223, 230, 216, 0.48);
+}
+
+.registration-confirmation-card {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.registration-confirmation-number {
+  display: inline-grid;
+  gap: 0.2rem;
+  margin: 0.5rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--dark-green);
+  color: var(--white);
+}
+
+.registration-confirmation-number span {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.registration-confirmation-number strong {
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+}
+
+.registration-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.registration-stat-grid .panel {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.85rem;
+}
+
+.registration-stat-grid span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.registration-stat-grid strong {
+  color: var(--dark-green);
+  font-size: 1.35rem;
+}
+
+.registration-table-panel,
+.registration-table-wrap {
+  min-width: 0;
+}
+
+.registration-table-wrap {
+  overflow-x: auto;
+}
+
+.registration-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.registration-table th,
+.registration-table td {
+  padding: 0.7rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+  font-size: 0.88rem;
+}
+
+.registration-table th {
+  color: var(--deep-green);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.registration-action-grid,
+.registration-toggle-grid {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.registration-action-grid form,
+.registration-action-grid .button {
+  width: 100%;
+}
+
+.registration-column-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.85rem 0;
+  padding: 0;
+  border: 0;
+}
+
+.registration-column-picker legend {
+  flex-basis: 100%;
+  margin-bottom: 0.15rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.registration-column-picker label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(247, 245, 239, 0.62);
+  color: var(--dark-green);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.registration-audit-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.registration-audit-entry {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(247, 245, 239, 0.5);
+}
+
+.registration-audit-entry p {
+  margin: 0.25rem 0 0;
+}
+
+.registration-safety-notice {
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(217, 162, 27, 0.32);
+  border-radius: var(--radius-sm);
+  background: rgba(227, 180, 55, 0.1);
+}
+
+.registration-safety-notice p {
+  margin: 0.25rem 0 0;
+}
+
+.registration-preset-picker {
+  max-width: 520px;
+  margin: 1rem 0;
+}
+
+.registration-builder-sections,
+.registration-builder-fields,
+.registration-participant-builder {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.registration-builder-section,
+.registration-builder-field,
+.registration-participant-builder__field {
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: rgba(247, 245, 239, 0.55);
+}
+
+.registration-builder-field__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.registration-builder-field__header span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.registration-participant-builder {
+  margin: 0.85rem 0;
+  padding: 0.85rem;
+  border-left: 3px solid var(--deep-green);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: rgba(223, 230, 216, 0.45);
+}
+
+.registration-participant-builder h4 {
+  margin: 0;
+}
+
+.registration-builder-preview {
+  padding: 0.85rem;
+  border: 1px dashed rgba(11, 74, 36, 0.3);
+  border-radius: var(--radius-md);
+  background: rgba(247, 245, 239, 0.5);
+}
+
+.registration-copy-form {
+  display: grid;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.registration-export-form,
+.registration-export-fields {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.registration-export-fields {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.registration-export-fields legend {
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.registration-export-field--sensitive,
+.registration-sensitive-confirmation {
+  border-color: rgba(217, 162, 27, 0.35);
+  background: rgba(227, 180, 55, 0.08);
+}
+
+.check-in-search,
+.check-in-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.check-in-search {
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.check-in-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.check-in-card h2,
+.check-in-card p {
+  margin: 0;
+}
+
+@media (min-width: 700px) {
+  .registration-public-hero {
+    grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
+    align-items: center;
+  }
+
+  .registration-form-grid,
+  .registration-choice-grid,
+  .registration-toggle-grid,
+  .registration-action-grid,
+  .registration-export-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .registration-field--long_text,
+  .registration-field--repeating_attendee_group,
+  .registration-field--repeating_child_group,
+  .registration-field--multiple_checkboxes,
+  .registration-field--multi_select,
+  .registration-field--consent,
+  .registration-field--electronic_acknowledgment {
+    grid-column: 1 / -1;
+  }
+
+  .registration-stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .registration-copy-form,
+  .check-in-search,
+  .check-in-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 699px) {
+  .registration-public-form > .button,
+  .registration-action-grid .button,
+  .check-in-card .button,
+  .check-in-search .button {
+    width: 100%;
+  }
+
+  .registration-builder-section,
+  .registration-builder-field,
+  .registration-participant-builder__field {
+    padding: 0.75rem;
+  }
+}
+
 @media (min-width: 1040px) {
   .site-header__inner {
     align-items: center;

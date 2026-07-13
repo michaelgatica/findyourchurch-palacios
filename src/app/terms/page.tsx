@@ -83,6 +83,33 @@ export default function TermsPage() {
         </div>
 
         <div className="panel content-card">
+          <h2>Event registration responsibilities</h2>
+          <p>
+            Churches that create internal registration forms are responsible for collecting only
+            information reasonably needed for the event, obtaining appropriate parent or guardian
+            consent, keeping emergency or allergy information accurate, limiting report access,
+            and deleting information when it is no longer needed. Churches may not use this
+            platform to request Social Security numbers, government identification numbers,
+            driver&apos;s-license numbers, bank information, or payment-card information.
+          </p>
+          <p>
+            This platform does not process payment cards. A church may provide a secure external
+            information or payment link, but that transaction is handled by the external provider.
+          </p>
+        </div>
+
+        <div className="panel content-card">
+          <h2>Registration access, reports, and third parties</h2>
+          <p>
+            Registrants must protect confirmation and registration-management links. Authorized
+            church representatives may view, update, export, or email registration information for
+            their own events. Google Forms and other external registration providers operate under
+            their own terms; Find Your Church does not control information submitted directly to
+            those services.
+          </p>
+        </div>
+
+        <div className="panel content-card">
           <h2>Acceptable use</h2>
           <p>
             This site may not be used for spam, impersonation, deceptive listing activity,
@@ -109,6 +136,15 @@ export default function TermsPage() {
               {siteConfig.contactEmail}
             </Link>
             .
+          </p>
+        </div>
+
+        <div className="panel content-card">
+          <h2>Legal review notice</h2>
+          <p>
+            These terms are operational policy language and are not legal advice. Qualified legal
+            counsel should review them before broad production use, particularly for registrations
+            involving minors, consent records, or health-related accommodations.
           </p>
         </div>
       </div>

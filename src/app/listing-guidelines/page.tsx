@@ -48,6 +48,22 @@ export default function ListingGuidelinesPage() {
         </div>
 
         <div className="panel content-card">
+          <h2>Event posting and registration guidance</h2>
+          <p>
+            Event details should be accurate, current, and appropriate for public display. If a
+            church enables internal registration, it should collect only information genuinely
+            needed to plan or safely operate the event. Parent or guardian consent should be used
+            when appropriate for minors, and emergency, allergy, or accessibility information
+            should be limited to what event leaders need.
+          </p>
+          <p>
+            Event forms may not request Social Security numbers, driver&apos;s-license or government
+            ID numbers, bank details, or payment-card information. Registration exports are private
+            church records and should not be posted publicly or forwarded unnecessarily.
+          </p>
+        </div>
+
+        <div className="panel content-card">
           <h2>Need help with a listing?</h2>
           <p>
             Contact{" "}

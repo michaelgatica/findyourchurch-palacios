@@ -7,6 +7,7 @@ const navigationItems = [
   { href: "/portal", label: "Dashboard" },
   { href: "/portal/church", label: "Church" },
   { href: "/portal/church/edit", label: "Edit Listing" },
+  { href: "/portal/events", label: "Events" },
   { href: "/portal/messages", label: "Messages" },
   { href: "/portal/team", label: "Team" },
   { href: "/portal/transfer-ownership", label: "Transfer Ownership" },

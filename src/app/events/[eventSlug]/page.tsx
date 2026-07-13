@@ -17,6 +17,7 @@ import {
   getEventRegistrationStatusLabel,
 } from "@/lib/event-utils";
 import { getPublicEventBySlug } from "@/lib/repositories/event-repository";
+import { getExternalRegistrationDestination } from "@/lib/validation/external-registration-url";
 
 export const dynamic = "force-dynamic";
 
@@ -122,11 +123,14 @@ export default async function EventPage({ params }: EventPageProps) {
               <div>
                 <h2>Registration</h2>
                 <p>{getEventRegistrationStatusLabel(event)}</p>
-                {event.registration.externalRegistrationUrl ? (
+                {event.status === "cancelled" ? (
+                  <p className="supporting-text">Registration is closed because this event was cancelled.</p>
+                ) : (event.registration.mode === "google_forms" || event.registration.mode === "external") &&
+                event.registration.externalRegistrationUrl ? (
                   <>
                     <p className="supporting-text">
                       Registration is handled externally by the host church. You will leave Find
-                      Your Church Palacios.
+                      Your Church Palacios and continue to {getExternalRegistrationDestination(event.registration.externalRegistrationUrl)}.
                     </p>
                     <Link
                       href={event.registration.externalRegistrationUrl}
@@ -139,13 +143,13 @@ export default async function EventPage({ params }: EventPageProps) {
                   </>
                 ) : event.registration.mode === "none" ? (
                   <p className="supporting-text">No registration is required for this event.</p>
-                ) : process.env.NODE_ENV !== "production" ? (
-                  <p className="supporting-text">
-                    Internal registration will be available after the registration phase is enabled.
-                  </p>
+                ) : event.registration.setupEnabled ? (
+                  <Link href={`${buildEventPath(event)}/register`} className="button button--secondary">
+                    Register for this event
+                  </Link>
                 ) : (
                   <p className="supporting-text">
-                    Registration details are being managed by the host church.
+                    Registration is not currently open.
                   </p>
                 )}
               </div>

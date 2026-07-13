@@ -204,6 +204,9 @@ export default async function PortalEventsPage({ searchParams }: PortalEventsPag
                   <Link href={`/portal/events/${event.id}/edit`} className="button button--ghost">
                     Edit
                   </Link>
+                  <Link href={`/portal/events/${event.id}/registration`} className="button button--ghost">
+                    Registrations
+                  </Link>
                   <form action={eventQuickAction}>
                     <input type="hidden" name="eventId" value={event.id} />
                     <input type="hidden" name="churchId" value={church.id} />
