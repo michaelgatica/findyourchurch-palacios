@@ -34,6 +34,10 @@ export const firestoreCollectionNames = {
   auditLogs: "auditLogs",
   emailLogs: "emailLogs",
   locations: "locations",
+  events: "events",
+  eventCategories: "eventCategories",
+  eventRegistrations: "eventRegistrations",
+  eventExports: "eventExports",
 } as const;
 
 export function createSlug(value: string) {

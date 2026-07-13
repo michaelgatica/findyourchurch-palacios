@@ -22,6 +22,10 @@ const navigationItems = [
     label: "Browse Churches",
   },
   {
+    href: "/events",
+    label: "Community Calendar",
+  },
+  {
     href: "/submit",
     label: "Submit Your Church",
   },

@@ -87,5 +87,30 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    match /events/{eventId} {
+      allow read: if resource.data.status == 'published' ||
+        resource.data.status == 'unlisted' ||
+        isAdmin();
+      allow write: if isAdmin();
+      // Church event writes will be routed through trusted server actions
+      // that verify representative access before using the Firebase Admin SDK.
+    }
+
+    match /eventCategories/{categoryId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /eventRegistrations/{registrationId} {
+      allow read, write: if isAdmin();
+      // Private registration reads/writes must stay behind trusted server
+      // authorization. Do not expose registration lists to public clients.
+    }
+
+    match /eventExports/{exportId} {
+      allow read, write: if isAdmin();
+      // Export files and metadata must be authorized server-side and expire.
+    }
   }
 }

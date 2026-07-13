@@ -21,6 +21,7 @@ const reservedChurchShareSlugs = new Set(
     "api",
     "churches",
     "contact",
+    "events",
     "favicon.ico",
     "icon.png",
     "listing-acknowledge",

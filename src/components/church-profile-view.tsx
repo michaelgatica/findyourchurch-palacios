@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { EventCard } from "@/components/event-card";
 import {
   buildAbsoluteUrl,
   buildChurchClaimPath,
@@ -15,6 +16,7 @@ import {
   getServiceTimeLabel,
 } from "@/lib/church-utils";
 import { formatDate, formatListValue } from "@/lib/formatting";
+import { getUpcomingPublishedEventsForChurch } from "@/lib/repositories/event-repository";
 import type { ChurchRecord } from "@/lib/types/directory";
 
 function ExternalActionButton({
@@ -72,7 +74,8 @@ function MinistryHighlight({ label }: { label: string }) {
   );
 }
 
-export function ChurchProfileView({ church }: { church: ChurchRecord }) {
+export async function ChurchProfileView({ church }: { church: ChurchRecord }) {
+  const upcomingEvents = await getUpcomingPublishedEventsForChurch(church.id, 3);
   const primaryServiceTimeLabel = getPrimaryServiceTimeLabel(church);
   const canonicalPath = buildChurchProfilePath(church);
   const claimPath = buildChurchClaimPath(church);
@@ -241,6 +244,29 @@ export function ChurchProfileView({ church }: { church: ChurchRecord }) {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="panel">
+            <div className="section-heading section-heading--compact">
+              <div>
+                <p className="eyebrow">Upcoming Events</p>
+                <h2>Upcoming events</h2>
+              </div>
+              <Link href="/events" className="button button--ghost">
+                Community Calendar
+              </Link>
+            </div>
+            {upcomingEvents.length > 0 ? (
+              <div className="event-list event-list--compact">
+                {upcomingEvents.map((event) => (
+                  <EventCard key={event.id} event={event} compact />
+                ))}
+              </div>
+            ) : (
+              <p className="supporting-text">
+                No upcoming events have been published for this church yet.
+              </p>
+            )}
           </div>
 
           <div className="panel">

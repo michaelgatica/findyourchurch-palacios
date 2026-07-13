@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ChurchCard } from "@/components/church-card";
 import { DonationSupportActions } from "@/components/donation-support-actions";
 import { DonationSupportEmbed } from "@/components/donation-support-embed";
+import { EventCard } from "@/components/event-card";
 import {
   buildLaunchHomeTitle,
   createPageMetadata,
   siteConfig,
 } from "@/lib/config/site";
 import { getPublishedChurches } from "@/lib/repositories/church-repository";
+import { getUpcomingPublishedEvents } from "@/lib/repositories/event-repository";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +32,10 @@ function pickRandomChurchPreview<T>(items: T[], count: number) {
 }
 
 export default async function HomePage() {
-  const publishedChurches = await getPublishedChurches();
+  const [publishedChurches, upcomingEvents] = await Promise.all([
+    getPublishedChurches(),
+    getUpcomingPublishedEvents(3),
+  ]);
   const churchPreview = pickRandomChurchPreview(publishedChurches, 3);
 
   return (
@@ -138,6 +143,34 @@ export default async function HomePage() {
             <ChurchCard key={church.id} church={church} />
           ))}
         </div>
+      </section>
+
+      <section className="shell section-stack">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow eyebrow--gold">Community Calendar</p>
+            <h2>Upcoming church and ministry events</h2>
+          </div>
+          <Link href="/events" className="button button--ghost">
+            View All Community Events
+          </Link>
+        </div>
+
+        {upcomingEvents.length > 0 ? (
+          <div className="event-grid">
+            {upcomingEvents.map((event) => (
+              <EventCard key={event.id} event={event} compact />
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <h3>Community events are coming soon</h3>
+            <p>
+              As verified churches begin adding events, the next gatherings and outreach
+              opportunities will appear here.
+            </p>
+          </div>
+        )}
       </section>
 
       <section className="shell section-stack">

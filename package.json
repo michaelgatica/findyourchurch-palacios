@@ -23,7 +23,8 @@
     "audit:firebase": "tsx scripts/audit-firebase-data.ts",
     "ops:launch-check": "tsx scripts/ops-launch-check.ts",
     "test:phase3-workflows": "tsx scripts/test-phase3-workflows.ts",
-    "test:phase4-workflows": "tsx scripts/test-phase4-workflows.ts"
+    "test:phase4-workflows": "tsx scripts/test-phase4-workflows.ts",
+    "test:directory-routing": "tsx scripts/test-directory-routing.ts"
   },
   "keywords": [
     "ministry",

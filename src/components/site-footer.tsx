@@ -20,6 +20,7 @@ export function SiteFooter() {
 
         <div className="site-footer__links">
           <Link href="/churches">Browse Churches</Link>
+          <Link href="/events">Community Calendar</Link>
           <Link href="/submit">Submit Your Church</Link>
           <Link href="/about">About</Link>
           <Link href="/contact">Contact</Link>

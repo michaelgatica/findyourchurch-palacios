@@ -1,15 +1,21 @@
 import type { MetadataRoute } from "next";
 
+import { buildEventPath } from "@/lib/event-utils";
 import { buildAbsoluteUrl, buildChurchProfilePath } from "@/lib/config/site";
 import { getPublishedChurches } from "@/lib/repositories/church-repository";
+import { getUpcomingPublishedEvents } from "@/lib/repositories/event-repository";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const churches = await getPublishedChurches();
+  const [churches, events] = await Promise.all([
+    getPublishedChurches(),
+    getUpcomingPublishedEvents(100),
+  ]);
   const baseRoutes = [
     "/",
     "/churches",
+    "/events",
     "/submit",
     "/about",
     "/contact",
@@ -28,5 +34,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...baseRoutes, ...churchRoutes];
+  const eventRoutes = events.map((event) => ({
+    url: buildAbsoluteUrl(buildEventPath(event)),
+    changeFrequency: "daily" as const,
+    priority: 0.65,
+  }));
+
+  return [...baseRoutes, ...churchRoutes, ...eventRoutes];
 }

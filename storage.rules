@@ -35,6 +35,14 @@ service firebase.storage {
       allow write: if false;
     }
 
+    match /churches/{churchId}/events/{eventId}/{fileName} {
+      allow read: if true;
+      allow write: if false;
+      // Event flyer/media uploads will use trusted server actions first.
+      // Direct browser writes must remain disabled until representative
+      // ownership checks are enforced in rules and App Check is configured.
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }

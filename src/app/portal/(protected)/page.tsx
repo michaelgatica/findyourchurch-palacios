@@ -74,6 +74,9 @@ export default async function PortalDashboardPage({ searchParams }: PortalDashbo
           <Link href="/portal/church/edit" className="button button--primary">
             Edit listing
           </Link>
+          <Link href="/portal/events" className="button button--ghost">
+            Events
+          </Link>
           <Link href="/portal/messages" className="button button--ghost">
             Messages
           </Link>
