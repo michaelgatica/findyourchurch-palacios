@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AdminSignOutButton } from "@/components/admin/admin-signout-button";
+import { getNonProductionEnvironmentLabel } from "@/lib/app-environment";
 import type { ChurchRecord, ChurchRepresentativeRecord } from "@/lib/types/directory";
 
 const navigationItems = [
@@ -20,9 +21,17 @@ export function RepresentativeShell(props: {
   representativeName: string;
   children: React.ReactNode;
 }) {
+  const nonProductionLabel = getNonProductionEnvironmentLabel();
+
   return (
     <section className="shell page-section portal-page">
       <div className="portal-shell">
+        {nonProductionLabel ? (
+          <div className="nonproduction-banner" role="status">
+            {nonProductionLabel} environment - use fictitious test data only
+          </div>
+        ) : null}
+
         <div className="portal-shell__header">
           <div>
             <p className="eyebrow eyebrow--gold">Church Representative Portal</p>
