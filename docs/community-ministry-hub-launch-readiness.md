@@ -482,12 +482,19 @@ Executed in this phase:
 - `npm run test:registration-validation`: passed.
 - `npm run test:registration-reports`: passed.
 - `npm run test:registration-scheduler`: passed.
+- `npm run test:registration-scheduler-security`: passed authentication, method/body, retry, and lease policy checks.
+- `npm run test:staging-email`: passed 15 template/render checks, opened generated PDF/XLSX files, enforced the single-recipient guard, and redacted a controlled non-delivering SMTP failure; live delivery was not attempted.
 - `npm run test:platform-launch-readiness`: passed.
 - `npm run test:staging-validation`: passed.
 - `npm run test:event-security`: passed through Firebase emulators for Firestore, Storage, and Auth.
 - `npm run test:registration-emulator`: passed through the Firestore emulator.
 - `npm run lint`: passed with no ESLint warnings or errors.
 - `npm run build`: passed.
+- Focused App Hosting local-source rollout to `community-hub-staging`: passed.
+- `npm run test:staging-scheduler-hosted`: passed hosted authentication, environment, body/method, correlation-ID, and client-bundle secret checks.
+- `npm run certify:staging-scheduler`: passed real hosted digest, reminder, closing-report, export/token cleanup, retention cleanup, overlap, retry, duplicate, cross-church, and operational-log checks.
+- `npm run test:staging-admin-ops`: passed authenticated platform-admin staging banner, SMTP-blocked state, template catalog, disabled-send, and scheduler-event checks.
+- Manual run of Cloud Scheduler job `community-hub-registration-jobs-staging`: passed; job state remained `ENABLED` with clear last-attempt status.
 - `npm audit --omit=dev`: completed with 11 moderate advisories.
 - `npm audit fix --omit=dev --dry-run`: reviewed only; no changes kept.
 - `npm run seed:community-hub-staging -- --dry-run`: passed.
@@ -497,7 +504,7 @@ Executed in this phase:
 Manual/staging verification still required:
 
 - Live SMTP delivery and bounce behavior.
-- Real scheduler trigger behavior.
+- Live SMTP delivery, mailbox receipt, bounce behavior, and emailed attachment inspection.
 - Browser/device QA matrix.
 - Accessibility review with signed-in representative/admin flows.
 - Sitemap/Open Graph verification on the final canonical host.
@@ -512,20 +519,20 @@ Manual/staging verification still required:
 | Configuration validation | Yes | Yes | No | No | Yes | `/admin/ops`, `production-config-service`, `test:platform-launch-readiness`, `test:staging-validation` | Needs real staging/prod env review |
 | Domain behavior | Documented | Partial | No | No | Yes | `NEXT_PUBLIC_SITE_URL`, sitemap/build checks | Requires preview/canonical URL inspection |
 | SEO | Implemented for public events | Partial | No | No | Yes | Metadata and public event tests/build | Requires Search Console/canonical host review |
-| SMTP | Templates implemented | Yes for rendering | No live send | No | Yes | `test:registration-reports` | Live SMTP delivery blocked |
-| Scheduler | Implemented | Yes local | No live scheduler | No | Yes | `test:registration-scheduler`, protected endpoint | Needs staging scheduler/idempotency run |
-| Exports | Implemented | Partial | No file-open inspection | No | Yes | Export services, emulator/private Storage rules | Needs deployed PDF/XLSX manual inspection |
-| Data retention | Implemented/documented | Partial | No | No | Yes | Registration emulator deletion/expired token checks | Needs real cleanup job run |
+| SMTP | Templates and admin-only staging tool implemented | Yes for 15 templates and PDF/XLSX rendering | No live send | Blocked | Yes | `test:staging-email`, `/admin/ops` | Approved SMTP account and test mailbox are missing |
+| Scheduler | Implemented and configured | Yes local and hosted | Yes, Cloud Scheduler job run | Yes | Yes | `test:registration-scheduler-security`, `certify:staging-scheduler`, Cloud Scheduler logs | Production remains unconfigured by design |
+| Exports | Implemented | Yes for PDF/XLSX generation and opening | Hosted closing-report generation | Yes | Yes | `test:staging-email`, hosted scheduled closing report | Email attachment receipt remains blocked with SMTP |
+| Data retention | Implemented/documented | Yes | Hosted fictitious-data cleanup | Yes | Yes | Registration emulator and `certify:staging-scheduler` | Production schedule/retention approval remains required |
 | Accessibility | Not fully verified | No dedicated a11y automation | No | No | Yes | `docs/community-ministry-hub-accessibility.md` | Full-GO blocker until manual review |
 | Responsive browser QA | Not verified | No | No | No | Yes | QA matrix prepared | Full-GO blocker until browser testing |
 | Performance | Seed/load plan added | No load run | No | No | Yes | `seed:community-hub-staging -- --large` | Needs staging load validation |
 | Dependency advisories | Documented | Yes audit | N/A | N/A | Yes | `npm audit --omit=dev --json`, security acceptance doc | 11 moderate advisories need owner acceptance |
-| Monitoring | Basic ops visibility | Partial | No | No | Yes | `/admin/ops`, operational events service | Needs external alerting or manual process verified |
+| Monitoring | Ops visibility and correlation logs | Partial | Yes for scheduler success/failure | Yes | Yes | `/admin/ops`, Cloud Scheduler/Application logs | Recommended failure alerts remain unconfigured |
 | Backup | Documented | No | No | No | Yes | Rollback/deployment docs | Needs managed backup confirmation |
 | Rollback | Documented | No | No exercise | No | Yes | `docs/community-ministry-hub-rollback.md` | Needs nonproduction exercise |
 | Existing church workflows | Existing tests pass | Partial | No staging browser | No | Yes | directory routing/build/regression tests | Needs staging regression pass |
 
-The current evidence supports `CONDITIONAL GO` only. Full `GO` remains blocked until staging SMTP, scheduler, browser QA, accessibility, export inspection, and production-owner risk acceptance are completed.
+The current evidence supports `CONDITIONAL GO` only. Full `GO` remains blocked until staging SMTP delivery, browser QA, accessibility, and production-owner risk acceptance are completed. Scheduler, hosted cleanup, and report-generation staging evidence are complete.
 
 ## Final Recommendation
 
@@ -535,5 +542,7 @@ Reasons:
 
 - Automated tests and rules checks can validate the core architecture.
 - Platform admin moderation/category/config surfaces now exist.
-- Production live email, scheduler, App Check, accessibility, and manual browser QA still need environment-backed verification.
+- Live staging SMTP, production scheduler/App Check, accessibility, and manual browser QA still need environment-backed verification.
 - Remaining dependency advisories require explicit acceptance or future upstream-safe updates.
+
+Focused SMTP/scheduler recommendation on July 13, 2026: **Still blocked**. The blocker is limited to the absent approved staging SMTP provider credentials, sender/reply-to configuration, administrator recipient, and QA-owned `TEST_EMAIL_TO`. Cloud Scheduler is enabled and certified in staging; no production scheduler or deployment was created.

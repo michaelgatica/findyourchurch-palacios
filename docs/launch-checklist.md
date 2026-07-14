@@ -124,7 +124,7 @@ Focused staging infrastructure evidence recorded July 13, 2026:
 - Storage bucket: `findyourchurch-staging-2026.firebasestorage.app`.
 - Firebase App Hosting backend: `community-hub-staging` in `us-central1` with the `staging` environment and `nodejs22` runtime.
 - Staging URL: `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app`.
-- App Hosting rollout `build-2026-07-13-002`: succeeded.
+- Latest focused local-source App Hosting rollout: succeeded July 13, 2026.
 - Authenticated admin and representative portal areas visibly show the `STAGING` warning.
 - The five fictitious QA accounts share an IAM-controlled password stored only as staging Secret Manager secret `FYC_STAGING_QA_PASSWORD`; App Hosting has no access to it.
 - Staging Storage rules deployed; emulator rule tests and live staging trusted-upload/access tests passed.
@@ -132,12 +132,14 @@ Focused staging infrastructure evidence recorded July 13, 2026:
 - Church A could not open Church B event administration or platform admin pages.
 - Platform admin opened `/admin/events`, `/admin/event-reports`, `/admin/event-categories`, and `/admin/ops`.
 - Public hosted smoke checks passed for homepage, directory, event visibility, direct unlisted behavior, cancellation, flyer, and missing-flyer content.
-- Protected scheduler endpoint denied an unauthenticated request, completed one authenticated fictitious digest, and produced no duplicate on immediate repeat.
+- Protected scheduler endpoint denied missing/invalid authentication, rejected the wrong environment, request bodies, and unexpected methods, and kept its secret out of client bundles and inspected logs.
+- Cloud Scheduler API is enabled only in staging. Enabled job `community-hub-registration-jobs-staging` runs every 15 minutes in `America/Chicago` with three provider retries.
+- Hosted scheduler certification completed digest, reminder, closing-report, export/token-cleanup, and retention-cleanup jobs; verified overlap lease, retry recovery, cross-church isolation, correlation logs, and zero duplicate email-log entries.
+- `/admin/ops` was authenticated as the fictitious platform administrator and displayed the `STAGING` banner, scheduler events, 15 email templates, SMTP-blocked state, and disabled send controls.
 - SMTP is blocked pending a staging-safe provider and credentials.
-- Cloud Scheduler is blocked pending enablement of `cloudscheduler.googleapis.com` and creation of the staging-only HTTP trigger.
 - Full accessibility, responsive, cross-browser, performance, dependency-upgrade, production, and release-certification work was not performed in this checkpoint.
 
-This checkpoint is ready to hand to full staging QA, but it is not approval for production deployment.
+This checkpoint remains blocked on live SMTP delivery. Scheduler infrastructure is ready; this is not approval for production deployment.
 
 ## Cleanup safety
 

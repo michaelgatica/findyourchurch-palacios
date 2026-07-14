@@ -190,14 +190,17 @@ Verify:
 - Failed job records status, attempts, and error.
 - `/admin/ops` and operational logs expose failures.
 
-Hosted endpoint smoke result on July 13, 2026:
+Hosted scheduler certification result on July 13, 2026:
 
 - Unauthenticated `POST /api/jobs/registration`: `401`.
-- Authenticated call with the staging-only secret: one due fictitious daily digest completed with zero failures.
-- Immediate repeat: zero due jobs, zero duplicate delivery, and one future pending digest remained.
-- The completed job recorded one attempt and a completion timestamp.
-- App Hosting logs contained the denied request, successful requests, and console digest entry.
-- Cloud Scheduler is not configured because `cloudscheduler.googleapis.com` is disabled in the staging project. The protected endpoint is ready; enable the API and create the staging-only HTTP trigger before final certification.
+- Invalid secret, public-session-without-secret, and representative-session-without-secret requests: `401`.
+- Missing or incorrect `x-fyc-environment` marker: `400`; body-bearing request: `413`; unexpected `GET`: `405`.
+- Authenticated staging-only calls returned `200`; competing calls produced a lease-controlled `202` overlap skip.
+- Fictitious digest, reminder fan-out and reminder notice, registration-closing report, export cleanup, expired-token cleanup, and retention cleanup completed in hosted staging.
+- A deliberately cross-church job failed ownership validation, recorded attempt 1, scheduled a retry, and completed on attempt 2 after its fixture was corrected.
+- Immediate duplicate execution completed zero jobs and created zero duplicate email-log entries.
+- Cloud Scheduler API is enabled. Job `community-hub-registration-jobs-staging` is enabled in `us-central1`, runs `*/15 * * * *` in `America/Chicago`, and calls the hosted endpoint with private authentication and staging-marker headers.
+- The Cloud Scheduler job was run manually; its last-attempt status was clear. Scheduler and application logs were visible, and the secret was absent from inspected logs and 12 hosted client bundles.
 
 ## Current Staging Status
 
@@ -214,7 +217,7 @@ Live staging checkpoint recorded July 13, 2026:
 - Storage rules: compiled and released to the staging bucket.
 - Hosting: Firebase App Hosting backend `community-hub-staging` in `us-central1`, environment `staging`, runtime `nodejs22`.
 - Hosted URL: `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app`.
-- App Hosting rollout: `build-2026-07-13-002` succeeded.
+- App Hosting rollout: the focused SMTP/scheduler local-source rollout succeeded on July 13, 2026.
 - Secret Manager: staging-only Firebase client key, registration-token, export-signing, and scheduler-token secrets are connected to the backend. Secret values are not stored in Git.
 - Reset proof: live dry run finds all 72 marked/prefixed documents; no live reset was executed.
 - Production project `findyourchurch-24562`: not deployed or mutated.
@@ -257,12 +260,36 @@ The shared QA-owned password was rotated after hosted testing and stored only as
 
 Remaining full-certification blockers:
 
-- Staging SMTP/mail testing is not configured.
-- Cloud Scheduler API and its recurring HTTP trigger are not configured; the endpoint-level authentication, one-job execution, repeat/idempotency behavior, and logging checks passed manually.
+- Staging SMTP/mail testing is not configured. `EMAIL_PROVIDER` remains `console`; no SMTP sender, administrator recipient, approved test recipient, or SMTP credentials were available locally or in staging Secret Manager.
+- Actual delivery, provider message IDs, bounce behavior, sender/reply-to inspection, mailbox receipt, and emailed attachment receipt remain blocked until an approved staging SMTP account and test mailbox are supplied privately.
 - Full responsive, accessibility, cross-browser, performance, email-delivery, and detailed manual QA remain intentionally unperformed.
 - A QA owner must receive the current password through an approved private channel.
 
-Current recommendation: the hosted application, Auth, Firestore, Storage, and core role workflows are **ready for full staging QA**. This is not final staging certification; SMTP, Cloud Scheduler, and the intentionally deferred certification matrix remain open.
+Current recommendation: **still blocked** for full staging certification because SMTP delivery is unavailable. The hosted application, Auth, Firestore, Storage, and scheduler are ready for the intentionally separate manual accessibility and browser QA phase after the SMTP owner supplies the missing private configuration.
+
+## SMTP and Scheduler Configuration Record
+
+SMTP status:
+
+- Active staging provider: `console`.
+- Admin-only staging test surface: `/admin/ops`; verified with the fictitious platform-administrator account.
+- The page lists 15 transactional/report templates, shows SMTP as blocked, does not display credentials or recipient addresses, and disables send controls until validation passes.
+- A staging send requires `EMAIL_PROVIDER=smtp`, `EMAIL_FROM`, `ADMIN_NOTIFICATION_EMAIL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, exactly one `TEST_EMAIL_TO`, and `ALLOW_REAL_EMAIL_TEST=true`. `SMTP_REPLY_TO` is optional but validated when present.
+- Recommended future Secret Manager names: `FYC_STAGING_EMAIL_FROM`, `FYC_STAGING_ADMIN_NOTIFICATION_EMAIL`, `FYC_STAGING_SMTP_HOST`, `FYC_STAGING_SMTP_PORT`, `FYC_STAGING_SMTP_USER`, `FYC_STAGING_SMTP_PASSWORD`, `FYC_STAGING_SMTP_REPLY_TO`, and `FYC_STAGING_TEST_EMAIL_TO`.
+- Do not add those App Hosting references until the corresponding secrets exist and the QA owner has approved the single test recipient.
+- Template/render tests passed for registration confirmation, simple RSVP, waitlist confirmation/promotion, registration update/cancellation, event cancellation/reminder, organizer/capacity/closing notifications, PDF, XLSX, combined reports, and scheduled digest. PDF/XLSX files opened locally. No live SMTP delivery was attempted or claimed.
+- A local non-delivering SMTP connection failure verified credential, recipient, and sender-address redaction. Provider-backed failure recording, message IDs, and retry delivery remain blocked until staging SMTP credentials exist.
+
+Scheduler status:
+
+- API: `cloudscheduler.googleapis.com` enabled only in `findyourchurch-staging-2026`.
+- Job: `community-hub-registration-jobs-staging`.
+- Endpoint: `POST https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app/api/jobs/registration`.
+- Schedule: `*/15 * * * *`; time zone: `America/Chicago`.
+- Authentication: staging Secret Manager value sent as private `x-cron-secret` header plus `x-fyc-environment: staging`; no secret is committed or placed in the command line.
+- Retry policy: 3 Cloud Scheduler retries, 30-second minimum backoff, 300-second maximum backoff, 900-second maximum retry duration; application jobs use 3 attempts with bounded exponential backoff.
+- Application protection: 20-minute global run lease, per-job lease, stale-lease recovery, deterministic job IDs, delivery completion markers, terminal failure visibility, and correlation-linked operational events.
+- Recommended alerts, not configured in this focused task: two consecutive dispatcher failures, two consecutive SMTP failures, and any terminal digest, reminder, report, export-cleanup, or retention-cleanup failure.
 
 Earlier local/emulator evidence retained from the staging-readiness phase:
 
