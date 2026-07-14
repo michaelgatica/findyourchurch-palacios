@@ -20,6 +20,7 @@
     "test:firebase-storage": "tsx scripts/test-firebase-storage.ts",
     "test:email": "tsx scripts/test-email.ts",
     "test:staging-email": "tsx scripts/test-staging-email.ts",
+    "certify:production-email": "tsx scripts/certify-production-email-provider.ts",
     "process:listing-verifications": "tsx scripts/process-listing-verifications.ts",
     "audit:firebase": "tsx scripts/audit-firebase-data.ts",
     "ops:launch-check": "tsx scripts/ops-launch-check.ts",
