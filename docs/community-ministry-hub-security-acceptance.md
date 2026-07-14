@@ -6,9 +6,29 @@ This record separates verified controls from risks that still require an owner d
 
 ## Current Decision
 
-**NO-GO for production deployment today.** The deployed staging controls and automated isolation evidence are strong, but the launch owner has not accepted the remaining dependency risk, provider-backed email has not been certified, production App Check/monitoring/backup decisions are incomplete, and native screen-reader evidence remains unavailable. The available WebKit equivalent now passes; native Safari hardware remains a non-blocking environment limitation unless the launch owner requires device-specific proof.
+**NO-GO for production deployment today.** Provider-backed staging email, App Check monitor-mode token exchange, Google Cloud alert delivery, operational-record retention, Firestore backup schedules, and Storage soft-delete recovery are now certified. Production remains blocked by the owner's required native screen-reader test, explicit acceptance or remediation of 11 moderate dependency advisory nodes, rotation of the SMTP credential that was supplied through chat, first managed Firestore backup/restore evidence, and production-only backup/App Check/monitoring/secret configuration.
 
 The Community Ministry Hub changes may be prepared for review and merge, but deployment must remain gated on the blocking acceptance items at the end of this document.
+
+## Production Blocker Closure Evidence
+
+Owner decisions are recorded without inference:
+
+| Decision | State | Evidence / remaining condition |
+| --- | --- | --- |
+| Sender and support routing | Approved | Staging uses `noreply@findyourchurchpalacios.org`; `Reply-To` and the required text/HTML notice direct replies and questions to `support@findyourchurchpalacios.org`. The application rejects a noreply configuration with any other reply-to address. |
+| App Check | Approved: enforce at launch | reCAPTCHA Enterprise is registered for the staging web app. Hosted token exchange returned HTTP 200 and admin sign-in passed. Staging intentionally remains `monitor`; production configuration validation fails unless mode is `enforced`. |
+| Monitoring stack and recipients | Approved | Google Cloud Monitoring, Error Reporting, and Cloud Logging selected. Three email channels and 13 enabled policies implement the owner's thresholds. A controlled alert was received through the approved channel. |
+| Firestore backup / Storage recovery approach | Delegated and implemented in staging | Daily 14-day plus Sunday weekly 12-week Firestore schedules are configured. Storage keeps deleted objects for seven days; versioning is intentionally off for short-lived private exports. A fictitious object was deleted, restored, hash/size checked, and removed. The first scheduled Firestore backup and managed restore remain unverified. |
+| Operational retention categories | Approved | TTL is active for audit, email, terminal Scheduler-job, and operational-event records. Current periods are 400, 180, 90, and 180 days respectively. Existing staging records were backfilled without registration answers or credentials. |
+| Dependency risk | Still awaiting owner decision | Audit remains 11 moderate, 0 high, 0 critical. No force fix or unsupported override was applied. |
+| Native screen reader | Required before launch | Windows Narrator is installed, but an auditable native workflow run was not completed. Automated axe/keyboard evidence is not a substitute. |
+
+SMTP provider evidence: Namecheap Shared Hosting Mail was exercised through its canonical TLS endpoint. Seven controlled messages were received at the approved staging recipient: registration confirmation, waitlist confirmation, reminder, church-administrator notification, PDF report, XLSX report, and scheduled report. SPF, DKIM, and DMARC passed in received headers; DMARC is currently monitoring policy `p=none`. PDF and XLSX attachments opened. Links stayed on staging, sensitive registration answers were absent, and no unexpected duplicate was found. The observed Return-Path used the noreply mailbox. A destructive bounce test was not sent because no unapproved/invalid recipient was authorized. The exact account tier must be confirmed before production volume; Namecheap documents shared-hosting limits by plan.
+
+The SMTP password supplied in chat is treated as exposed and must be rotated into the production secret manager before launch. It is not present in source, documentation, commits, screenshots, or the final report.
+
+Staging Cloud Logging uses the project `_Default` bucket with 30-day retention. Event-report moderation and export actions are covered by the 400-day application audit category; safe authorization/rate-limit events are covered by the 180-day operational category. Registration answers, tokens, credentials, medical/minor details, and complete addresses are excluded from both structured alerts and retained operational summaries.
 
 ## Production Dependency Audit
 
@@ -53,7 +73,7 @@ Risk owner for every pending row is the platform technical owner, with explicit 
 | Scheduler authentication | Endpoint requires `REGISTRATION_JOBS_CRON_SECRET` and environment guard; unauthorized hosted request denied and authorized scheduler certification passed. | Pass | Production scheduler secret and job must be created together; never reuse staging. |
 | Email idempotency | Scheduled jobs use deterministic idempotency keys and `deliveryCompletedAt`; hosted duplicate execution produced zero duplicate email-log entries. | Pass for application behavior | Provider-backed delivery, bounce handling, and provider message IDs remain untested and block production. |
 | Sensitive log exclusion | Email console output omits bodies and addresses except recipient domain; email error redaction removes credentials; registration answer values are omitted from audit notes; scheduler metadata is counts/status only. Source audit and staging email redaction test passed. | Pass with gaps | Authorization-denial and rate-limit telemetry is incomplete; log sink controls and retention remain production prerequisites. |
-| App Check | `APP_CHECK_SITE_KEY` is inventoried, but enforcement is not active in staging or production. | Deferred | Launch owner must approve monitor-first rollout or require enforcement before opening public registration. |
+| App Check | reCAPTCHA Enterprise is active in staging monitor mode; hosted token exchange returned HTTP 200. | Pass in staging | Owner requires production enforcement at launch; valid-client smoke tests must pass immediately after enforcement. |
 | Rate limiting and bot controls | Registration honeypot is active; per-event/request-identity limit is 8 submissions per 15 minutes; duplicate/idempotency records are transactionally enforced. Public event reports also use a honeypot and hashed request metadata. | Pass at application layer | App Check/WAF-level abuse controls are not active; high-volume abuse remains residual risk. |
 | Environment separation | Staging guards check `APP_ENV`, client/admin project IDs, Storage bucket, database, allowed hostname, and `PRODUCTION_FIREBASE_PROJECT_ID`. Admin/portal visibly show `STAGING`. | Pass | Production deployment must positively confirm every identifier before each write. |
 
@@ -83,23 +103,25 @@ These gaps do not weaken the authorization decision itself, but production monit
 | Risk | State | Compensating control | Risk owner | Target | Launch impact |
 | --- | --- | --- | --- | --- | --- |
 | 11 moderate production advisory nodes | Pending acceptance | Server-only exposure limits, no user CSS, no caller-supplied UUID buffers, authenticated private exports | Platform technical owner + launch owner | 2026-08-14 / before deploy | Blocking until explicitly accepted or remediated |
-| Provider-backed SMTP not certified | Deferred but blocking | Template/render suite, single-recipient staging guard, console provider | Ministry operations owner | Before deploy | Blocking |
-| App Check not enforced | Pending decision | Server authorization, rules, honeypot, rate limit, idempotency | Platform technical owner | Before public registration opens | Blocking until owner records enforcement/monitor-first decision |
-| External alerts not configured | Deferred but blocking | `/admin/ops`, operational/audit/email logs, manual scheduler inspection | Operations owner | Before public registration opens | Blocking |
+| Provider-backed SMTP | Staging certified; production credential rotation pending | Seven received controlled messages, SPF/DKIM/DMARC pass, support Reply-To/notice, recipient guard, failure redaction | Ministry operations owner | Before deploy | Blocking only until the exposed credential is rotated and production binding is verified |
+| App Check | Owner approved enforcement at launch | Valid reCAPTCHA Enterprise token exchange and authenticated admin workflow passed in staging monitor mode | Platform technical owner | Deployment window | Blocking until production enforcement and valid-client smoke pass |
+| External alerts | Staging configured and received | Three channels, 13 policies, one controlled received alert; safe structured log fields only | Operations owner | Deployment window | Blocking until replicated and received in production |
 | Authorization/rate-limit operational telemetry incomplete | Deferred | Enforcement still fails closed; infrastructure logs available | Platform technical owner | Within 30 days of launch, with launch-owner acceptance | Conditional blocker |
 | Native screen-reader evidence unavailable | Pending external test | Axe and keyboard/semantic tests have zero critical/serious findings | Accessibility/launch owner | Before deploy | Blocking for full GO |
 | Native Safari hardware unavailable | Documented limitation | Chromium, Edge, Firefox, and Playwright WebKit hosted suites passed | QA/launch owner | Post-launch device matrix unless owner elevates | Not blocking by default |
-| Audit/email/job/log retention policy absent | Pending policy | Registration/export/token cleanup is bounded and certified | Privacy owner + operations owner | Before deploy | Blocking |
+| Audit/email/job/log retention | Approved and enforced in staging | Active Firestore TTL plus safe superadmin summaries; 605 existing records backfilled | Privacy owner + operations owner | Deployment window | Blocking until production TTL is verified |
 | Async export queue not implemented beyond 1,000 records | Accepted design limit pending owner sign-off | Hard 1,000-registration and 10 MB caps; tested 500-record exports | Platform technical owner | Before expansion beyond local launch | Not blocking at Palacios scale if accepted |
 
 ## Blocking Acceptance Checklist
 
 - [ ] Launch owner accepts or remediates all 11 moderate dependency advisory nodes.
-- [ ] Ministry operations certifies one provider-backed registration confirmation, administrator notification, and attached report to approved staging recipients.
-- [ ] Accessibility/QA owner completes native screen-reader checks or signs an explicit residual-risk acceptance.
-- [ ] Platform/launch owner records the App Check enforcement or monitor-first decision.
-- [ ] Operations owner configures production alert destinations, escalation, and on-call response ownership.
-- [ ] Privacy/operations owners approve retention for audit logs, email logs, scheduler records, and operational logs.
+- [x] Ministry operations certifies provider-backed registration, waitlist, reminder, administrator, PDF, XLSX, and scheduled-report delivery to the approved staging recipient.
+- [ ] Accessibility/QA owner completes the required native screen-reader checks. The owner explicitly requires testing; residual-risk acceptance is not substituted.
+- [x] Platform/launch owner requires App Check enforcement at launch; staging monitor-mode token generation is certified.
+- [x] Operations owner approved the alert stack, recipients, thresholds, and escalation; staging delivery is certified. Production replication remains deployment-window work.
+- [x] Privacy/operations approved retention for audit, email, terminal Scheduler, and operational records; staging TTL is active.
+- [ ] Rotate the SMTP credential supplied through chat and verify the replacement only through Secret Manager.
+- [ ] Record the first completed Firestore managed backup and a non-destructive managed restore/clone check.
 - [ ] Production backup and Storage-protection settings are confirmed before any production write.
 - [ ] All production identifiers, secrets, rules, indexes, SMTP/DNS, scheduler, and canonical-domain checks pass in the deployment window.
 

@@ -195,9 +195,9 @@ Templates reviewed in code:
 Email requirements:
 
 - `EMAIL_PROVIDER=smtp` or supported production provider.
-- `EMAIL_FROM=support@findyourchurchpalacios.org`.
+- `EMAIL_FROM="Find Your Church Palacios <noreply@findyourchurchpalacios.org>"`.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASSWORD`.
-- `SMTP_REPLY_TO` recommended.
+- `SMTP_REPLY_TO=support@findyourchurchpalacios.org` required for the noreply sender.
 - `ADMIN_NOTIFICATION_EMAIL` may be comma-separated for launch.
 - SPF, DKIM, and DMARC should be configured for the sending domain.
 
@@ -707,3 +707,24 @@ The code and hosted staging application are suitable for merge review, but produ
 - production secrets, DNS/canonical host, SMTP/DNS, Scheduler, App Check, indexes/rules, and controlled smoke tests necessarily remain deployment-window work.
 
 `GO` requires every blocking acceptance item in `community-ministry-hub-security-acceptance.md` plus the release gate in `community-ministry-hub-production-deployment.md`. No production deployment, merge, or push is authorized by this certification.
+
+## Production Blocker Closure Update — July 14, 2026
+
+This section supersedes earlier statements that staging SMTP used `console`, App Check lacked a decision, alerts were unconfigured, retention periods were absent, or staging lacked recovery protection.
+
+| Blocker | Current evidence | State |
+| --- | --- | --- |
+| SMTP provider delivery | Namecheap Shared Hosting Mail delivered seven controlled staging messages. SPF, DKIM, and DMARC passed; DMARC is `p=none`. Support Reply-To, universal unmonitored-mailbox notice, staging links, no sensitive answers, no duplicates, provider Message-ID, and openable PDF/XLSX were verified. Return-Path was observed; destructive bounce delivery was not authorized. | Staging certified; replacement credential and production binding still required |
+| App Check | Owner decision is enforce at launch. reCAPTCHA Enterprise token exchange returned HTTP 200 and authenticated admin sign-in passed. Staging is `monitor`; production config fails unless `enforced`. | Decision closed; production enforcement remains deployment-window work |
+| External monitoring | Google Cloud Logging, Monitoring, and Error Reporting APIs are enabled in staging. Three enabled email channels, 12 safe log metrics, one HTTPS uptime check, and 13 enabled policies match the supplied critical/high/warning conditions. A controlled alert was actually received. | Staging certified; production replication required |
+| Firestore backup | Staging has daily/14-day and Sunday-weekly/12-week managed schedules. No first scheduled backup existed yet, so managed restore is not claimed. | Schedule configured; completion/restore evidence blocking |
+| Storage recovery | Seven-day soft delete is active; versioning is intentionally disabled. A fictitious deleted object was restored and matched by hash/size. | Staging certified; production configuration required |
+| Operational retention | Firestore TTL is active: audit 400 days, email 180 days, terminal Scheduler jobs 90 days, operational events 180 days. 605 existing records were backfilled. `/admin/ops` exposes safe superadmin summaries without bodies/recipients. | Staging certified; production TTL required |
+| Dependency audit | 11 moderate nodes, 0 high, 0 critical across Next/PostCSS/Firebase Admin/Google transports/UUID/ExcelJS paths. Available npm suggestions are major, incompatible, or unsupported. | Awaiting explicit owner acceptance/remediation; blocking |
+| Native screen reader | Narrator is installed but no auditable native workflow test was completed. The owner requires native testing before launch. | Blocking |
+
+Current recommendation remains **NO-GO**. Once the native screen-reader run passes, dependency risk is explicitly accepted or remediated, the SMTP secret is rotated, the first managed backup/restore evidence is recorded, and the tested controls are reproduced during production preflight, the project can move to a controlled GO decision. Production was not deployed, modified, merged, or pushed during blocker closure.
+
+### Recertification accounting
+
+The current code passed TypeScript; event, directory, registration, report, Scheduler, platform, staging, Firestore/Storage security, and registration-emulator suites; live staging Storage and Scheduler certification; hosted smoke; App Check; performance/SEO; lint; and a staging-configured production build. The complete hosted browser command produced 207 pass, 4 skip, and 5 initial failures. Every failed case passed on targeted rerun after the QA harness used the approved SMTP recipient and added a one-time retry for Edge/Firefox `NS_BINDING_ABORTED`; a transient Chromium form-state case passed on a clean rerun. All axe accessibility scans in the complete command passed. Native screen-reader testing remains unexecuted and is not inferred from automation.

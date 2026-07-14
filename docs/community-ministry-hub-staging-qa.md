@@ -361,3 +361,32 @@ Executed locally in the Firebase Emulator Suite:
 - `npm run seed:community-hub-staging -- --dry-run`: passed with 3 churches, 7 events, 18 registrations, and 72 planned Firestore writes.
 - `npm run seed:community-hub-staging -- --dry-run --large`: passed with 107 events, 1,112 registrations, and 2,760 planned Firestore writes.
 - Emulator seed/reset round trip: passed with 5 Auth users and 72 Firestore documents created, then 5 Auth users and 72 Firestore documents deleted.
+
+## Production Blocker Closure Staging Record — July 14, 2026
+
+This record supersedes the historical SMTP/monitoring/backup statements above while preserving them as dated evidence.
+
+- Hosted URL remained `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app` and every external command explicitly targeted `findyourchurch-staging-2026`.
+- Hosted SMTP used Namecheap Shared Hosting Mail with sender `noreply@findyourchurchpalacios.org`, Reply-To `support@findyourchurchpalacios.org`, and one approved staging recipient. The password is stored only in Secret Manager and must be rotated because it was supplied through chat.
+- Seven controlled messages were received: registration confirmation, waitlist confirmation, event reminder, church-administrator notification, PDF report, XLSX report, and scheduled report. All expected messages appeared exactly once; PDF and XLSX opened.
+- Received headers passed SPF, DKIM, and DMARC. DMARC policy remains monitoring-only (`p=none`). Staging links and the universal unmonitored-mailbox notice were present; prohibited sensitive answer categories were absent. A real invalid-recipient bounce was not sent.
+- App Check reCAPTCHA Enterprise is registered to the staging web app and hosted domain. A first post-rollout probe did not observe the exchange while the revision propagated and failed; the subsequent authoritative probe loaded the provider and received HTTP 200 from the token exchange, with authenticated admin workflow success. Enforcement remains off in staging by design.
+- Google Cloud Logging, Monitoring, and Error Reporting APIs are enabled. Operations has one HTTPS uptime check, 12 safe log metrics, 13 enabled alert policies, and three enabled email channels. A controlled staging warning reached the approved alert mailbox and contained no sensitive content.
+- Firestore backup schedules: daily with 14-day retention and Sunday weekly with 12-week retention. No scheduled backup had completed at the checkpoint, so managed restore remains untested.
+- Storage soft delete is seven days; versioning is off. One fictitious object was deleted, discovered as soft-deleted, restored, verified by hash/size, and cleaned up.
+- Firestore TTL is active for `auditLogs`, `emailLogs`, `eventScheduledJobs`, and `operationalEvents`. The 605-record backfill affected only operational metadata. The authenticated `/admin/ops` smoke passed and verified retained summaries without recipient/body exposure.
+- The staging Cloud Logging `_Default` bucket reports 30-day retention. Application records retain only the approved safe metadata for their longer Firestore TTL periods; production Cloud Logging retention must be rechecked during deployment preflight.
+- Native screen-reader testing is still required and was not marked passed. Windows Narrator is present; NVDA and an auditable speech-output surface were unavailable in this run.
+- Production project `findyourchurch-24562`, production data/rules/Storage/hosting/secrets, `main`, and remotes were not modified.
+
+Staging blocker-closure recommendation: **NO-GO for production today** due to native screen-reader evidence, unaccepted dependency advisories, SMTP credential rotation, first managed-backup/restore proof, and the intentionally unexecuted production-only configuration steps.
+
+### Blocker-closure recertification result
+
+- TypeScript, event/directory/registration/report/Scheduler/platform/staging validation, Firestore/Storage emulator security, registration emulator, live Storage, hosted Scheduler, hosted smoke, App Check, performance/SEO, lint, and the staging-configured production build passed.
+- The full hosted browser command executed 216 cases: 207 passed, 4 evidence-only cases skipped, and 5 initially failed. All accessibility/axe route scans passed; the five failures were workflow/performance harness cases, not axe violations.
+- Three cancellation failures were caused by the new staging SMTP recipient guard correctly rejecting generated `.test` addresses. The QA wrapper was changed to load the one approved address from Secret Manager into process memory. Edge and Firefox then passed; Chromium passed on its clean targeted rerun.
+- Two Edge/Firefox navigations reported transient `NS_BINDING_ABORTED`. A one-time retry limited to that browser error was added; both targeted reruns passed, with Chromium as a passing control.
+- The first local build attempt exposed `/admin/ops` throwing when Firebase Admin was intentionally unavailable during prerender. Recent Scheduler summaries now return an empty list in that condition, matching audit/email behavior. TypeScript and the second 40-page build passed.
+- The final staging rollout completed. Authenticated operations, public smoke, and App Check HTTP 200 exchange passed against the served revision.
+- Native screen-reader testing did not run and remains launch-blocking.

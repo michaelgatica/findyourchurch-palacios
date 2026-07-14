@@ -5,7 +5,9 @@ This document lists the automatic emails currently wired into Find Your Church P
 ## Global sender and recipient rules
 
 - Default sender: `EMAIL_FROM`
-- Current intended production sender: `support@findyourchurchpalacios.org`
+- Current intended production sender: `noreply@findyourchurchpalacios.org`
+- Reply-To and support address: `support@findyourchurchpalacios.org`
+- Every text and HTML email from the noreply mailbox states that it is unmonitored and directs replies or questions to the support address.
 - Admin workflow recipients: `ADMIN_NOTIFICATION_EMAIL`
 - `ADMIN_NOTIFICATION_EMAIL` can be one inbox or a comma-separated list
 - Example admin inbox setup:

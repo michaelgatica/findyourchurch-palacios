@@ -13,7 +13,7 @@ This runbook preserves church, event, and registration records during a failed r
 - Deploy only a schema-compatible prior release. Never roll back rules below what the retained data requires.
 - Record each command, project ID, database ID, bucket, release, operator, timestamp, and result in the private incident record.
 
-## Current Backup Readiness
+## Historical Backup Readiness Before Blocker Closure
 
 Staging evidence collected July 14, 2026:
 
@@ -27,6 +27,21 @@ Staging evidence collected July 14, 2026:
 - Provider-backed SMTP is not configured in staging; outbound staging email remains paused with `EMAIL_PROVIDER=console`.
 
 Production implication: backup and Storage-protection settings are **not certified by staging**. Before the first production write, the operations owner must confirm a production Firestore managed-backup/export strategy, Storage recovery expectations, retention/soft-delete/versioning choices, restore permissions, destination location, RPO, and RTO.
+
+## Current Staging Backup And Recovery Evidence
+
+The blocker-closure pass supersedes the historical snapshot above:
+
+- Daily Firestore managed-backup schedule: 14-day retention.
+- Weekly Sunday Firestore managed-backup schedule: 12-week retention.
+- All schedules target only `findyourchurch-staging-2026` / database `findyourchurchpal`.
+- No first managed backup existed at the verification checkpoint, so managed Firestore restore is not marked passed.
+- Bucket `findyourchurch-staging-2026.firebasestorage.app` has seven-day soft delete; object versioning and a bucket retention lock are intentionally disabled.
+- Safe Storage recovery passed by deleting and restoring one fictitious object and comparing its size/content hash.
+- Operational TTL is `ACTIVE` for `auditLogs`, `emailLogs`, `eventScheduledJobs`, and `operationalEvents` on field `retentionExpiresAt`.
+- 605 historical staging records received TTL values: 307 audit, 87 email, 1 terminal Scheduler job, and 210 operational events.
+
+Production remains gated on creating the same schedules/protection against verified production identifiers, recording a completed backup, proving restore permissions, and performing a non-destructive restore/clone check. Do not use staging data as a production backup.
 
 ## Pre-Deployment Backup Checklist
 

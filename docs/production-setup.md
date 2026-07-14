@@ -57,17 +57,18 @@ If your production host provides Google-managed credentials, `FIREBASE_CLIENT_EM
 
 ```bash
 EMAIL_PROVIDER=smtp
-EMAIL_FROM=support@findyourchurchpalacios.org
+EMAIL_FROM="Find Your Church Palacios <noreply@findyourchurchpalacios.org>"
 ADMIN_NOTIFICATION_EMAIL=support@findyourchurchpalacios.org
 
 # Resend option
 RESEND_API_KEY=
 
 # SMTP option
-SMTP_HOST=findyourchurchpalacios.org
+SMTP_HOST=<provider-canonical-tls-host>
 SMTP_PORT=465
-SMTP_USER=support@findyourchurchpalacios.org
+SMTP_USER=noreply@findyourchurchpalacios.org
 SMTP_PASSWORD=
+SMTP_REPLY_TO=support@findyourchurchpalacios.org
 LISTING_VERIFICATION_CRON_SECRET=
 ```
 
@@ -108,21 +109,22 @@ Manual reminder:
 - direct browser uploads should stay restricted
 - internal notes and admin-only collections should not be publicly readable
 
-## SMTP settings for `support@findyourchurchpalacios.org`
+## SMTP settings for `noreply@findyourchurchpalacios.org`
 
 If you use the mailbox details you shared, the production SMTP settings are expected to be:
 
 ```bash
 EMAIL_PROVIDER=smtp
-EMAIL_FROM=support@findyourchurchpalacios.org
+EMAIL_FROM="Find Your Church Palacios <noreply@findyourchurchpalacios.org>"
 ADMIN_NOTIFICATION_EMAIL=support@findyourchurchpalacios.org
-SMTP_HOST=findyourchurchpalacios.org
+SMTP_HOST=<provider-canonical-tls-host>
 SMTP_PORT=465
-SMTP_USER=support@findyourchurchpalacios.org
+SMTP_USER=noreply@findyourchurchpalacios.org
 SMTP_PASSWORD=<the mailbox password>
+SMTP_REPLY_TO=support@findyourchurchpalacios.org
 ```
 
-Do not commit the mailbox password. Keep it only in your deployment environment.
+Do not commit the mailbox password. Keep it only in the approved secret manager. Every message from the noreply mailbox must state that it is unmonitored and direct replies or questions to `support@findyourchurchpalacios.org`.
 
 Safe live verification:
 

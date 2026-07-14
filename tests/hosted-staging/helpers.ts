@@ -55,7 +55,16 @@ export const administratorRoutes = [
 ] as const;
 
 export async function openHostedPage(page: Page, path: string) {
-  const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+  let response;
+  try {
+    response = await page.goto(path, { waitUntil: "domcontentloaded" });
+  } catch (error) {
+    if (!(error instanceof Error) || !/NS_BINDING_ABORTED/i.test(error.message) || page.isClosed()) {
+      throw error;
+    }
+    await page.waitForTimeout(250);
+    response = await page.goto(path, { waitUntil: "domcontentloaded" });
+  }
   expect(response, `${path} did not return a response.`).not.toBeNull();
   expect(response!.status(), `${path} returned HTTP ${response!.status()}.`).toBeLessThan(400);
   await expect(page.locator("#main-content")).toBeVisible();

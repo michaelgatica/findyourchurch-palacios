@@ -370,12 +370,14 @@ Completed staging evidence:
 Blocking approvals/configuration:
 
 - [ ] Launch owner accepts or remediates the documented production dependency risk.
-- [ ] Approved SMTP provider sends one registration confirmation, one administrator notification, and one PDF/XLSX report to controlled recipients; sender, links, receipt, redaction, provider ID, and bounce behavior are verified.
+- [x] Approved SMTP provider delivered controlled registration, waitlist, reminder, administrator, PDF, XLSX, and scheduled-report messages; SPF/DKIM/DMARC, staging links, notice, Reply-To, attachments, and duplicate prevention were verified. Return-Path was observed; no destructive bounce test was authorized.
 - [ ] Accessibility owner completes native screen-reader evidence or signs residual-risk acceptance.
-- [ ] Platform owner records App Check enforcement or monitor-first acceptance.
-- [ ] Operations configures and tests alert destinations, escalation, and response owners.
-- [ ] Privacy/operations approve and enforce audit, email, job, and operational-log retention.
+- [x] Platform owner requires App Check enforcement at launch; staging monitor-mode token exchange returned HTTP 200 and production configuration rejects any mode other than `enforced`.
+- [x] Operations configured three email channels and 13 Google Cloud alert policies; a controlled alert was received without sensitive content.
+- [x] Audit, email, terminal-job, and operational-event TTL is active with 400/180/90/180-day periods and the superadmin operations portal shows safe summaries.
 - [ ] Production Firestore backup/export and Storage recovery/versioning/soft-delete expectations are verified.
+- [ ] Rotate the SMTP credential supplied through chat before any production secret is created.
+- [ ] Record the first completed managed Firestore backup and a safe restore/clone result.
 - [ ] Production Firebase project/database/bucket, App Hosting backend, secrets, canonical DNS/TLS, SMTP DNS, Scheduler, indexes, and rules receive deployment-window verification.
 
 ## Concise Post-Deployment Smoke Checklist
@@ -392,3 +394,19 @@ Use only controlled records and stop on any isolation, privacy, counter, or envi
 - [ ] Monitoring receives controlled success/failure signals without registration answers, children/medical data, addresses, tokens, or secrets.
 
 Rollback immediately for cross-church/private-data exposure, oversubscription/counter drift, duplicate email/job delivery, configuration mismatch, sustained registration failure, broken existing church workflows, or an unmonitorable release. Follow `docs/community-ministry-hub-rollback.md`.
+
+## Production Blocker Closure Gate — July 14, 2026
+
+- [x] Universal noreply text/HTML notice and monitored support Reply-To validated across all 15 templates.
+- [x] Seven provider-backed staging message types received; SPF, DKIM, DMARC, attachments, staging links, and duplicate protection validated.
+- [x] App Check reCAPTCHA Enterprise monitor-mode token exchange passed; production mode is required to be `enforced`.
+- [x] Three Google Cloud email channels, one uptime check, 12 log metrics, and 13 alert policies configured; controlled alert received.
+- [x] Staging daily/weekly Firestore backup schedules created and Storage seven-day soft-delete recovery exercised.
+- [x] Firestore TTL active for audit/email/terminal-job/operational records; safe superadmin summaries visible.
+- [ ] First managed Firestore backup completes and a safe managed restore/clone is verified.
+- [ ] SMTP password supplied through chat is rotated before production use.
+- [ ] Launch owner accepts/remediates 11 moderate dependency advisory nodes.
+- [ ] Required native screen-reader workflows pass and are documented.
+- [ ] Approved controls are reproduced and verified against production identifiers during the deployment window.
+
+Current decision: **NO-GO** until every unchecked item above is closed.

@@ -161,8 +161,9 @@ LISTING_VERIFICATION_CRON_SECRET=
 REGISTRATION_JOBS_CRON_SECRET=
 REGISTRATION_TOKEN_SECRET=
 EXPORT_SIGNING_SECRET=
-APP_CHECK_SITE_KEY=
-ERROR_MONITORING_DSN=
+NEXT_PUBLIC_APP_CHECK_SITE_KEY=
+APP_CHECK_ENFORCEMENT_MODE=monitor
+GOOGLE_CLOUD_OPERATIONS_ENABLED=false
 RETENTION_JOB_ENABLED=false
 ```
 
@@ -213,9 +214,9 @@ REGISTRATION_JOBS_CRON_SECRET=
 
 - `REGISTRATION_TOKEN_SECRET` protects registration management links and form challenges. Use a strong production-only secret and never expose it through `NEXT_PUBLIC_*`.
 - `REGISTRATION_JOBS_CRON_SECRET` protects `POST /api/jobs/registration`. Scheduled callers must send it in the `x-cron-secret` header.
-- `SMTP_REPLY_TO` should point to the monitored ministry inbox for replies when supported by the provider.
+- `SMTP_REPLY_TO` must be `support@findyourchurchpalacios.org` whenever the sender is `noreply@findyourchurchpalacios.org`. Every noreply message includes an unmonitored-mailbox notice in both text and HTML.
 - `EXPORT_SIGNING_SECRET` is reserved for export revocation/signing planning and should be a strong server-only secret before broad export use.
-- `APP_CHECK_SITE_KEY`, `ERROR_MONITORING_DSN`, and `RETENTION_JOB_ENABLED` are optional launch-readiness controls tracked by `/admin/ops`.
+- `NEXT_PUBLIC_APP_CHECK_SITE_KEY`, `APP_CHECK_ENFORCEMENT_MODE`, `GOOGLE_CLOUD_OPERATIONS_ENABLED`, and `RETENTION_JOB_ENABLED` are launch-readiness controls tracked by `/admin/ops`. Production must use App Check mode `enforced`.
 - See `docs/community-ministry-hub-implementation.md` for the full events and registration runbook.
 - See `docs/community-ministry-hub-launch-readiness.md` for platform admin, moderation, deployment order, rollback, dependency risk, and go/no-go launch guidance.
 
@@ -418,12 +419,13 @@ Production-ready SMTP example using your church domain mailbox:
 
 ```bash
 EMAIL_PROVIDER=smtp
-EMAIL_FROM=support@findyourchurchpalacios.org
+EMAIL_FROM="Find Your Church Palacios <noreply@findyourchurchpalacios.org>"
 ADMIN_NOTIFICATION_EMAIL=support@findyourchurchpalacios.org
-SMTP_HOST=findyourchurchpalacios.org
+SMTP_HOST=<provider-canonical-tls-host>
 SMTP_PORT=465
-SMTP_USER=support@findyourchurchpalacios.org
+SMTP_USER=noreply@findyourchurchpalacios.org
 SMTP_PASSWORD=<mailbox-password>
+SMTP_REPLY_TO=support@findyourchurchpalacios.org
 ```
 
 Safe email verification:
@@ -658,7 +660,7 @@ Production deployment notes:
 - set `SMTP_REPLY_TO` to the monitored reply inbox when using SMTP
 - set `REGISTRATION_TOKEN_SECRET`
 - set `REGISTRATION_JOBS_CRON_SECRET`
-- set or intentionally defer `EXPORT_SIGNING_SECRET`, `APP_CHECK_SITE_KEY`, `ERROR_MONITORING_DSN`, and `RETENTION_JOB_ENABLED`
+- set `EXPORT_SIGNING_SECRET`, `NEXT_PUBLIC_APP_CHECK_SITE_KEY`, `APP_CHECK_ENFORCEMENT_MODE=enforced`, `GOOGLE_CLOUD_OPERATIONS_ENABLED=true`, and the approved retention controls
 - schedule the registration job endpoint if event registration is enabled
 - connect the custom domain for `FindYourChurchPalacios.org`
 - confirm production email with `npm run test:email`
@@ -807,7 +809,7 @@ The remaining launch steps are operational rather than architectural:
 
 The July 14, 2026 hosted staging evidence is complete for core functionality, isolation, Storage, Scheduler, accessibility automation, available browsers, responsive layouts, realistic-load exports, performance, SEO, rollback compatibility, and existing-site regressions. The authoritative final browser run completed 209 tests with 0 failures and 1 intentional evidence-capture skip across Chromium, Firefox, and Playwright WebKit; an earlier installed-Edge pass is also recorded.
 
-The production decision is **NO-GO** until the launch owner closes the operational gates: provider-backed SMTP delivery, explicit dependency/App Check/native-screen-reader risk decisions, external alert delivery, log-retention policy, production Firestore/Storage recovery, production secret/DNS/Scheduler verification, and controlled deployment-window smoke tests. See:
+The July 14 blocker-closure pass certified staging SMTP delivery, App Check monitor-mode token exchange, Google Cloud alert delivery, operational-record TTL, Firestore backup schedules, and Storage soft-delete recovery. The production decision remains **NO-GO** until a native screen-reader test is completed, the 11 moderate dependency advisory nodes are explicitly accepted or remediated, the exposed staging SMTP credential is rotated, the first managed backup/restore evidence exists, and production-only recovery/configuration checks are completed. See:
 
 - `docs/community-ministry-hub-launch-readiness.md` for final traceability and the decision.
 - `docs/community-ministry-hub-security-acceptance.md` for risk owners and acceptance gates.

@@ -10,9 +10,9 @@ Required approvals:
 
 - Launch owner approves the release window and final requirement traceability.
 - Launch owner and platform technical owner accept or remediate the 11 moderate dependency advisory nodes.
-- Ministry operations owner certifies provider-backed SMTP delivery and production sender/DNS readiness.
-- Accessibility/QA owner completes or accepts the native screen-reader gap; Playwright WebKit already passes, while native Safari hardware remains optional unless the owner elevates it.
-- Operations/privacy owners approve monitoring, alert recipients, backups, Storage recovery, and log-retention policy.
+- Ministry operations owner verifies the rotated production SMTP credential and the already certified sender/DNS configuration.
+- Accessibility/QA owner completes the required native screen-reader run; the launch owner did not approve a waiver.
+- Operations verifies the staging-certified alert/backup/Storage/retention design after reproducing it against explicitly verified production identifiers.
 - A second operator verifies the production project, database, bucket, backend, and canonical hostname before every external write.
 
 ## Canonical Host And Redirect Policy
@@ -58,11 +58,12 @@ Non-secret production values:
 - `FIREBASE_DATABASE_ID=findyourchurchpal`.
 - `PRODUCTION_FIREBASE_PROJECT_ID` matching the approved production project.
 - `EMAIL_PROVIDER=smtp` or the approved supported provider.
-- `EMAIL_FROM`, `ADMIN_NOTIFICATION_EMAIL`, and optional approved `SMTP_REPLY_TO`.
+- `EMAIL_FROM=noreply@findyourchurchpalacios.org`, approved administrator recipients, and `SMTP_REPLY_TO=support@findyourchurchpalacios.org`.
 - `SMTP_HOST` and `SMTP_PORT` when SMTP is used.
 - `RETENTION_JOB_ENABLED=true` only after the cleanup schedule and retention policy are approved.
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID` and `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` only when approved.
-- `APP_CHECK_SITE_KEY` when the App Check rollout is approved.
+- `NEXT_PUBLIC_APP_CHECK_SITE_KEY` and `APP_CHECK_ENFORCEMENT_MODE=enforced`.
+- `GOOGLE_CLOUD_OPERATIONS_ENABLED=true`.
 
 ## Required Secrets
 
@@ -74,7 +75,7 @@ Store secrets only in the production provider's secret manager. Use production-s
 - `REGISTRATION_JOBS_CRON_SECRET`.
 - `LISTING_VERIFICATION_CRON_SECRET` if the existing listing-verification job is enabled.
 - `SMTP_USER` and `SMTP_PASSWORD`, or `RESEND_API_KEY` for the approved alternative.
-- `ERROR_MONITORING_DSN` when the monitoring provider requires a secret value.
+- Google Cloud Monitoring, Error Reporting, and Cloud Logging use managed project identity and do not require a third-party DSN.
 - Any explicit Firebase Admin private credential only if managed identity cannot be used. Prefer the App Hosting service account; do not upload a service-account JSON without a reviewed need.
 
 Before deploy, verify secret bindings and service-account access by name/version only. Do not print secret values.
@@ -140,13 +141,32 @@ Create jobs paused, validate configuration, invoke once with controlled records,
 
 Before production:
 
-- Select SMTP or the supported provider and record the operations owner.
-- Verify the exact `EMAIL_FROM`, optional reply-to, administrator-recipient list, and provider credential binding.
+- Use the certified Namecheap Shared Hosting Mail SMTP service and rotate the credential supplied through chat before creating the production secret version.
+- Verify `EMAIL_FROM=noreply@findyourchurchpalacios.org`, `SMTP_REPLY_TO=support@findyourchurchpalacios.org`, the administrator-recipient list, and provider credential binding.
 - Configure and verify SPF and DKIM for the sender domain; approve DMARC policy/monitoring and return-path/bounce handling.
 - Ensure links generated in registration, management, reminder, report, claim, update, and listing-verification email use the production canonical origin.
 - Send one controlled registration confirmation, one church-administrator notification, and one small PDF/XLSX report to approved recipients.
 - Verify sender/reply-to, mailbox receipt, attachment integrity, provider message ID, staging/production link correctness, redaction, and bounce/failure recording.
 - Never use church or registrant production addresses for the deployment test without explicit approval.
+
+Every noreply message must contain: “This mailbox is not monitored. Please send replies or questions to support@findyourchurchpalacios.org.” The application now applies that requirement centrally to both text and HTML and fails configuration validation when the noreply Reply-To differs.
+
+## Approved Backup And Storage Recovery Configuration
+
+Staging evidence supports this production recommendation, but these commands are preparation only. Replace the placeholder with the separately verified production project and stop if it does not equal the approved deployment-window project:
+
+```powershell
+$productionProject = '<verified-production-project>'
+firebase firestore:backups:schedules:create --project $productionProject --database findyourchurchpal --recurrence DAILY --retention 14d
+firebase firestore:backups:schedules:create --project $productionProject --database findyourchurchpal --recurrence WEEKLY --day-of-week SUNDAY --retention 12w
+gcloud storage buckets update gs://<verified-production-bucket> --project $productionProject --soft-delete-duration=7d --no-versioning
+```
+
+Record the first completed backup name, location, completion time, restore principal, and a non-destructive restore/clone check before launch. Seven-day soft delete protects flyers while avoiding long-lived noncurrent versions of private exports. Export objects must still follow their shorter application retention and must never be made public. Rules and indexes recover from the reviewed repository files.
+
+## Approved Google Cloud Operations Configuration
+
+Reproduce the tested staging design in production during the approved window: one HTTPS uptime check, the 12 safe log-based metrics, 13 alert policies, and three verified email notification channels. The policies implement the owner-supplied critical/high/warning thresholds. Alert payloads may include correlation IDs, job type, severity, and counts only; they must exclude registration answers, recipient lists, children/medical data, addresses, tokens, and secrets. Trigger and receive one controlled alert before registrations open.
 
 ## Exact Deployment Order And Rollback Gates
 
