@@ -202,8 +202,12 @@ export async function savePlatformCategory(input: {
   return category;
 }
 
-export async function listPlatformEventReports(status?: EventReportStatus | "all") {
-  return listEventReportsFromFirebase(status);
+export async function listPlatformEventReports(input: {
+  status?: EventReportStatus | "all";
+  cursor?: string;
+  limit?: number;
+} = {}) {
+  return listEventReportsFromFirebase(input);
 }
 
 export async function updatePlatformEventReport(input: {

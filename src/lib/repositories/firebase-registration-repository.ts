@@ -16,6 +16,7 @@ import type {
 } from "@/lib/types/registrations";
 import type { EventRecord } from "@/lib/types/events";
 import { getDefaultRegistrationConfiguration } from "@/lib/validation/registration";
+import { communityHubLimits } from "@/lib/community-hub-limits";
 
 function getFirestoreOrThrow() {
   const firestore = getFirebaseAdminFirestore();
@@ -376,7 +377,15 @@ export async function listAllRegistrationsForEvent(eventId: string) {
     .collection(firestoreCollectionNames.eventRegistrations)
     .where("eventId", "==", eventId)
     .orderBy("submittedAt", "asc")
+    .limit(communityHubLimits.registrationsPerExport + 1)
     .get();
+
+  if (snapshot.size > communityHubLimits.registrationsPerExport) {
+    throw new Error(
+      `This operation supports up to ${communityHubLimits.registrationsPerExport.toLocaleString("en-US")} registrations at a time. Narrow or archive the event data before trying again.`,
+    );
+  }
+
   return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as RegistrationRecord);
 }
 

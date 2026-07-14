@@ -32,6 +32,7 @@ import type {
   RegistrationExportFormat,
   RegistrationPdfType,
 } from "@/lib/types/registrations";
+import { communityHubLimits } from "@/lib/community-hub-limits";
 
 async function requireEventExportAccess(input: {
   eventId: string;
@@ -119,6 +120,13 @@ export async function createRegistrationExport(input: {
         selectedFieldIds: input.selectedFieldIds,
         includeSensitive: input.includeSensitive,
       });
+
+  if (buffer.byteLength > communityHubLimits.generatedExportBytes) {
+    throw new Error(
+      `The generated report exceeded the supported ${Math.floor(communityHubLimits.generatedExportBytes / 1024 / 1024)} MB export size. Select fewer fields or export a smaller event.`,
+    );
+  }
+
   const fileName = `${createSlug(access.event.title) || "event"}-${input.reportType}.${extension}`;
   const storagePath = await uploadPrivateEventExport({
     churchId: input.churchId,
@@ -261,9 +269,15 @@ export async function emailRegistrationExport(input: {
 
 export async function cleanupExpiredRegistrationExports() {
   const expired = await listExpiredEventExports();
+  let deleted = 0;
   for (const record of expired) {
-    await deleteFirebaseStorageObjectIfPresent(record.storagePath);
-    await deleteEventExportRecord(record.id);
+    try {
+      await deleteFirebaseStorageObjectIfPresent(record.storagePath);
+      await deleteEventExportRecord(record.id);
+      deleted += 1;
+    } catch {
+      console.warn(`Expired registration export cleanup skipped record ${record.id}.`);
+    }
   }
-  return expired.length;
+  return deleted;
 }

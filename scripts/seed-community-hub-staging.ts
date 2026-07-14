@@ -183,8 +183,8 @@ function baseEvent(input: {
     slug,
     summary: "Fictitious staging event for Community Ministry Hub verification.",
     description: "This staging event is intentionally fictitious and exists only for workflow, accessibility, registration, export, and moderation QA.",
-    primaryType: "community",
-    audienceTags: ["families", "adults"],
+    primaryType: "Community Service or Volunteer Opportunity",
+    audienceTags: ["Families", "Everyone or Community"],
     customTags: ["Staging QA"],
     status: input.status,
     visibility: input.visibility ?? (input.status === "unlisted" ? "unlisted" : "public"),
@@ -343,7 +343,18 @@ function formVersion(event: EventRecord): RegistrationFormVersionRecord {
             participantFields: [
               { id: "participant_name", type: "short_text", label: "Participant name", required: true, options: [], displayOrder: 1, includeInExports: true, sensitiveClassification: "none" },
             ],
+            maxValue: 25,
           },
+        ],
+      },
+      {
+        id: "load-verification",
+        title: "Load verification fields",
+        displayOrder: 3,
+        fields: [
+          { id: "notes", type: "long_text", label: "Additional notes", required: false, options: [], maxLength: 5000, displayOrder: 1, includeInExports: true, sensitiveClassification: "none" },
+          { id: "meal_choice", type: "dropdown", label: "Meal choice", required: false, options: [{ id: "standard", label: "Standard", value: "standard" }, { id: "vegetarian", label: "Vegetarian", value: "vegetarian" }], displayOrder: 2, includeInExports: true, sensitiveClassification: "none" },
+          { id: "formula_injection_probe", type: "short_text", label: "Formula injection probe", required: false, options: [], displayOrder: 3, includeInExports: true, sensitiveClassification: "none" },
         ],
       },
     ],
@@ -354,6 +365,10 @@ function registration(event: EventRecord, index: number, status: RegistrationRec
   const id = `${idPrefix}-registration-${event.id}-${index}`;
   const name = `Staging Registrant ${index}`;
   const submittedAt = isoFromNow(-1, -index);
+  const attendeeCount = index % 3 === 0 ? 3 : 1;
+  const participants = Array.from({ length: attendeeCount }, (_, participantIndex) => ({
+    participant_name: `Staging Participant ${index}-${participantIndex + 1}`,
+  }));
   return {
     id,
     eventId: event.id,
@@ -368,13 +383,17 @@ function registration(event: EventRecord, index: number, status: RegistrationRec
     contactSearchPrefixes: createSearchPrefixes(name),
     contactEmail: `registrant-${index}@${testEmailDomain}`,
     contactPhone: "3615550166",
-    attendeeCount: index % 3 === 0 ? 3 : 1,
-    capacityUnits: index % 3 === 0 ? 3 : 1,
+    attendeeCount,
+    capacityUnits: attendeeCount,
     answers: {
       full_name: name,
       email: `registrant-${index}@${testEmailDomain}`,
-      attendee_count: index % 3 === 0 ? 3 : 1,
-      participants: [{ participant_name: `Staging Participant ${index}` }],
+      attendee_count: attendeeCount,
+      participants,
+      notes: index === 1
+        ? "Long valid fictitious staging response used to verify wrapping and export pagination. ".repeat(55).trim()
+        : `Fictitious staging note ${index}.`,
+      meal_choice: index % 2 === 0 ? "vegetarian" : "standard",
       formula_injection_probe: index === 1 ? "=1+1" : index === 2 ? "+not-a-formula" : index === 3 ? "-not-a-formula" : "@not-a-formula",
     },
     answerLabels: {
@@ -382,6 +401,8 @@ function registration(event: EventRecord, index: number, status: RegistrationRec
       email: "Email",
       attendee_count: "Number attending",
       participants: "Participant names",
+      notes: "Additional notes",
+      meal_choice: "Meal choice",
       formula_injection_probe: "Formula injection probe",
     },
     privateOrganizerNotes: null,
@@ -487,6 +508,8 @@ async function main() {
     baseEvent({ id: `${idPrefix}-event-full`, churchId: churches[2].id, churchName: churches[2].name, title: "Staging Full Capacity Workshop", status: "published", registrationMode: "internal_custom", startsAt: isoFromNow(11), capacity: 5, waitlistEnabled: true }),
     baseEvent({ id: `${idPrefix}-event-google`, churchId: churches[2].id, churchName: churches[2].name, title: "Staging Google Forms Signup", status: "published", registrationMode: "google_forms", startsAt: isoFromNow(12), externalUrl: "https://docs.google.com/forms/d/e/staging-form/viewform" }),
     baseEvent({ id: `${idPrefix}-event-external`, churchId: churches[0].id, churchName: churches[0].name, title: "Staging External Registration", status: "published", registrationMode: "external", startsAt: isoFromNow(13), externalUrl: "https://example.org/staging-registration" }),
+    baseEvent({ id: `${idPrefix}-event-past`, churchId: churches[0].id, churchName: churches[0].name, title: "Staging Past Public Gathering", status: "published", registrationMode: "none", startsAt: isoFromNow(-20), endsAt: isoFromNow(-20, 2) }),
+    baseEvent({ id: `${idPrefix}-event-pending`, churchId: churches[1].id, churchName: churches[1].name, title: "Staging Pending Review Event", status: "pending_review", registrationMode: "none", startsAt: isoFromNow(15), wasPublished: false }),
   ];
 
   if (large) {

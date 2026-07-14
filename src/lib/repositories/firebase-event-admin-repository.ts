@@ -34,13 +34,14 @@ export interface AdminEventListFilters {
   registrationMode?: string;
   sort?: "startsAt_desc" | "startsAt_asc" | "updatedAt_desc" | "createdAt_desc";
   limit?: number;
+  cursor?: string;
 }
 
 export async function listAdminEventsFromFirebase(filters: AdminEventListFilters = {}) {
   const firestore = getFirebaseAdminFirestore();
 
   if (!firestore) {
-    return [];
+    return { events: [], nextCursor: null };
   }
 
   let query: FirebaseFirestore.Query = firestore.collection(firestoreCollectionNames.events);
@@ -67,8 +68,18 @@ export async function listAdminEventsFromFirebase(filters: AdminEventListFilters
   if (sort === "updatedAt_desc") query = query.orderBy("updatedAt", "desc");
   if (sort === "createdAt_desc") query = query.orderBy("createdAt", "desc");
 
-  const snapshot = await query.limit(filters.limit ?? 50).get();
-  let events = snapshot.docs.map((documentSnapshot) => documentSnapshot.data());
+  if (filters.cursor) {
+    const cursorSnapshot = await firestore
+      .collection(firestoreCollectionNames.events)
+      .doc(filters.cursor)
+      .get();
+    if (cursorSnapshot.exists) query = query.startAfter(cursorSnapshot);
+  }
+
+  const pageSize = Math.min(Math.max(filters.limit ?? 50, 1), 100);
+  const snapshot = await query.limit(pageSize + 1).get();
+  const pageDocuments = snapshot.docs.slice(0, pageSize);
+  let events = pageDocuments.map((documentSnapshot) => documentSnapshot.data());
 
   if (filters.keyword) {
     const normalizedKeyword = filters.keyword.trim().toLowerCase();
@@ -97,7 +108,10 @@ export async function listAdminEventsFromFirebase(filters: AdminEventListFilters
     events = events.filter((event) => event.registration?.mode === filters.registrationMode);
   }
 
-  return events;
+  return {
+    events,
+    nextCursor: snapshot.docs.length > pageSize ? pageDocuments.at(-1)?.id ?? null : null,
+  };
 }
 
 export async function listEventCategoriesFromFirebase(group?: EventCategoryGroup | "all") {
@@ -113,7 +127,7 @@ export async function listEventCategoriesFromFirebase(group?: EventCategoryGroup
     query = query.where("group", "==", group);
   }
 
-  const snapshot = await query.orderBy("sortOrder", "asc").get();
+  const snapshot = await query.orderBy("sortOrder", "asc").limit(250).get();
   return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as EventCategoryRecord);
 }
 
@@ -172,21 +186,41 @@ export async function createEventReportInFirebase(report: Omit<EventReportRecord
   return record;
 }
 
-export async function listEventReportsFromFirebase(status?: EventReportStatus | "all") {
+export async function listEventReportsFromFirebase(input: {
+  status?: EventReportStatus | "all";
+  cursor?: string;
+  limit?: number;
+} = {}) {
   const firestore = getFirebaseAdminFirestore();
 
   if (!firestore) {
-    return [];
+    return { reports: [], nextCursor: null };
   }
 
   let query: FirebaseFirestore.Query = firestore.collection(firestoreCollectionNames.eventReports);
 
-  if (status && status !== "all") {
-    query = query.where("status", "==", status);
+  if (input.status && input.status !== "all") {
+    query = query.where("status", "==", input.status);
   }
 
-  const snapshot = await query.orderBy("createdAt", "desc").limit(100).get();
-  return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as EventReportRecord);
+  query = query.orderBy("createdAt", "desc");
+  if (input.cursor) {
+    const cursorSnapshot = await firestore
+      .collection(firestoreCollectionNames.eventReports)
+      .doc(input.cursor)
+      .get();
+    if (cursorSnapshot.exists) query = query.startAfter(cursorSnapshot);
+  }
+
+  const pageSize = Math.min(Math.max(input.limit ?? 50, 1), 100);
+  const snapshot = await query.limit(pageSize + 1).get();
+  const pageDocuments = snapshot.docs.slice(0, pageSize);
+  return {
+    reports: pageDocuments.map(
+      (documentSnapshot) => documentSnapshot.data() as EventReportRecord,
+    ),
+    nextCursor: snapshot.docs.length > pageSize ? pageDocuments.at(-1)?.id ?? null : null,
+  };
 }
 
 export async function updateEventReportInFirebase(reportId: string, updates: Partial<EventReportRecord>) {
@@ -200,4 +234,3 @@ export async function updateEventReportInFirebase(reportId: string, updates: Par
   const updated = await firestore.collection(firestoreCollectionNames.eventReports).doc(reportId).get();
   return updated.data() as EventReportRecord;
 }
-

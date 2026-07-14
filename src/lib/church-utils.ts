@@ -1,4 +1,9 @@
-import type { ChurchRecord, DirectoryFilters, StructuredAddress } from "@/lib/types/directory";
+import type {
+  ChurchRecord,
+  DirectoryFilterOptions,
+  DirectoryFilters,
+  StructuredAddress,
+} from "@/lib/types/directory";
 
 export interface GeoPoint {
   latitude: number;
@@ -99,6 +104,23 @@ export function getChurchCardTags(church: ChurchRecord) {
   }
 
   return Array.from(new Set(tags)).slice(0, 4);
+}
+
+export function buildDirectoryFilterOptions(
+  churches: ChurchRecord[],
+): DirectoryFilterOptions {
+  return {
+    denominations: Array.from(new Set(churches.map((church) => church.denomination))).sort(
+      (leftValue, rightValue) => leftValue.localeCompare(rightValue),
+    ),
+    worshipStyles: Array.from(
+      new Set(
+        churches
+          .map((church) => church.worshipStyle)
+          .filter((worshipStyle): worshipStyle is string => Boolean(worshipStyle)),
+      ),
+    ).sort((leftValue, rightValue) => leftValue.localeCompare(rightValue)),
+  };
 }
 
 function createSearchableText(church: ChurchRecord) {

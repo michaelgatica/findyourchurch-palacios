@@ -24,7 +24,10 @@ export async function updateEventExportRecord(exportId: string, updates: Partial
 }
 
 export async function listExpiredEventExports(now = new Date().toISOString(), limit = 100) {
-  const snapshot = await collection().where("expiresAt", "<=", now).limit(limit).get();
+  const snapshot = await collection()
+    .where("expiresAt", "<=", now)
+    .limit(Math.min(Math.max(limit, 1), 100))
+    .get();
   return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as EventExportRecord);
 }
 

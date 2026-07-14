@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { communityHubLimits } from "@/lib/community-hub-limits";
 
 import {
   conditionIsMet,
@@ -205,6 +206,16 @@ export function validateRegistrationFormSections(input: unknown) {
 
   for (const field of fields) {
     assertValidOptions(field);
+
+    if (
+      (field.type === "repeating_attendee_group" || field.type === "repeating_child_group") &&
+      (field.maxValue ?? communityHubLimits.participantsPerRegistration) >
+        communityHubLimits.participantsPerRegistration
+    ) {
+      throw new Error(
+        `${field.label} may contain at most ${communityHubLimits.participantsPerRegistration} participants.`,
+      );
+    }
 
     if (isProhibitedRegistrationQuestion(field)) {
       throw new Error(`The field "${field.label}" requests information this platform does not permit.`);

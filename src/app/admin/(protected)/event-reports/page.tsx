@@ -6,13 +6,18 @@ import { listPlatformEventReports } from "@/lib/services/platform-event-admin-se
 import { eventReportStatuses } from "@/lib/types/events";
 
 interface AdminEventReportsPageProps {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; cursor?: string }>;
 }
 
 export default async function AdminEventReportsPage({ searchParams }: AdminEventReportsPageProps) {
   const params = await searchParams;
   const activeStatus = eventReportStatuses.includes(params.status as never) ? params.status : "all";
-  const reports = await listPlatformEventReports(activeStatus as never);
+  const page = await listPlatformEventReports({
+    status: activeStatus as never,
+    cursor: params.cursor,
+    limit: 50,
+  });
+  const reports = page.reports;
 
   return (
     <div className="admin-content">
@@ -65,6 +70,20 @@ export default async function AdminEventReportsPage({ searchParams }: AdminEvent
           </article>
         ))}
       </div>
+      {params.cursor || page.nextCursor ? (
+        <nav className="button-row" aria-label="Event report result pages">
+          {params.cursor ? (
+            <Link href={activeStatus === "all" ? "/admin/event-reports" : `/admin/event-reports?status=${activeStatus}`} className="button button--ghost">
+              First page
+            </Link>
+          ) : null}
+          {page.nextCursor ? (
+            <Link href={`/admin/event-reports?status=${activeStatus}&cursor=${encodeURIComponent(page.nextCursor)}`} className="button button--secondary">
+              Next page
+            </Link>
+          ) : null}
+        </nav>
+      ) : null}
     </div>
   );
 }

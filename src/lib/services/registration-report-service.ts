@@ -68,7 +68,16 @@ export function resolveExportFields(input: {
 }
 
 function wrapText(text: string, maximumCharacters: number) {
-  const words = text.split(/\s+/);
+  const words = text
+    .split(/\s+/)
+    .flatMap((word) =>
+      word.length > maximumCharacters
+        ? Array.from(
+            { length: Math.ceil(word.length / maximumCharacters) },
+            (_, index) => word.slice(index * maximumCharacters, (index + 1) * maximumCharacters),
+          )
+        : [word],
+    );
   const lines: string[] = [];
   let line = "";
   for (const word of words) {

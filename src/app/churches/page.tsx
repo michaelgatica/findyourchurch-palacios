@@ -1,9 +1,7 @@
 import { DirectoryBrowser } from "@/components/directory-browser";
+import { buildDirectoryFilterOptions } from "@/lib/church-utils";
 import { buildLaunchPageTitle, createPageMetadata, siteConfig } from "@/lib/config/site";
-import {
-  getDirectoryFilterOptions,
-  getPublishedChurches,
-} from "@/lib/repositories/church-repository";
+import { getPublishedChurches } from "@/lib/repositories/church-repository";
 import { resolveChurchesForDirectoryMap } from "@/lib/services/church-map-service";
 
 export const dynamic = "force-dynamic";
@@ -15,10 +13,8 @@ export const metadata = createPageMetadata({
 });
 
 export default async function ChurchesPage() {
-  const [churches, filterOptions] = await Promise.all([
-    getPublishedChurches(),
-    getDirectoryFilterOptions(),
-  ]);
+  const churches = await getPublishedChurches();
+  const filterOptions = buildDirectoryFilterOptions(churches);
   const churchesWithMapCoordinates = await resolveChurchesForDirectoryMap(churches);
 
   return (

@@ -31,6 +31,20 @@ import {
   sendEventReminderToRegistrant,
 } from "@/lib/services/registration-notification-service";
 import type { EventRegistrationConfigurationRecord, RegistrationJobType, RegistrationScheduledJobRecord } from "@/lib/types/registrations";
+import { communityHubLimits } from "@/lib/community-hub-limits";
+
+async function runInBoundedBatches<T>(
+  values: T[],
+  operation: (value: T) => Promise<unknown>,
+) {
+  for (let index = 0; index < values.length; index += communityHubLimits.schedulerBatchSize) {
+    await Promise.all(
+      values
+        .slice(index, index + communityHubLimits.schedulerBatchSize)
+        .map(operation),
+    );
+  }
+}
 
 export function createRegistrationScheduledJobRecord(input: {
   eventId?: string | null;
@@ -85,7 +99,7 @@ export async function scheduleEventCancellationNotifications(input: {
       },
     }),
   );
-  await Promise.all(jobs.map(saveRegistrationScheduledJob));
+  await runInBoundedBatches(jobs, saveRegistrationScheduledJob);
   return jobs.length;
 }
 
@@ -143,13 +157,18 @@ async function cleanupEventRegistrationData(eventId: string, churchId: string) {
   ];
   let deletedRecords = 0;
   for (const collectionName of collectionNames) {
-    const snapshot = await firestore.collection(collectionName).where("eventId", "==", eventId).get();
-    for (let index = 0; index < snapshot.docs.length; index += 400) {
+    while (true) {
+      const snapshot = await firestore
+        .collection(collectionName)
+        .where("eventId", "==", eventId)
+        .limit(communityHubLimits.cleanupBatchSize)
+        .get();
+      if (snapshot.empty) break;
       const batch = firestore.batch();
-      snapshot.docs.slice(index, index + 400).forEach((documentSnapshot) => batch.delete(documentSnapshot.ref));
+      snapshot.docs.forEach((documentSnapshot) => batch.delete(documentSnapshot.ref));
       await batch.commit();
+      deletedRecords += snapshot.size;
     }
-    deletedRecords += snapshot.size;
   }
   await firestore.collection(firestoreCollectionNames.eventRegistrationCounters).doc(eventId).delete();
   await createAuditLogInFirebase({
@@ -239,7 +258,7 @@ async function processJob(job: RegistrationScheduledJobRecord, runId: string): P
         idempotencySuffix: `${job.id}:${registration.id}`,
         payload: { ...job.payload, registrationId: registration.id },
       }));
-    await Promise.all(reminderJobs.map(saveRegistrationScheduledJob));
+    await runInBoundedBatches(reminderJobs, saveRegistrationScheduledJob);
     return { reminderJobsSelected: reminderJobs.length };
   }
   if (job.type === "daily_digest") {

@@ -14,6 +14,7 @@ import {
 import { seedChurches } from "@/lib/data/churches";
 import { getChurchSubmissionByIdFromFirebase } from "@/lib/repositories/firebase-submission-repository";
 import type { ChurchDocument, ChurchRecord, DirectoryFilterOptions } from "@/lib/types/directory";
+import { communityHubLimits } from "@/lib/community-hub-limits";
 
 async function findChurchDocumentByCustomShareSlug(
   customShareSlug: string,
@@ -70,6 +71,7 @@ export async function getPublishedChurchesFromFirebase() {
   const snapshot = await firestore
     .collection(firestoreCollectionNames.churches)
     .where("status", "==", "published")
+    .limit(communityHubLimits.publishedChurches)
     .get();
 
   return snapshot.docs
@@ -133,6 +135,7 @@ export async function getChurchByRouteFromFirebase(input: {
   const snapshot = await firestore
     .collection(firestoreCollectionNames.churches)
     .where("slug", "==", input.churchSlug)
+    .limit(10)
     .get();
 
   const churches = snapshot.docs
@@ -223,16 +226,15 @@ export async function listChurchesFromFirebase(options?: {
     query = query.where("status", "==", options.status);
   }
 
+  const requestedLimit = options?.limit ?? communityHubLimits.publishedChurches;
+  query = query.limit(Math.min(Math.max(requestedLimit, 1), communityHubLimits.publishedChurches));
+
   const snapshot = await query.get();
   const churches = snapshot.docs
     .map((documentSnapshot) =>
       mapChurchDocumentToChurchRecord(documentSnapshot.data() as ChurchDocument),
     )
     .sort((leftChurch, rightChurch) => rightChurch.updatedAt.localeCompare(leftChurch.updatedAt));
-
-  if (options?.limit) {
-    return churches.slice(0, options.limit);
-  }
 
   return churches;
 }

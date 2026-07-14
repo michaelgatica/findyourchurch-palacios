@@ -47,6 +47,7 @@ export async function listAuditLogsForEntity(entityType: string, entityId: strin
     .collection(firestoreCollectionNames.auditLogs)
     .where("entityType", "==", entityType)
     .where("entityId", "==", entityId)
+    .limit(100)
     .get();
 
   return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as AuditLogRecord);

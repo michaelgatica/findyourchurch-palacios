@@ -20,12 +20,22 @@ interface AdminEventsPageProps {
     audienceTag?: string;
     registrationMode?: string;
     sort?: string;
+    cursor?: string;
   }>;
+}
+
+function buildPageHref(params: Awaited<AdminEventsPageProps["searchParams"]>, cursor: string) {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (key !== "cursor" && value) query.set(key, value);
+  }
+  query.set("cursor", cursor);
+  return `/admin/events?${query.toString()}`;
 }
 
 export default async function AdminEventsPage({ searchParams }: AdminEventsPageProps) {
   const params = await searchParams;
-  const events = await listPlatformEvents({
+  const page = await listPlatformEvents({
     keyword: params.keyword,
     status: eventStatuses.includes(params.status as never) ? (params.status as never) : "all",
     churchId: params.churchId,
@@ -36,8 +46,10 @@ export default async function AdminEventsPage({ searchParams }: AdminEventsPageP
       ? params.registrationMode
       : undefined,
     sort: params.sort as never,
-    limit: 75,
+    cursor: params.cursor,
+    limit: 50,
   });
+  const events = page.events;
 
   const counts = eventStatuses.reduce<Record<string, number>>((summary, status) => {
     summary[status] = events.filter((event) => event.status === status).length;
@@ -81,7 +93,7 @@ export default async function AdminEventsPage({ searchParams }: AdminEventsPageP
         </form>
 
         <div className="admin-inline-stats">
-          <span>Total: {events.length}</span>
+          <span>Rows on this page: {events.length}</span>
           <span>Published: {counts.published ?? 0}</span>
           <span>Pending: {counts.pending_review ?? 0}</span>
           <span>Cancelled: {counts.cancelled ?? 0}</span>
@@ -145,6 +157,12 @@ export default async function AdminEventsPage({ searchParams }: AdminEventsPageP
           </article>
         ))}
       </div>
+      {params.cursor || page.nextCursor ? (
+        <nav className="button-row" aria-label="Event result pages">
+          {params.cursor ? <Link href="/admin/events" className="button button--ghost">First page</Link> : null}
+          {page.nextCursor ? <Link href={buildPageHref(params, page.nextCursor)} className="button button--secondary">Next page</Link> : null}
+        </nav>
+      ) : null}
     </div>
   );
 }

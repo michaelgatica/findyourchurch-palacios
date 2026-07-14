@@ -10,6 +10,11 @@ import type {
   EventStatus,
   PublicEventRecord,
 } from "@/lib/types/events";
+import { communityHubLimits } from "@/lib/community-hub-limits";
+
+function clampPublicQueryLimit(limit: number) {
+  return Math.min(Math.max(Math.trunc(limit), 1), communityHubLimits.sitemapEvents);
+}
 
 function mapEventDocumentToEventRecord(eventDocument: EventDocument): EventRecord {
   return {
@@ -147,7 +152,7 @@ export async function getUpcomingPublishedEventsFromFirebase(limit = 12) {
     .where("wasPublished", "==", true)
     .where("startsAt", ">=", now)
     .orderBy("startsAt", "asc")
-    .limit(limit)
+    .limit(clampPublicQueryLimit(limit))
     .get();
 
   return snapshot.docs.map((documentSnapshot) =>
@@ -174,7 +179,10 @@ export async function listEventsForChurchFromFirebase(input: {
     query = query.where("status", "==", input.status);
   }
 
-  const snapshot = await query.orderBy("startsAt", "desc").limit(input.limit ?? 25).get();
+  const snapshot = await query
+    .orderBy("startsAt", "desc")
+    .limit(Math.min(Math.max(input.limit ?? 25, 1), 100))
+    .get();
 
   return snapshot.docs.map((documentSnapshot) =>
     mapPublicEventDocumentToEventRecord(documentSnapshot.data() as PublicEventRecord),
@@ -200,7 +208,7 @@ export async function getUpcomingPublishedEventsForChurchFromFirebase(
     .where("wasPublished", "==", true)
     .where("startsAt", ">=", now)
     .orderBy("startsAt", "asc")
-    .limit(limit)
+    .limit(clampPublicQueryLimit(limit))
     .get();
 
   return snapshot.docs.map((documentSnapshot) =>

@@ -366,6 +366,49 @@ async function run() {
   assert.equal(simultaneous.filter((result) => result.status === "rejected").length, 1);
   assert.equal((await registrationRepository.getRegistrationCounters(capacityEvent.event.id)).confirmed, 1);
 
+  const concurrentWaitlistEvent = await setupEvent("event-concurrent-waitlist", 5, true, 7);
+  const concurrentSubmissions = await Promise.all(
+    Array.from({ length: 12 }, (_, index) =>
+      registrationRepository.createRegistrationAtomically(
+        registrationInput({
+          ...concurrentWaitlistEvent,
+          eventId: concurrentWaitlistEvent.event.id,
+          suffix: `load-${index + 1}`,
+        }),
+      ),
+    ),
+  );
+  assert.equal(
+    concurrentSubmissions.filter((result) => result.registration.status === "confirmed").length,
+    5,
+  );
+  assert.equal(
+    concurrentSubmissions.filter((result) => result.registration.status === "waitlisted").length,
+    7,
+  );
+  const concurrentCounters = await registrationRepository.getRegistrationCounters(
+    concurrentWaitlistEvent.event.id,
+  );
+  assert.equal(concurrentCounters.confirmed, 5);
+  assert.equal(concurrentCounters.waitlisted, 7);
+  assert.equal(concurrentCounters.confirmedAttendees, 5);
+  const concurrentConfirmed = concurrentSubmissions.find(
+    (result) => result.registration.status === "confirmed",
+  )!;
+  await managementService.changeManagedRegistrationStatus({
+    registrationId: concurrentConfirmed.registration.id,
+    eventId: concurrentWaitlistEvent.event.id,
+    churchId: churchA.id,
+    actorUserId: "rep-a",
+    nextStatus: "cancelled",
+  });
+  const afterPromotionCounters = await registrationRepository.getRegistrationCounters(
+    concurrentWaitlistEvent.event.id,
+  );
+  assert.equal(afterPromotionCounters.confirmed, 5);
+  assert.equal(afterPromotionCounters.waitlisted, 6);
+  assert.equal(afterPromotionCounters.cancelled, 1);
+
   const waitlistEvent = await setupEvent("event-waitlist", 1, true, 1);
   const confirmed = await registrationRepository.createRegistrationAtomically(registrationInput({ ...waitlistEvent, eventId: waitlistEvent.event.id, suffix: "one" }));
   const waitlisted = await registrationRepository.createRegistrationAtomically(registrationInput({ ...waitlistEvent, eventId: waitlistEvent.event.id, suffix: "two" }));

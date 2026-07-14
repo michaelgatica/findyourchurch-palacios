@@ -50,7 +50,7 @@ export async function listRecentOperationalEvents(limit = 25) {
   const snapshot = await firestore
     .collection(firestoreCollectionNames.operationalEvents)
     .orderBy("createdAt", "desc")
-    .limit(limit)
+    .limit(Math.min(Math.max(limit, 1), 100))
     .get();
 
   return snapshot.docs.map((documentSnapshot) => documentSnapshot.data());
