@@ -12,7 +12,7 @@ This document records the hosted staging accessibility, keyboard, responsive, an
 - Viewports: 320x720, 375x812, 430x932, 768x1024, 1024x768, 1366x768, and 1920x1080.
 - Reflow: registration form checked at 200 percent zoom from a 1024x768 viewport.
 - Automated semantics: axe-core WCAG 2 A/AA, WCAG 2.1 A/AA, and WCAG 2.2 AA tags.
-- Manual assistive-technology limitation: a native screen-reader application was not available. Keyboard behavior, accessible names, roles, states, landmarks, labels, errors, and live regions were inspected through the browser accessibility tree and DOM.
+- Manual assistive-technology limitation at the original checkpoint: a native screen-reader application was not available. Keyboard behavior, accessible names, roles, states, landmarks, labels, errors, and live regions were inspected through the browser accessibility tree and DOM.
 
 The committed runner loads the Firebase client key and QA password only into child-process memory from approved private staging configuration. It rejects any base URL other than the dedicated staging host.
 
@@ -75,3 +75,19 @@ Visual evidence was captured outside the repository and contains no password or 
 ## Current Recommendation
 
 No critical or high accessibility/browser blocker remains in the tested hosted staging scope. Chromium, installed Edge, Firefox, and the available WebKit equivalent passed. Native screen-reader coverage and native Safari hardware remain external evidence gaps; the event-specific not-found wording and narrowly allowlisted Firefox/Next recovery messages remain medium findings. Accessibility evidence supports release review but is not, by itself, production approval.
+
+## Native Narrator Handoff — July 14, 2026
+
+Windows Narrator was started successfully against the hosted staging application in Google Chrome on Windows 10 Pro 22H2 build `19045.7417`. The installed Narrator file version is `10.0.19041.1`; Chrome is `150.0.7871.115`. The exposed homepage accessibility tree contained the skip link, named navigation, a single `main` landmark, an H1, event/church links, and meaningful image text. Narrator's speech-recap surface runs at a higher Windows integrity level than the accessibility automation helper, so its spoken output could not be inspected or recorded by the automated operator. This is not marked as a native-reader pass.
+
+The accessibility/launch owner must complete and record this short listening review. Use only the existing fictitious staging accounts and do not record the QA password:
+
+| Workflow | Staging route | Required listening/operation evidence | Status |
+| --- | --- | --- | --- |
+| Public navigation | `/`, `/events`, `/events/staging-published-family-night` | Skip link moves to main; heading, landmark, link, event status, flyer alternative text, date, time, venue, and registration action are understandable. | Awaiting human listening pass |
+| Registration and errors | `/events/staging-full-capacity-workshop/register` | Every field, required state, repeating-participant control, conditional state, error summary, field error, and success status is announced in context. Do not submit real personal data. | Awaiting human listening pass |
+| Representative portal | `/portal/events`, `/portal/events/staging-qa-event-published/registration`, `/portal/events/staging-qa-event-published/check-in` | Portal navigation, event status, registration table/card headings, search, filters, check-in action/state, and success/error announcements are understandable and keyboard operable. | Awaiting human listening pass |
+| Form builder | `/portal/events/staging-qa-event-published/registration/form` | Section/field labels, required state, add/duplicate/remove/reorder controls, and save result are announced with enough context. | Awaiting human listening pass |
+| Platform administration | `/admin/events`, `/admin/event-reports`, `/admin/event-categories`, `/admin/ops` | Admin navigation, filters, tables/cards, moderation/status actions, category controls, readiness summaries, and denial states are understandable and keyboard operable. | Awaiting human listening pass |
+
+For each row, record Windows version, Narrator version, Chrome version, account role, pass/fail, exact confusing or silent output, and severity. Any critical or high finding reopens remediation and must be fixed and retested before launch. [Microsoft's Narrator scan-mode guide](https://support.microsoft.com/en-us/accessibility/windows-narrator/chapter-3-using-scan-mode) documents native navigation by headings, landmarks, links, form fields, and tables; use those commands rather than mouse exploration for this evidence.

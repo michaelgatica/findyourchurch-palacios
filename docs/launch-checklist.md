@@ -409,7 +409,7 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] Approved noreply credential is privately bound in production Secret Manager; SMTP 250 acceptance, Gmail receipt, SPF/DKIM/DMARC, TLS, Return-Path, support Reply-To, and the unmonitored notice pass.
 - [ ] Run an authorized invalid-recipient bounce test or record explicit owner acceptance of the observed Return-Path/provider handling.
 - [ ] Launch owner accepts/remediates 9 remaining moderate dependency advisory nodes.
-- [ ] Required native screen-reader workflows pass and are documented.
+- [ ] Accessibility/launch owner completes the hosted-staging Narrator listening matrix in `docs/community-ministry-hub-accessibility.md`; record versions, role, result, exact finding, and severity without passwords or tokens.
 - [ ] Approved controls are reproduced and verified against production identifiers during the deployment window.
 
 ### Production infrastructure preflight — July 14, 2026

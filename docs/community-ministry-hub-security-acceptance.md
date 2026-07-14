@@ -40,7 +40,7 @@ Owner decisions are recorded without inference:
 | Firestore backup / Storage recovery approach | Delegated and implemented in staging | Daily 14-day plus Sunday weekly 12-week Firestore schedules are configured. Storage keeps deleted objects for seven days; versioning is intentionally off for short-lived private exports. A fictitious object was deleted, restored, hash/size checked, and removed. The first scheduled Firestore backup and managed restore remain unverified. |
 | Operational retention categories | Approved | TTL is active for audit, email, terminal Scheduler-job, and operational-event records. Current periods are 400, 180, 90, and 180 days respectively. Existing staging records were backfilled without registration answers or credentials. |
 | Dependency risk | Still awaiting owner decision | Firebase Admin 14 passed compatibility recertification and removed two nodes. Audit remains 9 moderate, 0 high, 0 critical. No force fix or unsupported override was applied. |
-| Native screen reader | Required before launch | Windows Narrator is installed, but an auditable native workflow run was not completed. Automated axe/keyboard evidence is not a substitute. |
+| Native screen reader | Required before launch | Windows Narrator started against hosted staging in Google Chrome and the page exposed the expected skip link, named navigation, main landmark, H1, links, and image text. Narrator's speech recap runs above the automation helper's Windows integrity level, so spoken output could not be inspected. The documented human listening checklist remains required; axe/keyboard evidence is not a substitute. |
 
 SMTP provider evidence: Namecheap Shared Hosting Mail was exercised through its canonical TLS endpoint. Seven controlled staging messages were received: registration confirmation, waitlist confirmation, reminder, church-administrator notification, PDF report, XLSX report, and scheduled report. The production credential was subsequently bound through Secret Manager and a controlled production message was accepted with SMTP 250 and received at the approved Gmail address. SPF, DKIM, and DMARC passed; DMARC is monitoring policy `p=none`. The production headers showed TLS 1.3, the noreply Return-Path, the support Reply-To, and the universal unmonitored-mailbox notice. A destructive bounce test was not sent because no invalid recipient was authorized. The owner confirmed Stellar Plus; Namecheap documents 200 messages/hour/domain and 100 recipients/message for that plan.
 
@@ -110,9 +110,9 @@ Known monitoring gaps:
 - Authorization denials are enforced but do not consistently create an `operationalEvents` record.
 - Registration rate-limit and capacity rejections fail safely but do not consistently emit dedicated operational event types.
 - Successful event/registration/export activity is primarily in `auditLogs` and `emailLogs`, not one unified external monitoring stream.
-- Audit, email, scheduler-job, and operational-log retention durations are not approved or enforced by a cleanup job.
+- Infrastructure authorization-denial and registration-failure signals are not yet normalized into one application event taxonomy; the existing log metrics and alert policies still cover their approved thresholds.
 
-These gaps do not weaken the authorization decision itself, but production monitoring and retention approval are launch conditions.
+These gaps do not weaken the authorization decision itself. Production monitoring, Cloud Logging retention, and Firestore TTL are configured; the remaining telemetry normalization work is a post-launch improvement unless the launch owner elevates it.
 
 ## Accepted, Deferred, And Pending Risks
 
@@ -125,8 +125,12 @@ These gaps do not weaken the authorization decision itself, but production monit
 | Authorization/rate-limit operational telemetry incomplete | Deferred | Enforcement still fails closed; infrastructure logs available | Platform technical owner | Within 30 days of launch, with launch-owner acceptance | Conditional blocker |
 | Native screen-reader evidence unavailable | Pending external test | Axe and keyboard/semantic tests have zero critical/serious findings | Accessibility/launch owner | Before deploy | Blocking for full GO |
 | Native Safari hardware unavailable | Documented limitation | Chromium, Edge, Firefox, and Playwright WebKit hosted suites passed | QA/launch owner | Post-launch device matrix unless owner elevates | Not blocking by default |
-| Audit/email/job/log retention | Approved and enforced in staging | Active Firestore TTL plus safe superadmin summaries; 605 existing records backfilled | Privacy owner + operations owner | Deployment window | Blocking until production TTL is verified |
+| Audit/email/job/log retention | Approved and enforced in staging and production | Active Firestore TTL plus safe superadmin summaries; 605 staging records were backfilled and the empty production collections required no backfill | Privacy owner + operations owner | Completed 2026-07-14 | Closed |
 | Async export queue not implemented beyond 1,000 records | Accepted design limit pending owner sign-off | Hard 1,000-registration and 10 MB caps; tested 500-record exports | Platform technical owner | Before expansion beyond local launch | Not blocking at Palacios scale if accepted |
+
+The July 14 registry recheck found no safe nonbreaking dependency change to apply. Firebase Admin `14.1.0`, `@google-cloud/storage` `7.21.0`, and ExcelJS `4.4.0` are their latest published releases. The fixed Cloud transport releases require upstream parent-package major changes; ExcelJS has no newer release and still carries UUID 8; Next's available remediation requires the Next 16 major line. npm's suggested direct fixes are incompatible downgrades. No force fix or unsupported override was applied.
+
+Firestore exposes managed-backup creation through schedules, not an on-demand backup-create operation. The production daily and weekly schedules exist, but the first artifact has not yet appeared in `projects/findyourchurch-24562/locations/nam5/backups`. An isolated managed-backup restore therefore remains blocked by artifact availability rather than missing schedule configuration.
 
 ## Blocking Acceptance Checklist
 
