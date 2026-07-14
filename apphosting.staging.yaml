@@ -179,6 +179,11 @@ env:
     availability:
       - RUNTIME
 
+  - variable: LISTING_VERIFICATION_CRON_SECRET
+    secret: FYC_STAGING_LISTING_VERIFICATION_TOKEN
+    availability:
+      - RUNTIME
+
   - variable: PRODUCTION_FIREBASE_PROJECT_ID
     value: findyourchurch-24562
     availability:
