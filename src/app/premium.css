@@ -773,7 +773,7 @@ select {
 
 .site-footer__inner {
   display: grid;
-  grid-template-columns: minmax(220px, 0.95fr) minmax(300px, 1fr) minmax(260px, 0.9fr);
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr) minmax(0, 0.9fr);
   gap: clamp(2rem, 5vw, 4.5rem);
 }
 
@@ -787,6 +787,7 @@ select {
 .site-footer__brand-block,
 .site-footer__ministry {
   display: grid;
+  min-width: 0;
   align-content: start;
   justify-items: start;
   gap: 1rem;
@@ -804,12 +805,14 @@ select {
 
 .site-footer__navigation {
   display: grid;
+  min-width: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 2rem;
 }
 
 .site-footer__link-group {
   display: grid;
+  min-width: 0;
   align-content: start;
   gap: 0.65rem;
 }

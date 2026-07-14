@@ -186,7 +186,10 @@ test("registration, check-in, portal, and admin collections remain paginated", a
     );
     await expect(churchPage.locator("tbody tr")).toHaveCount(25);
     const firstRegistration = await churchPage.locator("tbody tr").first().textContent();
-    await churchPage.getByRole("link", { name: "Next page" }).click();
+    await Promise.all([
+      churchPage.waitForURL(/(?:\?|&)cursor=/),
+      churchPage.getByRole("link", { name: "Next page" }).click(),
+    ]);
     await expect(churchPage.locator("tbody tr")).toHaveCount(25);
     await expect(churchPage.locator("tbody tr").first()).not.toContainText(firstRegistration ?? "missing");
     await churchPage.goto(`/portal/events/${loadEventId}/registration?search=Staging%20Registrant%20499`, { waitUntil: "domcontentloaded" });

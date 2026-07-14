@@ -4,6 +4,8 @@ import { manageRegistrationAction } from "@/lib/actions/registrations";
 import { getRepresentativePortalContext } from "@/lib/services/representative-access-service";
 import { listManagedRegistrations } from "@/lib/services/registration-management-service";
 
+const checkInStatuses = ["confirmed", "waitlisted", "checked_in", "attended", "no_show"] as const;
+
 export default async function MobileCheckInPage(props: {
   params: Promise<{ eventId: string }>;
   searchParams: Promise<{ search?: string; success?: string; error?: string }>;
@@ -24,11 +26,9 @@ export default async function MobileCheckInPage(props: {
     churchId,
     actorUserId: context.profile.id,
     search: searchParams.search,
-    status: "all",
+    statuses: [...checkInStatuses],
   });
-  const registrations = data.registrations.filter(
-    (registration) => registration.status !== "cancelled",
-  );
+  const registrations = data.registrations;
   const checkInPath = `/portal/events/${eventId}/check-in${
     searchParams.search ? `?search=${encodeURIComponent(searchParams.search)}` : ""
   }`;

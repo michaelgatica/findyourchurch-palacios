@@ -62,7 +62,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="shell site-footer__bottom">
-        <p>© {new Date().getFullYear()} El Roi Digital Ministries. Built to serve churches well.</p>
+        <p>{"\u00A9"} {new Date().getFullYear()} El Roi Digital Ministries. Built to serve churches well.</p>
         <Link href="/admin">Platform administration</Link>
       </div>
     </footer>

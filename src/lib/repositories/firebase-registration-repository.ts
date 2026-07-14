@@ -283,6 +283,7 @@ export async function cleanupExpiredRegistrationAccessTokens(
 export async function listRegistrationsForEvent(input: {
   eventId: string;
   status?: RegistrationStatus | "all";
+  statuses?: RegistrationStatus[];
   limit?: number;
   cursor?: string | null;
   direction?: "asc" | "desc";
@@ -293,7 +294,9 @@ export async function listRegistrationsForEvent(input: {
     .collection(firestoreCollectionNames.eventRegistrations)
     .where("eventId", "==", input.eventId);
 
-  if (input.status && input.status !== "all") {
+  if (input.statuses?.length) {
+    query = query.where("status", "in", [...new Set(input.statuses)]);
+  } else if (input.status && input.status !== "all") {
     query = query.where("status", "==", input.status);
   }
 
@@ -323,6 +326,7 @@ export async function findRegistrationsForEventByName(input: {
   eventId: string;
   search: string;
   status?: RegistrationStatus | "all";
+  statuses?: RegistrationStatus[];
   cursor?: string | null;
   direction?: "asc" | "desc";
   limit?: number;
@@ -332,6 +336,7 @@ export async function findRegistrationsForEventByName(input: {
   if (/^FYC-[A-F0-9]{12}$/.test(confirmationSearch)) {
     const registration = await getRegistrationByConfirmationNumber(confirmationSearch);
     const matches = registration?.eventId === input.eventId &&
+      (!input.statuses?.length || input.statuses.includes(registration.status)) &&
       (!input.status || input.status === "all" || registration.status === input.status);
     return {
       registrations: matches && registration ? [registration] : [],
@@ -348,7 +353,9 @@ export async function findRegistrationsForEventByName(input: {
     .collection(firestoreCollectionNames.eventRegistrations)
     .where("eventId", "==", input.eventId)
     .where("contactSearchPrefixes", "array-contains", normalizedSearch);
-  if (input.status && input.status !== "all") {
+  if (input.statuses?.length) {
+    query = query.where("status", "in", [...new Set(input.statuses)]);
+  } else if (input.status && input.status !== "all") {
     query = query.where("status", "==", input.status);
   }
   query = query.orderBy("submittedAt", input.direction ?? "desc");

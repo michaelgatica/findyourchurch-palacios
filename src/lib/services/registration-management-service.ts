@@ -75,6 +75,7 @@ export async function listManagedRegistrations(input: {
   churchId: string;
   actorUserId: string;
   status?: RegistrationStatus | "all";
+  statuses?: RegistrationStatus[];
   cursor?: string | null;
   search?: string;
   direction?: "asc" | "desc";
@@ -89,6 +90,7 @@ export async function listManagedRegistrations(input: {
           eventId: input.eventId,
           search: input.search,
           status: input.status,
+          statuses: input.statuses,
           cursor: input.cursor,
           direction: input.direction,
           limit: 25,
@@ -96,6 +98,7 @@ export async function listManagedRegistrations(input: {
       : listRegistrationsForEvent({
           eventId: input.eventId,
           status: input.status,
+          statuses: input.statuses,
           cursor: input.cursor,
           direction: input.direction,
           sortBy: input.sortBy,

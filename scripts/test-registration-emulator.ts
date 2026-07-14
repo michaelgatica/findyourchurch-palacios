@@ -474,6 +474,19 @@ async function run() {
   const confirmationSearch = await managementService.listManagedRegistrations({ eventId: pageEvent.event.id, churchId: churchA.id, actorUserId: "rep-a", search: searchPage.registrations[0]!.confirmationNumber });
   assert.equal(confirmationSearch.registrations[0]?.id, searchPage.registrations[0]?.id);
 
+  await Promise.all(Array.from({ length: 25 }, (_, index) =>
+    firestore!.collection("eventRegistrations").doc(`event-pagination-${String(index + 6).padStart(2, "0")}`).update({ status: "cancelled" }),
+  ));
+  const activeCheckInPage = await managementService.listManagedRegistrations({
+    eventId: pageEvent.event.id,
+    churchId: churchA.id,
+    actorUserId: "rep-a",
+    statuses: ["confirmed", "waitlisted", "checked_in", "attended", "no_show"],
+    direction: "desc",
+  });
+  assert.equal(activeCheckInPage.registrations.length, 5);
+  assert.equal(activeCheckInPage.registrations.some((registration) => registration.status === "cancelled"), false);
+
   const activeBeforeEdit = await registrationRepository.getRegistrationFormVersion(duplicateEvent.formVersion.id);
   assert.equal(activeBeforeEdit?.status, "active");
   await saveEventRegistrationSetup({

@@ -76,7 +76,7 @@ export default async function HomePage() {
             </p>
             <div className="button-row premium-hero__actions">
               <Link href="/churches" className="button button--primary">
-                Browse churches
+                Browse Churches
               </Link>
               <Link href="/events" className="button button--on-dark">
                 Explore events
