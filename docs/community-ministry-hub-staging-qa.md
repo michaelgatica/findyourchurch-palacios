@@ -98,28 +98,29 @@ Seed and reset commands refuse:
 - Known production project `findyourchurch-24562`.
 - Canonical production host `https://findyourchurchpalacios.org`.
 
-## Manual QA Matrix
+## Accessibility, Browser, And Viewport Matrix
 
-Record each item as `Pass`, `Fail`, `Not tested`, or `Blocked`.
+Hosted browser evidence recorded July 14, 2026. `Pass` means the route/workflow completed on the real staging URL; unavailable engines are not inferred from another browser.
 
-| Area | Workflow | Browser | Viewport | Result | Evidence | Notes |
-| --- | --- | --- | --- | --- | --- | --- |
-| Public | Homepage events section | Chrome | 375px | Not tested | Requires staging URL |  |
-| Public | `/events` filter and event detail | Chrome | Desktop | Not tested | Requires staging URL |  |
-| Public | Event report form | Chrome | Desktop | Not tested | Requires staging URL |  |
-| Public | Registration submit and confirmation | Chrome | Desktop | Not tested | Requires staging URL |  |
-| Public | Management link edit/cancel | Chrome | Desktop | Not tested | Requires staging URL |  |
-| Church rep | Create, draft, publish, edit event | Chrome | Desktop | Not tested | Requires staging auth |  |
-| Church rep | Upload valid and invalid flyer | Chrome | Desktop | Not tested | Requires staging storage |  |
-| Church rep | Registration dashboard and check-in | Chrome | Desktop | Not tested | Requires staging auth |  |
-| Church rep | PDF/XLSX export download | Chrome | Desktop | Not tested | Requires staging storage |  |
-| Platform admin | `/admin/events` moderation actions | Chrome | Desktop | Not tested | Requires staging admin auth |  |
-| Platform admin | `/admin/event-reports` review | Chrome | Desktop | Not tested | Requires staging admin auth |  |
-| Platform admin | `/admin/event-categories` manage category | Chrome | Desktop | Not tested | Requires staging admin auth |  |
-| Platform admin | `/admin/ops` config review | Chrome | Desktop | Not tested | Requires staging admin auth |  |
-| Regression | Church directory, submit, claim, donation links | Chrome | Desktop/mobile | Not tested | Requires staging URL |  |
+| Route or workflow | Browser | Viewport | Result | Finding, fix, or limitation |
+| --- | --- | --- | --- | --- |
+| Public home, directory/map, event filter/detail/flyer/cancellation | Chromium | 1280x720 | Pass | Published/draft/unlisted behavior and flyer/fallback state passed. |
+| Public custom registration, repeating participant, confirmation, management, cancellation | Chromium | 1280x720 | Pass | A fictitious registration was created, managed, and cancelled. |
+| Representative create draft, upload flyer, publish, form builder, registrations, check-in, PDF/XLSX | Chromium | 1280x720 | Pass | Real staging-only mutation and both secure downloads passed. |
+| Representative Church B and limited-manager authorization | Chromium | 1280x720 | Pass | Church A/B data stayed isolated; manager remained outside platform admin. |
+| Platform event filter/lock, report moderation, category, operations | Chromium | 1280x720 | Pass | Editing lock was toggled and restored; all admin surfaces remained usable. |
+| All public and role workflows above | Microsoft Edge | 1280x720 | Pass | Same workflow coverage passed with the installed Edge channel. |
+| All public and role workflows above | Firefox | 1280x720 | Pass | Multipart editor redirect defect was fixed. Exact `Connection closed.` RSC errors or React 419 client-render recovery can still appear after successful representative navigation; state and navigation pass, and the medium issue is documented. |
+| `/`, `/events`, published event, registration | Chromium | 320, 375, 430, 768, 1024, 1366, 1920 | Pass | No horizontal page overflow. |
+| `/`, `/events`, published event, registration | Edge | 320, 375, 430, 768, 1024, 1366, 1920 | Pass | No horizontal page overflow. |
+| `/`, `/events`, published event, registration | Firefox | 320, 375, 430, 768, 1024, 1366, 1920 | Pass | Initial 320px admin overflow fixed; final matrix passed. |
+| Representative registration/form-builder/check-in/export | Chromium, Edge, Firefox | 320x720 | Pass | Controls remain reachable; tables/cards and forms fit the viewport. |
+| Platform events/reports/categories/operations | Chromium, Edge, Firefox | 320x720 | Pass | Admin surfaces wrap without horizontal page overflow. |
+| Registration reflow | Chromium, Edge, Firefox | 1024x768 at 200% | Pass | No information/control loss or horizontal page overflow. |
+| Standalone Google Chrome | Chrome | All | Not tested | Browser unavailable in this environment; Chromium was tested separately. |
+| WebKit/Safari equivalent | WebKit/Safari | All | Not tested | Browser unavailable in this environment. |
 
-Do not mark Safari/WebKit as passed unless actually tested.
+Automated axe coverage completed 66 hosted route/state scans across the three tested engines with no critical or serious violations after fixes. Native screen-reader software was unavailable; semantics were reviewed through axe, the accessibility tree/DOM, and keyboard operation.
 
 ## Focused Hosted Smoke Test
 
@@ -217,7 +218,7 @@ Live staging checkpoint recorded July 13, 2026:
 - Storage rules: compiled and released to the staging bucket.
 - Hosting: Firebase App Hosting backend `community-hub-staging` in `us-central1`, environment `staging`, runtime `nodejs22`.
 - Hosted URL: `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app`.
-- App Hosting rollout: the focused SMTP/scheduler local-source rollout succeeded on July 13, 2026.
+- App Hosting rollout: the accessibility/browser correction rollout succeeded on July 14, 2026.
 - Secret Manager: staging-only Firebase client key, registration-token, export-signing, and scheduler-token secrets are connected to the backend. Secret values are not stored in Git.
 - Reset proof: live dry run finds all 72 marked/prefixed documents; no live reset was executed.
 - Production project `findyourchurch-24562`: not deployed or mutated.
@@ -246,6 +247,7 @@ Automated validation passed in this checkpoint:
 - `git diff --check`.
 - Live staging Storage access and trusted-upload smoke tests.
 - Hosted public smoke script, including canonical, visibility, cancellation, fallback, and Storage flyer checks.
+- Hosted Playwright/axe suite in Chromium, Edge, and Firefox, including keyboard, seven viewport widths, 200 percent reflow, role isolation, real event/flyer publication, check-in restoration, and PDF/XLSX download workflows.
 
 QA account labels:
 
@@ -262,10 +264,10 @@ Remaining full-certification blockers:
 
 - Staging SMTP/mail testing is not configured. `EMAIL_PROVIDER` remains `console`; no SMTP sender, administrator recipient, approved test recipient, or SMTP credentials were available locally or in staging Secret Manager.
 - Actual delivery, provider message IDs, bounce behavior, sender/reply-to inspection, mailbox receipt, and emailed attachment receipt remain blocked until an approved staging SMTP account and test mailbox are supplied privately.
-- Full responsive, accessibility, cross-browser, performance, email-delivery, and detailed manual QA remain intentionally unperformed.
+- Performance, SEO, native screen-reader, WebKit/Safari, email-delivery, and the remaining detailed release matrix remain intentionally separate.
 - A QA owner must receive the current password through an approved private channel.
 
-Current recommendation: **still blocked** for full staging certification because SMTP delivery is unavailable. The hosted application, Auth, Firestore, Storage, and scheduler are ready for the intentionally separate manual accessibility and browser QA phase after the SMTP owner supplies the missing private configuration.
+Current recommendation: **ready for performance and SEO validation** after the hosted accessibility/browser phase. Full staging certification remains blocked because SMTP delivery is unavailable and WebKit/Safari plus native screen-reader coverage could not be performed in this environment.
 
 ## SMTP and Scheduler Configuration Record
 

@@ -141,6 +141,25 @@ Focused staging infrastructure evidence recorded July 13, 2026:
 
 This checkpoint remains blocked on live SMTP delivery. Scheduler infrastructure is ready; this is not approval for production deployment.
 
+## Hosted accessibility and browser checkpoint
+
+Focused staging evidence recorded July 14, 2026:
+
+- Hosted URL and Firebase project remained `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app` and `findyourchurch-staging-2026`.
+- Chromium, installed Microsoft Edge, and Firefox completed public, representative, and platform-administrator workflow coverage.
+- Standalone Chrome was not installed; WebKit/Safari was unavailable. Neither is marked passed.
+- Seven viewport widths from 320px through 1920px passed public overflow checks in all three tested engines.
+- Representative registration, form builder, check-in, export, and administrator surfaces passed 320px checks; registration passed 200 percent zoom/reflow.
+- Sixty-six axe route/state scans completed with no critical or serious findings after corrections.
+- Keyboard skip navigation, mobile navigation, account menu arrows/Escape/focus return, invalid-field focus, repeating attendee labels, form-builder controls, check-in actions, and admin tables passed.
+- All identified high findings were fixed: unnamed admin controls, focus/landmark/live-region defects, ambiguous builder controls, Firefox 320px overflow, and Firefox multipart event-save navigation.
+- Each tested engine created a fictitious draft, confirmed draft privacy, uploaded a staging flyer, published the event, verified the flyer publicly, toggled/restored check-in, and downloaded PDF and XLSX reports.
+- Church A/B isolation and limited-manager/platform-admin boundaries passed in every tested engine.
+- Remaining medium issues: event denials use church-oriented not-found wording, and Firefox/Next can log exact `Connection closed.` RSC errors or React 419 client-render recovery after successful representative navigation without workflow loss. Remaining environment gaps: native screen reader and WebKit/Safari.
+- SMTP remains a separate full-certification blocker; no production deployment or production data change occurred.
+
+Accessibility/browser recommendation: **ready for performance and SEO validation**. This is not production approval.
+
 ## Cleanup safety
 
 - Preview demo cleanup with `npm run cleanup:demo-data -- --dry-run`.
