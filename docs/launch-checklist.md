@@ -406,7 +406,8 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] Firestore TTL active for audit/email/terminal-job/operational records; safe superadmin summaries visible.
 - [ ] First managed Firestore backup completes and a safe managed restore/clone is verified.
 - [x] Launch owner explicitly waived SMTP credential rotation; the exception is recorded.
-- [ ] Approved noreply credential is privately bound in production Secret Manager and sender/bounce behavior passes.
+- [x] Approved noreply credential is privately bound in production Secret Manager; SMTP 250 acceptance, Gmail receipt, SPF/DKIM/DMARC, TLS, Return-Path, support Reply-To, and the unmonitored notice pass.
+- [ ] Run an authorized invalid-recipient bounce test or record explicit owner acceptance of the observed Return-Path/provider handling.
 - [ ] Launch owner accepts/remediates 9 remaining moderate dependency advisory nodes.
 - [ ] Required native screen-reader workflows pass and are documented.
 - [ ] Approved controls are reproduced and verified against production identifiers during the deployment window.
@@ -422,14 +423,15 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] Production monitoring resources created; one controlled alert opened/resolved and the corrected five-minute website-unavailable policy delivered a real critical outage alert to the launch-owner Gmail mailbox.
 - [x] Production Cloud Logging retention verified: `_Default` 30 days, locked `_Required` 400 days.
 - [x] Production Firestore TTL policies for audit, email, terminal-job, and operational-event records are `ACTIVE`; no historical backfill was needed because all four collections were empty.
-- [x] Production App Check provider registered and services placed in `UNENFORCED` metrics mode.
-- [ ] Roll out the App Check-enabled revision, prove token exchange, then enforce Firestore, Storage, and Authentication.
+- [x] Production App Check provider registered, enabled revision rolled out, token exchange returned HTTP 200, and Firestore/Storage/Authentication are `ENFORCED`; unattested Authentication is rejected while attested traffic passes.
 - [x] Apex canonical DNS/TLS/App Hosting mapping verified.
-- [ ] Replace the `www` CNAME with the required App Hosting A/TXT records and verify the path-preserving 308.
+- [x] Replace the `www` CNAME with the required App Hosting A/TXT records; Google and Cloudflare public resolvers return the intended values.
+- [x] App Hosting reports active host/ownership/certificate state; verify path-preserving HTTPS 308 redirects and TLS.
 - [x] Namecheap Stellar Plus limit documented as 200 messages/hour/domain and 100 recipients/message.
-- [ ] Privately bind the approved noreply credential and verify live bounce/return-path behavior.
-- [x] Non-SMTP application credentials migrated to five versioned Secret Manager resources; App Hosting access granted and plaintext backend overrides removed.
+- [x] Privately bind the approved noreply credential and verify production delivery, receipt, authentication headers, Return-Path, support Reply-To, and the unmonitored notice.
+- [ ] Verify an authorized live bounce or record an explicit accepted limitation.
+- [x] All six sensitive application values, including SMTP, use versioned Secret Manager resources; App Hosting access is granted and plaintext backend overrides are removed.
 - [x] All 27 required composite indexes are `READY`; homepage, events, directory, and church-profile public routes render without the prior index failure, and post-fix uptime points pass.
-- [ ] Re-run controlled public, representative, and platform-admin smoke after indexes/App Check rollout.
+- [x] Re-run controlled public, representative, and platform-admin smoke after indexes/App Check rollout; all checked routes passed and every synthetic record was removed/restored.
 
 Current decision: **NO-GO** until every unchecked item above is closed.

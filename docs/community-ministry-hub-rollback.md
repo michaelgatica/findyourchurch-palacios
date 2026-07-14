@@ -54,6 +54,12 @@ Production remains gated on creating the same schedules/protection against verif
 
 The first managed backup must still be restored into a new recovery database when it appears. Verify representative church records, index metadata, and collection inventory, then remove only the recovery database after a second identifier check. A successful PITR clone does not substitute for the required managed-backup restore.
 
+Later on July 14, the remediation revision was deployed and App Check was enforced only after a valid production token exchange. If legitimate Authentication, Firestore, or Storage clients begin receiving App Check rejections, the rollback operator may return the affected service to `UNENFORCED` while preserving Authentication and Security Rules, then investigate the served revision and provider configuration. Record that downgrade as an incident; do not silently leave enforcement disabled.
+
+Production SMTP now uses the versioned `FYC_PROD_SMTP_PASSWORD` Secret Manager binding. A controlled delivery and mailbox receipt passed. To pause email, change the provider to the approved non-delivering mode or stop the calling job/action; do not delete the secret version during an incident. The credential-rotation waiver does not prevent emergency rotation if compromise is suspected.
+
+The first managed backup still had not appeared at the latest poll. Until its isolated restore passes, the release gate remains closed even though PITR, delete protection, schedules, and Storage soft-delete recovery are active.
+
 ## Pre-Deployment Backup Checklist
 
 - [ ] Record production project, database, Storage bucket, App Hosting backend, release commit, and current serving revision.

@@ -1,25 +1,25 @@
 # Community Ministry Hub Production Deployment Plan
 
-Prepared July 14, 2026. The plan remains unexecuted as an application release. A later owner-authorized preflight configured production monitoring, App Check monitor state/provider metadata, Firestore recovery controls and schedules, a Storage recovery probe, and a pending `www` redirect resource. No production merge, application/rules/index release, data migration, SMTP credential change, Scheduler change, or sitemap submission was performed.
+Prepared July 14, 2026. The owner later authorized a guarded remediation rollout, not a general launch. Production App Hosting revision `findyourchurch-palacios-build-2026-07-14-001`, required indexes, Secret Manager bindings, SMTP, TTL, monitoring, recovery controls, and App Check enforcement are now in place. No merge to `main`, broad data migration, registration opening, Scheduler production change, or sitemap submission was performed.
 
 ## Release Gate
 
-The current certification recommendation is **NO-GO** until the blocking conditions in `docs/community-ministry-hub-security-acceptance.md` are resolved. A deployment operator must not treat a merged branch, passing build, or staging rollout as launch authorization.
+The current certification recommendation is **NO-GO for opening registrations** until the remaining conditions in `docs/community-ministry-hub-security-acceptance.md` are resolved. A deployed remediation revision, passing build, or staging rollout is not launch authorization.
 
 Required approvals:
 
 - Launch owner approves the release window and final requirement traceability.
 - Launch owner and platform technical owner accept or remediate the 9 remaining moderate dependency advisory nodes.
-- Ministry operations owner privately binds the approved noreply credential and verifies sender, account limits, return-path, and bounce behavior. The launch owner waived credential rotation.
+- Ministry operations owner authorizes an invalid-recipient bounce test or explicitly accepts the verified Return-Path/provider behavior. Credential binding, sender, delivery, authentication headers, and account limits are verified; the launch owner waived credential rotation.
 - Accessibility/QA owner completes the required native screen-reader run; the launch owner did not approve a waiver.
-- Operations verifies the staging-certified alert/backup/Storage/retention design after reproducing it against explicitly verified production identifiers.
+- Operations verifies the first scheduled managed backup by restoring it to an isolated database; monitoring, Storage soft delete, PITR, TTL, and schedules are already reproduced against verified production identifiers.
 - A second operator verifies the production project, database, bucket, backend, and canonical hostname before every external write.
 
 ## Canonical Host And Redirect Policy
 
-The intended production canonical origin is `https://findyourchurchpalacios.org` using HTTPS and the non-`www` host. Apex DNS, TLS, and App Hosting mapping were verified active on July 14, 2026. The `www` redirect resource exists but is not active until its required A and ownership TXT records replace the current CNAME.
+The intended production canonical origin is `https://findyourchurchpalacios.org` using HTTPS and the non-`www` host. Apex DNS, TLS, and App Hosting mapping were verified active on July 14, 2026. The required `www` A/TXT records resolve publicly, and App Hosting reports active host, ownership, and certificate state with reconciliation complete. HTTPS requests to `/`, `/churches`, and `/community-events` return path-preserving 308 redirects to the canonical host.
 
-After the domain is actually configured:
+Production redirect policy:
 
 - Redirect `http://findyourchurchpalacios.org/*` permanently to the same path/query on `https://findyourchurchpalacios.org/*`.
 - Redirect `https://www.findyourchurchpalacios.org/*` permanently to the non-`www` HTTPS host.
@@ -31,20 +31,20 @@ After the domain is actually configured:
 
 Staging must continue to use its own hosted URL, staging canonical values, and global `noindex`; it must never claim the production origin.
 
-Current `www` DNS handoff from the App Hosting domain resource:
+Completed DNS and App Hosting handoff:
 
-- remove `www CNAME findyourchurchpalacios.org`;
-- add `www A 35.219.200.0`;
-- add the `www` `fah-claim` TXT value shown by the App Hosting domain status;
-- wait for `HOST_ACTIVE`, `OWNERSHIP_ACTIVE`, and `CERT_ACTIVE`, then verify the 308 preserves path and query.
+- the old `www CNAME findyourchurchpalacios.org` was removed;
+- `www A 35.219.200.0` is published;
+- the App Hosting ownership TXT is published without copying the claim value into this runbook;
+- `HOST_ACTIVE`, `OWNERSHIP_ACTIVE`, and `CERT_ACTIVE` are verified, and the 308 preserves tested paths.
 
-Do not enable App Check enforcement or open registrations while homepage/events smoke fails. Deploy the committed production indexes first, wait for every required index to become `READY`, roll out the revision containing the App Check site key, prove a successful token exchange, and only then switch Firestore, Storage, and Authentication from `UNENFORCED` to `ENFORCED`.
+App Check rollout order completed successfully: all 27 indexes became `READY`, the App Check-enabled revision served successfully, reCAPTCHA Enterprise token exchange returned HTTP 200, and Firestore, Storage, and Authentication were switched to `ENFORCED`. An unattested request is rejected and an attested browser request reaches normal Authentication validation. Revert to `UNENFORCED` only under the documented rollback trigger if legitimate clients are blocked.
 
-Before that rollout, migrate every sensitive backend override value to a versioned Secret Manager reference with least-privilege build/runtime access. The preflight found application secrets stored as readable backend override values and no corresponding production application secrets in Secret Manager. Do not print or copy the values during migration, and do not treat the SMTP no-rotation decision as permission to retain plaintext-style override storage.
+Every sensitive App Hosting value now uses a versioned Secret Manager reference with runtime access limited to the App Hosting compute identity. Six production secrets cover the Firebase client key, SMTP password, registration token, export signing key, Scheduler token, and listing-verification token. Continue to avoid printing or copying values during release operations.
 
 ## Production Firebase And Hosting Identifiers
 
-The repository currently documents production project `findyourchurch-24562` and Firestore database `findyourchurchpal`. The production bucket, App Hosting backend, app ID, and exact domain mapping must be read from the approved production console immediately before deployment. Do not infer them from staging or from old documentation.
+Verified production identifiers are project `findyourchurch-24562` (number `443706380375`), database `findyourchurchpal` in `nam5`, bucket `findyourchurch-24562.firebasestorage.app`, App Hosting backend `findyourchurch-palacios` in `us-central1`, and web app `1:443706380375:web:e2f1c184b87865e003d312`. Re-read them from the approved project before every later production write; do not rely on this record alone.
 
 Every external command must provide an explicit production project/configuration after approval. Abort if the CLI-selected project, command `--project`, App Hosting backend, database, or bucket disagree.
 

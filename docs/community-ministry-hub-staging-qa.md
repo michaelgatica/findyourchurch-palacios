@@ -390,3 +390,17 @@ Staging blocker-closure recommendation: **NO-GO for production today** due to na
 - The first local build attempt exposed `/admin/ops` throwing when Firebase Admin was intentionally unavailable during prerender. Recent Scheduler summaries now return an empty list in that condition, matching audit/email behavior. TypeScript and the second 40-page build passed.
 - The final staging rollout completed. Authenticated operations, public smoke, and App Check HTTP 200 exchange passed against the served revision.
 - Native screen-reader testing did not run and remains launch-blocking.
+
+## Production Remediation Follow-up — July 14, 2026
+
+Staging certification remains unchanged. The later owner-authorized production remediation supplied the following deployment-window evidence without merging `main`:
+
+- production App Hosting rollout succeeded from the remediation branch and public deep links pass;
+- all 27 production indexes are `READY`;
+- production App Check token exchange passed and Authentication, Firestore, and Storage are enforced;
+- the SMTP secret is privately bound and a controlled production message was received with SPF/DKIM/DMARC pass, support Reply-To, noreply Return-Path, and the unmonitored notice;
+- controlled synthetic representative and administrator route checks passed, then every synthetic record was removed or restored;
+- the required `www` A/TXT records are publicly visible, App Hosting host/ownership/certificate state is active, and path-preserving HTTPS 308 redirects pass;
+- no first scheduled managed backup exists yet, so a managed-backup restore still cannot run.
+
+Native screen-reader evidence, dependency-risk acceptance, first managed-backup restore, and the SMTP bounce decision remain launch gates. This follow-up does not change the historical staging matrix or authorize opening production registrations.
