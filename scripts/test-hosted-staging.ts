@@ -97,6 +97,13 @@ async function run() {
   const missingFlyer = await fetchPage(baseUrl, "/events/staging-full-capacity-workshop");
   assertIncludes(missingFlyer.body, "Staging Full Capacity Workshop", "Missing-flyer event detail");
 
+  const invalidManagementLink = await fetchPage(
+    baseUrl,
+    "/registrations/manage/staging-email-preview-invalid-token",
+  );
+  assertIncludes(invalidManagementLink.body, "Page Not Found", "Invalid registration management link");
+  assertExcludes(invalidManagementLink.body, "Confirmation number:", "Invalid registration management link");
+
   const checks = [
     "homepage loads with staging canonical metadata",
     "church directory loads",
@@ -105,6 +112,7 @@ async function run() {
     "unlisted event is absent from listings and opens directly",
     "cancelled event displays its cancellation state",
     "missing-flyer event renders its content",
+    "invalid registration management link fails closed without exposing registration data",
   ];
 
   if (expectedStorageFlyerAlt) {

@@ -15,6 +15,19 @@ function managementUrl(accessToken: string) {
   return buildAbsoluteUrl(`/registrations/manage/${encodeURIComponent(accessToken)}`);
 }
 
+function eventDetails(event: EventRecord) {
+  const formattedStart = new Intl.DateTimeFormat("en-US", {
+    dateStyle: "full",
+    timeStyle: event.allDay ? undefined : "short",
+    timeZone: event.timeZone,
+  }).format(new Date(event.startsAt));
+
+  return [
+    `Event time: ${formattedStart} (${event.timeZone})`,
+    `Event details: ${link("View event", buildAbsoluteUrl(`/events/${event.slug}`))}`,
+  ];
+}
+
 export interface RegistrationNotificationEmail {
   to: string;
   subject: string;
@@ -52,6 +65,7 @@ export function buildRegistrantRegistrationConfirmationEmail(input: {
       "",
       `Confirmation number: ${input.registration.confirmationNumber}`,
       `Number attending: ${input.registration.attendeeCount}`,
+      ...eventDetails(input.event),
       managementLine,
       "",
       isWaitlisted
@@ -109,6 +123,7 @@ export function buildRegistrationUpdatedNotificationEmail(input: {
       `Your registration for ${input.event.title} has been updated.`,
       `Confirmation number: ${input.registration.confirmationNumber}`,
       `Number attending: ${input.registration.attendeeCount}`,
+      ...eventDetails(input.event),
       "",
       `Review your registration here: ${link("Manage registration", managementUrl(input.accessToken))}`,
       "",
@@ -148,6 +163,7 @@ export function buildWaitlistPromotionNotificationEmail(input: {
       `Good news - your waitlisted registration for ${input.event.title} is now confirmed.`,
       `Confirmation number: ${input.registration.confirmationNumber}`,
       `Number attending: ${input.registration.attendeeCount}`,
+      ...eventDetails(input.event),
       "",
       ministryNote(),
     ].join("\n"),
@@ -184,6 +200,7 @@ export function buildRegistrationCancellationNotificationEmail(input: {
       "",
       `Your registration for ${input.event.title} has been cancelled.`,
       `Confirmation number: ${input.registration.confirmationNumber}`,
+      ...eventDetails(input.event),
       "",
       `If this was a mistake, please contact ${input.event.contactEmail ?? siteConfig.contactEmail}.`,
       "",
@@ -224,6 +241,7 @@ export function buildEventCancellationEmail(input: {
       input.event.cancellationMessage ?? "Please contact the host church if you need more information.",
       "",
       `Your confirmation number was ${input.registration.confirmationNumber}.`,
+      ...eventDetails(input.event),
       "",
       ministryNote(),
     ].join("\n"),
@@ -260,6 +278,7 @@ export function buildEventReminderEmail(input: {
       "",
       `This is a reminder that you are registered for ${input.event.title}.`,
       `Confirmation number: ${input.registration.confirmationNumber}`,
+      ...eventDetails(input.event),
       "",
       "Please review the public event page for current time, location, and host instructions.",
     ].join("\n"),
@@ -302,6 +321,7 @@ export function buildOrganizerRegistrationNotificationEmail(input: {
       `Status: ${input.registration.status}`,
       `Number attending: ${input.registration.attendeeCount}`,
       `Confirmation number: ${input.registration.confirmationNumber}`,
+      ...eventDetails(input.event),
       input.capacityReached ? "The configured event capacity has been reached." : null,
       "",
       `Open registration management: ${link("View event registrations", buildAbsoluteUrl(`/portal/events/${input.event.id}/registration`))}`,

@@ -4,10 +4,7 @@ import { readFile } from "fs/promises";
 import { config as loadEnv } from "dotenv";
 
 import { assertSafeNonProductionTarget } from "@/lib/app-environment";
-import {
-  getStagingOAuthAuth,
-  verifyStagingOAuthTarget,
-} from "./staging-oauth-rest";
+import { verifyStagingOAuthTarget } from "./staging-oauth-rest";
 
 loadEnv({ path: ".env.staging.local" });
 
@@ -76,9 +73,9 @@ async function trustedDelete(input: {
   }
 }
 
-async function signInWithPassword(apiKey: string, email: string, password: string) {
+async function createTemporaryFirebaseUser(apiKey: string, email: string, password: string) {
   const response = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${encodeURIComponent(apiKey)}`,
+    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${encodeURIComponent(apiKey)}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -87,9 +84,23 @@ async function signInWithPassword(apiKey: string, email: string, password: strin
   );
   const body = await response.json() as { idToken?: string; error?: { message?: string } };
   if (!response.ok || !body.idToken) {
-    throw new Error(`Temporary staging sign-in failed: ${body.error?.message ?? response.status}.`);
+    throw new Error(`Temporary staging account creation failed: ${body.error?.message ?? response.status}.`);
   }
   return body.idToken;
+}
+
+async function deleteTemporaryFirebaseUser(apiKey: string, idToken: string) {
+  const response = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:delete?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Temporary staging account cleanup failed with HTTP ${response.status}.`);
+  }
 }
 
 async function main() {
@@ -105,8 +116,6 @@ async function main() {
   assert(accessToken, "FIREBASE_OAUTH_ACCESS_TOKEN is required for live Storage validation.");
 
   await verifyStagingOAuthTarget();
-  const auth = await getStagingOAuthAuth();
-  assert(auth, "FIREBASE_OAUTH_ACCESS_TOKEN is required for live Storage validation.");
 
   const runId = randomUUID();
   const uid = `staging-storage-${runId}`;
@@ -119,11 +128,12 @@ async function main() {
   const privateExportPath = `private/event-exports/staging-qa-church-1/${eventId}/report.xlsx`;
   const misroutedExportPath = `churches/staging-qa-church-1/events/${eventId}/flyer/report.xlsx`;
   const cleanupPaths = [flyerPath, anonymousUploadPath, churchBPath, privateExportPath, misroutedExportPath];
+  let temporaryIdToken: string | null = null;
 
   try {
     await verifyStagingOAuthTarget();
-    await auth.createUser({ uid, email, password, emailVerified: true });
-    const idToken = await signInWithPassword(apiKey, email, password);
+    const idToken = await createTemporaryFirebaseUser(apiKey, email, password);
+    temporaryIdToken = idToken;
     const firebaseAuthHeader = { Authorization: `Firebase ${idToken}` };
     const flyerBytes = await readFile("public/assets/logos/find-your-church-palacios-512.png");
 
@@ -219,7 +229,9 @@ async function main() {
       bucketName,
       storagePath,
     }).catch(() => undefined)));
-    await auth.deleteUser(uid).catch(() => undefined);
+    if (temporaryIdToken) {
+      await deleteTemporaryFirebaseUser(apiKey, temporaryIdToken).catch(() => undefined);
+    }
   }
 }
 
