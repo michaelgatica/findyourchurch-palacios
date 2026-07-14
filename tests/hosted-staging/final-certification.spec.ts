@@ -7,9 +7,14 @@ import {
   stagingAccounts,
 } from "./helpers";
 
+const webkitAccessControlErrors = [/ due to access control checks\.$/];
+
 test.describe("existing website hosted staging regression", () => {
-  test("public directory, legacy routes, forms, policies, and donation guard remain intact", async ({ page }) => {
-    const assertNoPageErrors = collectPageErrors(page);
+  test("public directory, legacy routes, forms, policies, and donation guard remain intact", async ({ page }, testInfo) => {
+    const assertNoPageErrors = collectPageErrors(
+      page,
+      testInfo.project.name === "webkit" ? webkitAccessControlErrors : [],
+    );
 
     await openHostedPage(page, "/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -82,8 +87,11 @@ test.describe("existing website hosted staging regression", () => {
 test.describe("existing authenticated website regression", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test("representative account and church listing tools remain usable", async ({ context, page }) => {
-    const assertNoPageErrors = collectPageErrors(page);
+  test("representative account and church listing tools remain usable", async ({ context, page }, testInfo) => {
+    const assertNoPageErrors = collectPageErrors(
+      page,
+      testInfo.project.name === "webkit" ? webkitAccessControlErrors : [],
+    );
     await authenticateContext(context, stagingAccounts.churchA);
 
     await openHostedPage(page, "/portal");

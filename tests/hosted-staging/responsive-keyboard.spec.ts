@@ -41,11 +41,18 @@ for (const viewport of viewports) {
 test.describe("keyboard navigation", () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
-  test("skip link and mobile navigation work without a mouse", async ({ page }) => {
+  test("skip link and mobile navigation work without a mouse", async ({ page }, testInfo) => {
     const assertNoPageErrors = collectPageErrors(page);
     await openHostedPage(page, "/");
-    await page.keyboard.press("Tab");
-    await expect(page.locator(".skip-link")).toBeFocused();
+    const skipLink = page.locator(".skip-link");
+    if (testInfo.project.name === "webkit") {
+      // Playwright WebKit follows Safari's default preference that skips links during Tab navigation.
+      // Explicit focus still verifies that the skip link is exposed and keyboard-operable.
+      await skipLink.focus();
+    } else {
+      await page.keyboard.press("Tab");
+    }
+    await expect(skipLink).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(page.locator("#main-content")).toBeFocused();
 

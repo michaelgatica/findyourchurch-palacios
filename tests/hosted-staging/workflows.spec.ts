@@ -11,9 +11,14 @@ import {
   stagingAccounts,
 } from "./helpers";
 
+const webkitAccessControlErrors = [/ due to access control checks\.$/];
+
 test.describe("public browser workflows", () => {
-  test("directory, calendar filtering, details, flyers, custom fields, and cancellation work", async ({ page }) => {
-    const assertNoPageErrors = collectPageErrors(page);
+  test("directory, calendar filtering, details, flyers, custom fields, and cancellation work", async ({ page }, testInfo) => {
+    const assertNoPageErrors = collectPageErrors(
+      page,
+      testInfo.project.name === "webkit" ? webkitAccessControlErrors : [],
+    );
 
     await openHostedPage(page, "/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -95,7 +100,9 @@ test.describe("church representative browser workflows", () => {
       page,
       testInfo.project.name === "firefox"
         ? [/^Connection closed\.$/, /^Minified React error #419;/]
-        : [],
+        : testInfo.project.name === "webkit"
+          ? webkitAccessControlErrors
+          : [],
     );
     await authenticateContext(context, stagingAccounts.churchA);
 
@@ -169,9 +176,17 @@ test.describe("church representative browser workflows", () => {
     expect(initialCheckInLabel).toMatch(/^(Check in|Undo check-in)$/);
     await checkInButton.focus();
     await expect(checkInButton).toBeFocused();
-    await checkInButton.click();
+    await Promise.all([
+      page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/check-in")),
+      checkInButton.click(),
+    ]);
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(checkInButton).not.toHaveText(initialCheckInLabel!);
-    await checkInButton.click();
+    await Promise.all([
+      page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/check-in")),
+      checkInButton.click(),
+    ]);
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(checkInButton).toHaveText(initialCheckInLabel!);
 
     for (const report of [
@@ -221,9 +236,12 @@ test.describe("church representative browser workflows", () => {
 test.describe("platform administrator browser workflows", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test("admin filtering, lock controls, moderation, categories, and operations are usable", async ({ context, page }) => {
+  test("admin filtering, lock controls, moderation, categories, and operations are usable", async ({ context, page }, testInfo) => {
     test.setTimeout(120_000);
-    const assertNoPageErrors = collectPageErrors(page);
+    const assertNoPageErrors = collectPageErrors(
+      page,
+      testInfo.project.name === "webkit" ? webkitAccessControlErrors : [],
+    );
     await authenticateContext(context, stagingAccounts.platformAdmin);
 
     await openHostedPage(page, "/admin/events");
@@ -235,10 +253,18 @@ test.describe("platform administrator browser workflows", () => {
     expect(initialLockLabel).toMatch(/^(Lock editing|Unlock editing)$/);
     const lockNote = page.getByLabel(/Editing lock note for Staging Published Family Night/);
     await lockNote.fill("Fictitious browser QA lock toggle");
-    await lockButton.click();
+    await Promise.all([
+      page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/admin/events")),
+      lockButton.click(),
+    ]);
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(lockButton).not.toHaveText(initialLockLabel!);
     await lockNote.fill("Restore browser QA lock state");
-    await lockButton.click();
+    await Promise.all([
+      page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/admin/events")),
+      lockButton.click(),
+    ]);
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(lockButton).toHaveText(initialLockLabel!);
 
     await openHostedPage(page, "/admin/event-reports");

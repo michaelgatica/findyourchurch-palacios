@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useDeferredValue, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ChurchCard } from "@/components/church-card";
 import { siteConfig } from "@/lib/config/site";
@@ -52,10 +52,9 @@ export function DirectoryBrowser({ churches, filterOptions, initialKeyword = "" 
   const [locationStatus, setLocationStatus] = useState<LocationSearchStatus>("idle");
   const [locationMessage, setLocationMessage] = useState("");
   const [selectedChurchId, setSelectedChurchId] = useState<string | null>(null);
-  const deferredKeyword = useDeferredValue(filters.keyword);
   const keywordFilteredChurches = filterChurches(churches, {
     ...filters,
-    keyword: deferredKeyword,
+    keyword: filters.keyword,
   });
 
   const visibleChurches = keywordFilteredChurches
