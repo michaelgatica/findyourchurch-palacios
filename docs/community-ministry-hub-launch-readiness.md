@@ -731,11 +731,11 @@ Current recommendation remains **NO-GO**. Once the native screen-reader run pass
 - Firestore PITR/delete protection and daily/weekly schedules are active. An isolated PITR clone matched representative church/location document identities and field counts and was removed; Storage soft-delete recovery passed. The first managed backup has not appeared.
 - Production App Check provider and next-rollout variables are configured. Firestore, Storage, and Authentication remain `UNENFORCED` until a served token exchange passes.
 - Production monitoring now has 3 email channels, 1 content uptime check, 12 log metrics, and 13 policies. A controlled incident was actually received and resolved at the launch-owner Gmail mailbox. The website-unavailable policy was corrected from a stale check ID to the verified production check; the current homepage failure then opened a real critical incident after five minutes and delivered the critical outage email.
-- Production Cloud Logging retention is 30 days for `_Default` and 400 days for locked `_Required`; production application-collection TTL policies are still absent.
+- Production Cloud Logging retention is 30 days for `_Default` and 400 days for locked `_Required`. TTL policies for audit, email, terminal-job, and operational-event collections are `ACTIVE`; those production collections were empty, so no historical backfill was needed.
 - Apex DNS/TLS passed. The `www` 308 resource is pending the required Namecheap A/TXT change and still returns 404.
-- Namecheap plan is Stellar: 50 messages/hour/domain and 100 recipients/message. SPF and DKIM are published; DMARC remains `p=none`. Live bounce behavior and private noreply binding remain unverified.
-- Public smoke passed directory, submit, contact, both sign-in pages, privacy, and terms at 375px without overflow. Homepage, a real church profile, and events failed because production has zero composite indexes and required event indexes are absent.
-- Production application secrets are not Secret Manager references; sensitive backend override values remain readable to project readers. Moving them to versioned secrets is launch-blocking even though the owner waived SMTP credential rotation.
+- Namecheap plan is Stellar Plus: 200 messages/hour/domain and 100 recipients/message. SPF and DKIM are published; DMARC remains `p=none`. The supplied noreply credential returned `535 EAUTH`, so live bounce behavior and private binding remain blocked pending a corrected mailbox credential.
+- All 25 production composite indexes are `READY`. Homepage, events, directory, and a real church profile now return meaningful content without the prior Server Components error.
+- Five production Secret Manager resources hold non-SMTP application credentials; App Hosting access is granted and plaintext backend overrides are removed. The SMTP password secret remains absent because authentication failed.
 
 These results close production monitoring and Storage-recovery configuration, but they do not change the **NO-GO** recommendation.
 

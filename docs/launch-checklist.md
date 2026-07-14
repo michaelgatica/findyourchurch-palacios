@@ -421,15 +421,15 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] Production Storage seven-day soft-delete recovery exercise passed.
 - [x] Production monitoring resources created; one controlled alert opened/resolved and the corrected five-minute website-unavailable policy delivered a real critical outage alert to the launch-owner Gmail mailbox.
 - [x] Production Cloud Logging retention verified: `_Default` 30 days, locked `_Required` 400 days.
-- [ ] Configure production Firestore TTL policies for audit, email, terminal-job, and operational-event records before launch.
+- [x] Production Firestore TTL policies for audit, email, terminal-job, and operational-event records are `ACTIVE`; no historical backfill was needed because all four collections were empty.
 - [x] Production App Check provider registered and services placed in `UNENFORCED` metrics mode.
 - [ ] Roll out the App Check-enabled revision, prove token exchange, then enforce Firestore, Storage, and Authentication.
 - [x] Apex canonical DNS/TLS/App Hosting mapping verified.
 - [ ] Replace the `www` CNAME with the required App Hosting A/TXT records and verify the path-preserving 308.
-- [x] Namecheap Stellar limit documented as 50 messages/hour/domain and 100 recipients/message.
+- [x] Namecheap Stellar Plus limit documented as 200 messages/hour/domain and 100 recipients/message.
 - [ ] Privately bind the approved noreply credential and verify live bounce/return-path behavior.
-- [ ] Migrate all sensitive App Hosting override values to versioned Secret Manager references with build/runtime access as required.
-- [ ] Deploy required composite indexes; production currently reports zero and homepage/events fail.
+- [x] Non-SMTP application credentials migrated to five versioned Secret Manager resources; App Hosting access granted and plaintext backend overrides removed.
+- [x] All 25 required composite indexes are `READY`; homepage, events, directory, and church-profile public routes render without the prior index failure.
 - [ ] Re-run controlled public, representative, and platform-admin smoke after indexes/App Check rollout.
 
 Current decision: **NO-GO** until every unchecked item above is closed.

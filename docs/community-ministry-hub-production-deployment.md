@@ -116,6 +116,8 @@ All writes to these paths are trusted-server operations. Do not enable direct br
 
 Deploy the 25 composite indexes in `firestore.indexes.json` to the approved production database and wait until every required index is `READY` before deploying queries that need it.
 
+Remediation checkpoint, July 14, 2026: all 25 indexes were created explicitly in `findyourchurch-24562/findyourchurchpal` and reached `READY`. Public homepage, event-listing, directory, and church-profile probes no longer reproduce the missing-index Server Components failure.
+
 Coverage includes:
 
 - Four `publicEvents` status/visibility/was-published/start-date and church-scoped combinations.
