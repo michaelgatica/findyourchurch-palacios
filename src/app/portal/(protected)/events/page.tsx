@@ -99,10 +99,14 @@ export default async function PortalEventsPage({ searchParams }: PortalEventsPag
   return (
     <div className="admin-content">
       {successMessage ? (
-        <div className="form-alert form-alert--success">{successMessage}</div>
+        <div className="form-alert form-alert--success" role="status">
+          {successMessage}
+        </div>
       ) : null}
       {resolvedSearchParams.error ? (
-        <div className="form-alert">{resolvedSearchParams.error}</div>
+        <div className="form-alert" role="alert">
+          {resolvedSearchParams.error}
+        </div>
       ) : null}
 
       <div className="panel">

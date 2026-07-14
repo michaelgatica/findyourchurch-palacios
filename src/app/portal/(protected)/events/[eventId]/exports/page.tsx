@@ -20,8 +20,8 @@ export default async function RegistrationExportsPage(props: {
   const approvedRecipients = [context.profile.email, data.event.contactEmail, context.church.email].filter(Boolean);
 
   return <div className="admin-content">
-    {searchParams.success ? <div className="form-alert form-alert--success">{searchParams.success}</div> : null}
-    {searchParams.error ? <div className="form-alert">{searchParams.error}</div> : null}
+    {searchParams.success ? <div className="form-alert form-alert--success" role="status">{searchParams.success}</div> : null}
+    {searchParams.error ? <div className="form-alert" role="alert">{searchParams.error}</div> : null}
     <div className="panel"><p className="eyebrow eyebrow--gold">Reports and exports</p><h1>{data.event.title}</h1><p>Exports are generated server-side, stored privately, expire after 24 hours, and are audited. Sensitive fields are excluded unless you deliberately include them.</p><Link href={`/portal/events/${eventId}/registration`} className="button button--ghost">Back to registrations</Link></div>
     <form action={createRegistrationExportAction} className="panel registration-export-form">
       <input type="hidden" name="eventId" value={eventId} /><input type="hidden" name="churchId" value={context.church.id} />

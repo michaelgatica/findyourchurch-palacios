@@ -23,7 +23,7 @@ export default async function RegistrantManagementPage(props: {
   if (!context) notFound();
 
   return (
-    <main className="shell page-section registration-management-page">
+    <div className="shell page-section registration-management-page">
       <div className="panel">
         <p className="eyebrow eyebrow--gold">Manage registration</p>
         <h1>{context.event.title}</h1>
@@ -49,6 +49,6 @@ export default async function RegistrantManagementPage(props: {
           <button type="submit" className="button button--danger">Cancel this registration</button>
         </form>
       ) : null}
-    </main>
+    </div>
   );
 }

@@ -43,7 +43,7 @@ export default async function PublicEventRegistrationPage(props: { params: Promi
     (experience.status === "open" || experience.status === "almost_full" || experience.status === "waitlist_available");
 
   return (
-    <main className="shell page-section registration-public-page">
+    <div className="shell page-section registration-public-page">
       <div className="registration-public-hero">
         <div>
           <p className="eyebrow eyebrow--gold">Event registration</p>
@@ -75,6 +75,6 @@ export default async function PublicEventRegistrationPage(props: { params: Promi
           <Link href={buildEventPath(experience.event)} className="button button--ghost">Return to event details</Link>
         </div>
       )}
-    </main>
+    </div>
   );
 }

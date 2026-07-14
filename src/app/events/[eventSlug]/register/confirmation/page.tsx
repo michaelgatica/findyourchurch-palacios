@@ -35,7 +35,7 @@ export default async function RegistrationConfirmationPage(props: {
   const waitlisted = confirmation.status === "waitlisted";
 
   return (
-    <main className="shell page-section">
+    <div className="shell page-section">
       <div className="confirmation-card registration-confirmation-card">
         <p className="eyebrow eyebrow--gold">
           {waitlisted ? "Waitlist saved" : "Registration confirmed"}
@@ -65,6 +65,6 @@ export default async function RegistrationConfirmationPage(props: {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

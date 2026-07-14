@@ -60,18 +60,18 @@ export default async function AdminEventsPage({ searchParams }: AdminEventsPageP
         </div>
 
         <form className="admin-filter-form">
-          <input name="keyword" defaultValue={params.keyword ?? ""} placeholder="Search title, church, type, or tag" />
-          <select name="status" defaultValue={params.status ?? "all"}>
+          <input name="keyword" aria-label="Search events" defaultValue={params.keyword ?? ""} placeholder="Search title, church, type, or tag" />
+          <select name="status" aria-label="Filter by event status" defaultValue={params.status ?? "all"}>
             <option value="all">All statuses</option>
             {eventStatuses.map((status) => <option key={status} value={status}>{status.replaceAll("_", " ")}</option>)}
           </select>
-          <input name="churchId" defaultValue={params.churchId ?? ""} placeholder="Church ID" />
-          <input name="city" defaultValue={params.city ?? ""} placeholder="City" />
-          <select name="registrationMode" defaultValue={params.registrationMode ?? ""}>
+          <input name="churchId" aria-label="Filter by church ID" defaultValue={params.churchId ?? ""} placeholder="Church ID" />
+          <input name="city" aria-label="Filter by city" defaultValue={params.city ?? ""} placeholder="City" />
+          <select name="registrationMode" aria-label="Filter by registration mode" defaultValue={params.registrationMode ?? ""}>
             <option value="">Any registration</option>
             {eventRegistrationModes.map((mode) => <option key={mode} value={mode}>{mode.replaceAll("_", " ")}</option>)}
           </select>
-          <select name="sort" defaultValue={params.sort ?? "startsAt_desc"}>
+          <select name="sort" aria-label="Sort events" defaultValue={params.sort ?? "startsAt_desc"}>
             <option value="startsAt_desc">Newest event date</option>
             <option value="startsAt_asc">Oldest event date</option>
             <option value="updatedAt_desc">Recently updated</option>
@@ -124,10 +124,10 @@ export default async function AdminEventsPage({ searchParams }: AdminEventsPageP
               <Link href={`/admin/churches/${event.churchId}/representatives`} className="button button--ghost">Church reps</Link>
               <form action={transitionPlatformEventAction}>
                 <input type="hidden" name="eventId" value={event.id} />
-                <select name="nextStatus" defaultValue={event.status}>
+                <select name="nextStatus" aria-label={`New status for ${event.title}`} defaultValue={event.status}>
                   {eventStatuses.map((status) => <option key={status} value={status}>{status.replaceAll("_", " ")}</option>)}
                 </select>
-                <input name="note" placeholder="Optional moderation note" />
+                <input name="note" aria-label={`Moderation note for ${event.title}`} placeholder="Optional moderation note" />
                 <button className="button button--secondary">Apply status</button>
               </form>
               <form action={setPlatformEventFeaturedAction}>
@@ -138,7 +138,7 @@ export default async function AdminEventsPage({ searchParams }: AdminEventsPageP
               <form action={setPlatformEventEditingLockAction}>
                 <input type="hidden" name="eventId" value={event.id} />
                 <input type="hidden" name="locked" value={event.editingLocked ? "false" : "true"} />
-                <input name="note" placeholder="Lock/unlock note" />
+                <input name="note" aria-label={`Editing lock note for ${event.title}`} placeholder="Lock/unlock note" />
                 <button className="button button--ghost">{event.editingLocked ? "Unlock editing" : "Lock editing"}</button>
               </form>
             </div>
@@ -148,4 +148,3 @@ export default async function AdminEventsPage({ searchParams }: AdminEventsPageP
     </div>
   );
 }
-

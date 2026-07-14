@@ -93,7 +93,34 @@ export default async function EventRegistrationDashboardPage(props: {
       <div className="panel registration-table-panel">
         <div className="admin-panel__header"><div><p className="eyebrow">Registration list</p><h2>{data.registrations.length} on this page</h2></div><p className="supporting-text">Sensitive answers open only in the individual detail view.</p></div>
         {data.registrations.length === 0 ? <p>No registrations match these filters.</p> : (
-          <div className="registration-table-wrap"><table className="registration-table"><thead><tr><th>Name</th>{visibleColumns.has("status") ? <th>Status</th> : null}{visibleColumns.has("attendees") ? <th>Attendees</th> : null}{visibleColumns.has("confirmation") ? <th>Confirmation</th> : null}{visibleColumns.has("submitted") ? <th>Submitted</th> : null}{visibleColumns.has("form") ? <th>Form</th> : null}<th>Action</th></tr></thead><tbody>{data.registrations.map((registration) => <tr key={registration.id}><td>{registration.contactName}</td>{visibleColumns.has("status") ? <td><span className={`status-badge status-badge--${registration.status}`}>{registration.status.replaceAll("_", " ")}</span></td> : null}{visibleColumns.has("attendees") ? <td>{registration.attendeeCount}</td> : null}{visibleColumns.has("confirmation") ? <td>{registration.confirmationNumber}</td> : null}{visibleColumns.has("submitted") ? <td>{formatDateTime(registration.submittedAt)}</td> : null}{visibleColumns.has("form") ? <td>Version {registration.formVersion}</td> : null}<td><Link href={`/portal/events/${eventId}/registration/${registration.id}`} className="text-link">Open</Link></td></tr>)}</tbody></table></div>
+          <div className="registration-table-wrap">
+            <table className="registration-table">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  {visibleColumns.has("status") ? <th scope="col">Status</th> : null}
+                  {visibleColumns.has("attendees") ? <th scope="col">Attendees</th> : null}
+                  {visibleColumns.has("confirmation") ? <th scope="col">Confirmation</th> : null}
+                  {visibleColumns.has("submitted") ? <th scope="col">Submitted</th> : null}
+                  {visibleColumns.has("form") ? <th scope="col">Form</th> : null}
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.registrations.map((registration) => (
+                  <tr key={registration.id}>
+                    <td>{registration.contactName}</td>
+                    {visibleColumns.has("status") ? <td><span className={`status-badge status-badge--${registration.status}`}>{registration.status.replaceAll("_", " ")}</span></td> : null}
+                    {visibleColumns.has("attendees") ? <td>{registration.attendeeCount}</td> : null}
+                    {visibleColumns.has("confirmation") ? <td>{registration.confirmationNumber}</td> : null}
+                    {visibleColumns.has("submitted") ? <td>{formatDateTime(registration.submittedAt)}</td> : null}
+                    {visibleColumns.has("form") ? <td>Version {registration.formVersion}</td> : null}
+                    <td><Link href={`/portal/events/${eventId}/registration/${registration.id}`} className="text-link">Open</Link></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
         {data.nextCursor ? <div className="button-row"><Link className="button button--ghost" href={`/portal/events/${eventId}/registration?status=${status}&cursor=${data.nextCursor}&sort=${searchParams.sort ?? "newest"}&search=${encodeURIComponent(searchParams.search ?? "")}&columns=${[...visibleColumns].join(",")}`}>Next page</Link></div> : null}
       </div>

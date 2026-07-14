@@ -36,9 +36,15 @@ export default async function MobileCheckInPage(props: {
   return (
     <div className="admin-content check-in-mode">
       {searchParams.success ? (
-        <div className="form-alert form-alert--success">{searchParams.success}</div>
+        <div className="form-alert form-alert--success" role="status">
+          {searchParams.success}
+        </div>
       ) : null}
-      {searchParams.error ? <div className="form-alert">{searchParams.error}</div> : null}
+      {searchParams.error ? (
+        <div className="form-alert" role="alert">
+          {searchParams.error}
+        </div>
+      ) : null}
 
       <div className="panel">
         <p className="eyebrow eyebrow--gold">Mobile check-in</p>

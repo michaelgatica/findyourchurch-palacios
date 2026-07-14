@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -87,6 +87,9 @@ function HeaderUserMenu({
   const [isPending, setIsPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const menuId = useId();
 
   const initials = useMemo(
     () => getInitials(user?.name || user?.email || "Find Your Church"),
@@ -107,6 +110,7 @@ function HeaderUserMenu({
     function handleEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsOpen(false);
+        buttonRef.current?.focus();
       }
     }
 
@@ -141,16 +145,71 @@ function HeaderUserMenu({
     }
   }
 
+  function focusMenuItem(position: "first" | "last") {
+    window.requestAnimationFrame(() => {
+      const items = menuRef.current?.querySelectorAll<HTMLElement>(
+        '[role="menuitem"]:not([disabled])',
+      );
+      const target = position === "first" ? items?.[0] : items?.[items.length - 1];
+      target?.focus();
+    });
+  }
+
+  function handleMenuKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      return;
+    }
+
+    const items = Array.from(
+      menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])') ?? [],
+    );
+    if (items.length === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+    if (event.key === "Home") {
+      items[0].focus();
+      return;
+    }
+    if (event.key === "End") {
+      items[items.length - 1].focus();
+      return;
+    }
+
+    const direction = event.key === "ArrowDown" ? 1 : -1;
+    const nextIndex = currentIndex < 0
+      ? direction > 0 ? 0 : items.length - 1
+      : (currentIndex + direction + items.length) % items.length;
+    items[nextIndex].focus();
+  }
+
   return (
     <div className={`site-header__account-shell${className ? ` ${className}` : ""}`} ref={containerRef}>
       <button
+        ref={buttonRef}
         type="button"
         className="site-header__account-button"
         aria-expanded={isOpen}
         aria-haspopup="menu"
+        aria-controls={menuId}
         onClick={() => {
           setErrorMessage(null);
-          setIsOpen((currentValue) => !currentValue);
+          if (isOpen) {
+            setIsOpen(false);
+          } else {
+            setIsOpen(true);
+            focusMenuItem("first");
+          }
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            setErrorMessage(null);
+            setIsOpen(true);
+            focusMenuItem(event.key === "ArrowDown" ? "first" : "last");
+          }
         }}
       >
         {user ? (
@@ -164,10 +223,16 @@ function HeaderUserMenu({
       </button>
 
       {isOpen ? (
-        <div className="site-header__account-menu" role="menu">
+        <div
+          ref={menuRef}
+          id={menuId}
+          className="site-header__account-menu"
+          role="menu"
+          onKeyDown={handleMenuKeyDown}
+        >
           {user ? (
             <>
-              <div className="site-header__account-meta">
+              <div className="site-header__account-meta" role="none">
                 <strong>{user.name}</strong>
                 <span>{user.email}</span>
                 <span>{getRoleLabel(user.role)}</span>
@@ -198,6 +263,7 @@ function HeaderUserMenu({
               <button
                 type="button"
                 className="site-header__account-action"
+                role="menuitem"
                 onClick={() => void handleSignOut()}
                 disabled={isPending}
               >
@@ -211,7 +277,7 @@ function HeaderUserMenu({
             </>
           ) : (
             <>
-              <div className="site-header__account-meta">
+              <div className="site-header__account-meta" role="none">
                 <strong>Account access</strong>
                 <span>Sign in to manage a church listing or access admin tools.</span>
               </div>

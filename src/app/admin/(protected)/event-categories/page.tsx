@@ -23,14 +23,14 @@ export default async function AdminEventCategoriesPage({ searchParams }: AdminEv
       </div>
 
       <form action={savePlatformCategoryAction} className="panel admin-filter-form">
-        <select name="group" defaultValue="primary_type" required>
+        <select name="group" aria-label="Category group" defaultValue="primary_type" required>
           {eventCategoryGroups.map((group) => <option key={group} value={group}>{group.replaceAll("_", " ")}</option>)}
         </select>
-        <input name="key" placeholder="Internal key, optional" />
-        <input name="label" placeholder="Public label" required />
-        <input name="description" placeholder="Description" />
-        <input name="icon" placeholder="Icon metadata" />
-        <input name="sortOrder" type="number" defaultValue="0" />
+        <input name="key" aria-label="Internal category key" placeholder="Internal key, optional" />
+        <input name="label" aria-label="Public category label" placeholder="Public label" required />
+        <input name="description" aria-label="Category description" placeholder="Description" />
+        <input name="icon" aria-label="Category icon metadata" placeholder="Icon metadata" />
+        <input name="sortOrder" aria-label="Category sort order" type="number" defaultValue="0" />
         <label className="admin-checkbox"><input name="isActive" type="checkbox" defaultChecked /> Active</label>
         <label className="admin-checkbox"><input name="isPrimary" type="checkbox" /> Primary option</label>
         <button className="button button--primary">Add category</button>
@@ -49,13 +49,13 @@ export default async function AdminEventCategoriesPage({ searchParams }: AdminEv
               <span className={`status-badge status-badge--${category.isActive ? "published" : "archived"}`}>{category.isActive ? "active" : "inactive"}</span>
             </div>
             <div className="admin-filter-form">
-              <select name="group" defaultValue={category.group}>
+              <select name="group" aria-label={`Group for ${category.label}`} defaultValue={category.group}>
                 {eventCategoryGroups.map((group) => <option key={group} value={group}>{group.replaceAll("_", " ")}</option>)}
               </select>
-              <input name="label" defaultValue={category.label} />
-              <input name="description" defaultValue={category.description ?? ""} />
-              <input name="icon" defaultValue={category.icon ?? ""} />
-              <input name="sortOrder" type="number" defaultValue={category.sortOrder} />
+              <input name="label" aria-label={`Public label for ${category.label}`} defaultValue={category.label} />
+              <input name="description" aria-label={`Description for ${category.label}`} defaultValue={category.description ?? ""} />
+              <input name="icon" aria-label={`Icon metadata for ${category.label}`} defaultValue={category.icon ?? ""} />
+              <input name="sortOrder" aria-label={`Sort order for ${category.label}`} type="number" defaultValue={category.sortOrder} />
               <label className="admin-checkbox"><input name="isActive" type="checkbox" defaultChecked={category.isActive} /> Active</label>
               <label className="admin-checkbox"><input name="isPrimary" type="checkbox" defaultChecked={category.isPrimary} /> Primary</label>
               <button className="button button--secondary">Save category</button>
@@ -66,4 +66,3 @@ export default async function AdminEventCategoriesPage({ searchParams }: AdminEv
     </div>
   );
 }
-

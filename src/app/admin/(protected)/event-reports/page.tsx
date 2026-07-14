@@ -55,10 +55,10 @@ export default async function AdminEventReportsPage({ searchParams }: AdminEvent
             </div>
             <form action={updatePlatformEventReportAction} className="admin-filter-form">
               <input type="hidden" name="reportId" value={report.id} />
-              <select name="status" defaultValue={report.status}>
+              <select name="status" aria-label={`Status for report about ${report.eventTitle}`} defaultValue={report.status}>
                 {eventReportStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
               </select>
-              <input name="internalNote" placeholder="Internal moderation note" />
+              <input name="internalNote" aria-label={`Internal note for report about ${report.eventTitle}`} placeholder="Internal moderation note" />
               <Link href={`/events/${report.eventSlug}`} className="button button--ghost">Review event</Link>
               <button className="button button--primary">Update report</button>
             </form>
@@ -68,4 +68,3 @@ export default async function AdminEventReportsPage({ searchParams }: AdminEvent
     </div>
   );
 }
-

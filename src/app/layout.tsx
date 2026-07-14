@@ -83,7 +83,7 @@ export default function RootLayout({
         <OptionalAnalytics />
         <div className="site-shell">
           <SiteHeader />
-          <main id="main-content">{children}</main>
+          <main id="main-content" tabIndex={-1}>{children}</main>
           <SiteFooter />
         </div>
       </body>
