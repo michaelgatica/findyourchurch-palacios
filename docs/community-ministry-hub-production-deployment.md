@@ -1,6 +1,6 @@
 # Community Ministry Hub Production Deployment Plan
 
-Prepared July 14, 2026. This is a plan only. No production merge, deployment, data write, rules/index release, secret change, scheduler change, SMTP change, DNS change, or sitemap submission was performed.
+Prepared July 14, 2026. The plan remains unexecuted as an application release. A later owner-authorized preflight configured production monitoring, App Check monitor state/provider metadata, Firestore recovery controls and schedules, a Storage recovery probe, and a pending `www` redirect resource. No production merge, application/rules/index release, data migration, SMTP credential change, Scheduler change, or sitemap submission was performed.
 
 ## Release Gate
 
@@ -10,14 +10,14 @@ Required approvals:
 
 - Launch owner approves the release window and final requirement traceability.
 - Launch owner and platform technical owner accept or remediate the 11 moderate dependency advisory nodes.
-- Ministry operations owner verifies the rotated production SMTP credential and the already certified sender/DNS configuration.
+- Ministry operations owner privately binds the approved noreply credential and verifies sender, account limits, return-path, and bounce behavior. The launch owner waived credential rotation.
 - Accessibility/QA owner completes the required native screen-reader run; the launch owner did not approve a waiver.
 - Operations verifies the staging-certified alert/backup/Storage/retention design after reproducing it against explicitly verified production identifiers.
 - A second operator verifies the production project, database, bucket, backend, and canonical hostname before every external write.
 
 ## Canonical Host And Redirect Policy
 
-The intended production canonical origin is `https://findyourchurchpalacios.org` using HTTPS and the non-`www` host. This is a release decision, not a claim that DNS, TLS, App Hosting domain mapping, or redirects are active.
+The intended production canonical origin is `https://findyourchurchpalacios.org` using HTTPS and the non-`www` host. Apex DNS, TLS, and App Hosting mapping were verified active on July 14, 2026. The `www` redirect resource exists but is not active until its required A and ownership TXT records replace the current CNAME.
 
 After the domain is actually configured:
 
@@ -30,6 +30,17 @@ After the domain is actually configured:
 - Do not configure or claim `findyourchurch.org` for this launch unless it is separately verified and approved.
 
 Staging must continue to use its own hosted URL, staging canonical values, and global `noindex`; it must never claim the production origin.
+
+Current `www` DNS handoff from the App Hosting domain resource:
+
+- remove `www CNAME findyourchurchpalacios.org`;
+- add `www A 35.219.200.0`;
+- add the `www` `fah-claim` TXT value shown by the App Hosting domain status;
+- wait for `HOST_ACTIVE`, `OWNERSHIP_ACTIVE`, and `CERT_ACTIVE`, then verify the 308 preserves path and query.
+
+Do not enable App Check enforcement or open registrations while homepage/events smoke fails. Deploy the committed production indexes first, wait for every required index to become `READY`, roll out the revision containing the App Check site key, prove a successful token exchange, and only then switch Firestore, Storage, and Authentication from `UNENFORCED` to `ENFORCED`.
+
+Before that rollout, migrate every sensitive backend override value to a versioned Secret Manager reference with least-privilege build/runtime access. The preflight found application secrets stored as readable backend override values and no corresponding production application secrets in Secret Manager. Do not print or copy the values during migration, and do not treat the SMTP no-rotation decision as permission to retain plaintext-style override storage.
 
 ## Production Firebase And Hosting Identifiers
 
@@ -141,7 +152,7 @@ Create jobs paused, validate configuration, invoke once with controlled records,
 
 Before production:
 
-- Use the certified Namecheap Shared Hosting Mail SMTP service and rotate the credential supplied through chat before creating the production secret version.
+- Use the certified Namecheap Shared Hosting Mail SMTP service. The launch owner waived credential rotation; create the production secret version only through a private secret channel and never copy the value into source, docs, or terminal evidence.
 - Verify `EMAIL_FROM=noreply@findyourchurchpalacios.org`, `SMTP_REPLY_TO=support@findyourchurchpalacios.org`, the administrator-recipient list, and provider credential binding.
 - Configure and verify SPF and DKIM for the sender domain; approve DMARC policy/monitoring and return-path/bounce handling.
 - Ensure links generated in registration, management, reminder, report, claim, update, and listing-verification email use the production canonical origin.

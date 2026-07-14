@@ -43,6 +43,17 @@ The blocker-closure pass supersedes the historical snapshot above:
 
 Production remains gated on creating the same schedules/protection against verified production identifiers, recording a completed backup, proving restore permissions, and performing a non-destructive restore/clone check. Do not use staging data as a production backup.
 
+## Production Recovery Preflight — July 14, 2026
+
+- Production `findyourchurchpal` has point-in-time recovery and delete protection enabled.
+- Managed schedules are daily/14-day and Sunday-weekly/84-day in `nam5`.
+- No first scheduled backup existed at the final poll; managed-backup restore remains unverified.
+- A production PITR clone completed successfully in an isolated `recovery-*` database. Representative `churches` and `locations` documents were present in source and recovery with matching document identity and field counts (57 and 10 fields). The temporary recovery database was removed after its inherited delete protection was disabled; source delete protection remained enabled.
+- Production Storage seven-day soft delete is active. The safe object delete/restore/checksum exercise passed and left no live validation object.
+- Source database delete protection remained enabled after recovery cleanup.
+
+The first managed backup must still be restored into a new recovery database when it appears. Verify representative church records, index metadata, and collection inventory, then remove only the recovery database after a second identifier check. A successful PITR clone does not substitute for the required managed-backup restore.
+
 ## Pre-Deployment Backup Checklist
 
 - [ ] Record production project, database, Storage bucket, App Hosting backend, release commit, and current serving revision.

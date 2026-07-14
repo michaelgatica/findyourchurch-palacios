@@ -376,7 +376,8 @@ Blocking approvals/configuration:
 - [x] Operations configured three email channels and 13 Google Cloud alert policies; a controlled alert was received without sensitive content.
 - [x] Audit, email, terminal-job, and operational-event TTL is active with 400/180/90/180-day periods and the superadmin operations portal shows safe summaries.
 - [ ] Production Firestore backup/export and Storage recovery/versioning/soft-delete expectations are verified.
-- [ ] Rotate the SMTP credential supplied through chat before any production secret is created.
+- [x] Launch owner explicitly waived SMTP credential rotation; do not reproduce the credential in source, docs, or reports.
+- [ ] Bind the approved noreply credential through production Secret Manager and verify sender/bounce behavior privately.
 - [ ] Record the first completed managed Firestore backup and a safe restore/clone result.
 - [ ] Production Firebase project/database/bucket, App Hosting backend, secrets, canonical DNS/TLS, SMTP DNS, Scheduler, indexes, and rules receive deployment-window verification.
 
@@ -404,9 +405,31 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] Staging daily/weekly Firestore backup schedules created and Storage seven-day soft-delete recovery exercised.
 - [x] Firestore TTL active for audit/email/terminal-job/operational records; safe superadmin summaries visible.
 - [ ] First managed Firestore backup completes and a safe managed restore/clone is verified.
-- [ ] SMTP password supplied through chat is rotated before production use.
+- [x] Launch owner explicitly waived SMTP credential rotation; the exception is recorded.
+- [ ] Approved noreply credential is privately bound in production Secret Manager and sender/bounce behavior passes.
 - [ ] Launch owner accepts/remediates 11 moderate dependency advisory nodes.
 - [ ] Required native screen-reader workflows pass and are documented.
 - [ ] Approved controls are reproduced and verified against production identifiers during the deployment window.
+
+### Production infrastructure preflight — July 14, 2026
+
+- [x] Production project/database/bucket/backend identifiers verified explicitly.
+- [x] Firestore PITR and delete protection enabled.
+- [x] Daily 14-day and Sunday weekly 84-day managed backup schedules created.
+- [x] Production PITR clone completed, representative church/location records matched, and recovery database was removed.
+- [ ] First managed backup appears and is restored into an isolated recovery database.
+- [x] Production Storage seven-day soft-delete recovery exercise passed.
+- [x] Production monitoring resources created; one controlled alert opened/resolved and the corrected five-minute website-unavailable policy delivered a real critical outage alert to the launch-owner Gmail mailbox.
+- [x] Production Cloud Logging retention verified: `_Default` 30 days, locked `_Required` 400 days.
+- [ ] Configure production Firestore TTL policies for audit, email, terminal-job, and operational-event records before launch.
+- [x] Production App Check provider registered and services placed in `UNENFORCED` metrics mode.
+- [ ] Roll out the App Check-enabled revision, prove token exchange, then enforce Firestore, Storage, and Authentication.
+- [x] Apex canonical DNS/TLS/App Hosting mapping verified.
+- [ ] Replace the `www` CNAME with the required App Hosting A/TXT records and verify the path-preserving 308.
+- [x] Namecheap Stellar limit documented as 50 messages/hour/domain and 100 recipients/message.
+- [ ] Privately bind the approved noreply credential and verify live bounce/return-path behavior.
+- [ ] Migrate all sensitive App Hosting override values to versioned Secret Manager references with build/runtime access as required.
+- [ ] Deploy required composite indexes; production currently reports zero and homepage/events fail.
+- [ ] Re-run controlled public, representative, and platform-admin smoke after indexes/App Check rollout.
 
 Current decision: **NO-GO** until every unchecked item above is closed.

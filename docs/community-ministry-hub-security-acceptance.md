@@ -2,13 +2,31 @@
 
 Certification date: July 14, 2026
 
-This record separates verified controls from risks that still require an owner decision. It is not production approval. No production Firebase project, data, rules, hosting, secrets, scheduler, email provider, or DNS setting was changed during certification.
+This record separates verified controls from risks that still require an owner decision. It is not production approval. The initial certification made no production changes. A later owner-authorized production infrastructure preflight configured only App Check monitoring/provider metadata, Google Cloud monitoring, Firestore recovery controls, backup schedules, Storage recovery validation, and an App Hosting `www` redirect resource. Application code, rules, indexes, production data, Scheduler jobs, and SMTP credentials were not deployed or changed.
 
 ## Current Decision
 
-**NO-GO for production deployment today.** Provider-backed staging email, App Check monitor-mode token exchange, Google Cloud alert delivery, operational-record retention, Firestore backup schedules, and Storage soft-delete recovery are now certified. Production remains blocked by the owner's required native screen-reader test, explicit acceptance or remediation of 11 moderate dependency advisory nodes, rotation of the SMTP credential that was supplied through chat, first managed Firestore backup/restore evidence, and production-only backup/App Check/monitoring/secret configuration.
+**NO-GO for production deployment today.** Provider-backed staging email, production monitoring, operational-record retention, Firestore recovery controls, and Storage soft-delete recovery are certified. Production remains blocked by the owner's required native screen-reader test, explicit acceptance or remediation of 11 moderate dependency advisory nodes, first managed Firestore backup/restore evidence, App Check enforcement after a valid production token exchange, production secret-manager binding, required indexes, and passing production smoke tests.
 
 The Community Ministry Hub changes may be prepared for review and merge, but deployment must remain gated on the blocking acceptance items at the end of this document.
+
+## Production Infrastructure Preflight — July 14, 2026
+
+Every production write explicitly targeted project `findyourchurch-24562`. The verified database is `findyourchurchpal` in `nam5`, the bucket is `findyourchurch-24562.firebasestorage.app`, and the App Hosting backend is `findyourchurch-palacios`. The Firebase CLI remained selected to staging; no command relied on its ambient selection.
+
+| Area | Verified production evidence | Result / remaining gate |
+| --- | --- | --- |
+| Firestore recovery | Point-in-time recovery and database delete protection are enabled. Daily backups retain 14 days and Sunday weekly backups retain 84 days. A PITR clone completed into an isolated `recovery-*` database; representative `churches` and `locations` documents matched field counts and the recovery database was removed. | PITR recovery passed. No scheduled backup artifact exists yet, so the required managed-backup restore is still blocking. |
+| Storage recovery | Seven-day soft delete was already active. A uniquely named fictitious object was uploaded, deleted, found as soft-deleted, restored, checksum/size matched, and deleted again. | Pass. Object versioning remains off; temporary private exports continue to rely on soft delete plus application expiry. |
+| App Check | Production reCAPTCHA Enterprise provider registered for the canonical/App Hosting domains. The next-rollout backend configuration has the public site key and `APP_CHECK_ENFORCEMENT_MODE=enforced`; Firestore, Storage, and Authentication are explicitly `UNENFORCED` to collect metrics. | Safe pre-enforcement state. Do not switch services to `ENFORCED` until a new revision serves the key and a production token exchange succeeds. |
+| Monitoring | Error Reporting API enabled; three email channels, one content-matched HTTPS uptime check, 12 sanitized log metrics, and 13 threshold policies are enabled. A controlled configuration-failure incident opened, emailed `michaelgatica@gmail.com`, and resolved. The uptime policy's stale check ID was corrected to the verified production check; the continuously failing homepage then opened a real critical incident after five minutes and delivered the critical outage email to the same mailbox. | Pass for the verified recipient and critical website-unavailable path. Support and escalation mailbox receipt still needs confirmation by their owners. |
+| Cloud Logging retention | Production `_Default` retains 30 days and locked `_Required` retains 400 days. | Infrastructure retention verified. Production Firestore TTL policies for application audit/email/job/operational collections are not yet configured. |
+| Canonical host | Apex DNS and App Hosting ownership/host/certificate are active. TLS hostname verification passed. An App Hosting 308 redirect resource for `www` exists. | `www` is not active: DNS must replace its CNAME with `A 35.219.200.0` and add the Firebase-provided ownership TXT record before the redirect can reconcile. |
+| SMTP provider | Gmail order evidence identifies Namecheap Stellar. DNS exposes SPF, default-selector DKIM, and DMARC `p=none`; MX routes to the configured hosting mail service. | Namecheap documents 50 messages/hour/domain and 100 recipients/message for Stellar. Live bounce testing is blocked because the currently stored staging secret is rejected and the owner instructed that rotation be skipped. The approved credential must be privately bound; production still points at an older support-mailbox configuration. |
+| Controlled public smoke | `/churches`, `/submit`, `/contact`, `/portal/login`, `/admin/login`, `/privacy`, and `/terms` rendered without browser errors at 375px and had no horizontal overflow. | Homepage, a real church profile, and `/events` failed with Server Components errors caused by missing event composite indexes. Production currently reports zero composite indexes. No index was deployed in this preflight. |
+| Secret storage | Production Secret Manager contains no application SMTP/token secrets; sensitive values such as `SMTP_PASSWORD` and the listing-verification cron secret are currently backend override values readable by project readers. | Launch-blocking. Move every sensitive value to versioned Secret Manager references before the application rollout; preserve the owner-waived no-rotation decision without copying values. |
+
+The owner explicitly waived SMTP credential rotation. That waiver removes only the rotation action; it does not accept plaintext backend secret storage, an invalid Secret Manager version, sender mismatch, or missing bounce evidence.
 
 ## Production Blocker Closure Evidence
 
@@ -26,7 +44,7 @@ Owner decisions are recorded without inference:
 
 SMTP provider evidence: Namecheap Shared Hosting Mail was exercised through its canonical TLS endpoint. Seven controlled messages were received at the approved staging recipient: registration confirmation, waitlist confirmation, reminder, church-administrator notification, PDF report, XLSX report, and scheduled report. SPF, DKIM, and DMARC passed in received headers; DMARC is currently monitoring policy `p=none`. PDF and XLSX attachments opened. Links stayed on staging, sensitive registration answers were absent, and no unexpected duplicate was found. The observed Return-Path used the noreply mailbox. A destructive bounce test was not sent because no unapproved/invalid recipient was authorized. The exact account tier must be confirmed before production volume; Namecheap documents shared-hosting limits by plan.
 
-The SMTP password supplied in chat is treated as exposed and must be rotated into the production secret manager before launch. It is not present in source, documentation, commits, screenshots, or the final report.
+The launch owner directed that SMTP credential rotation be omitted. That exception is recorded as an owner decision and is not silently treated as a security recommendation. The credential must still be supplied through a private secret channel and bound through Secret Manager; it is not placed in source, documentation, commits, screenshots, or the final report.
 
 Staging Cloud Logging uses the project `_Default` bucket with 30-day retention. Event-report moderation and export actions are covered by the 400-day application audit category; safe authorization/rate-limit events are covered by the 180-day operational category. Registration answers, tokens, credentials, medical/minor details, and complete addresses are excluded from both structured alerts and retained operational summaries.
 
@@ -103,9 +121,9 @@ These gaps do not weaken the authorization decision itself, but production monit
 | Risk | State | Compensating control | Risk owner | Target | Launch impact |
 | --- | --- | --- | --- | --- | --- |
 | 11 moderate production advisory nodes | Pending acceptance | Server-only exposure limits, no user CSS, no caller-supplied UUID buffers, authenticated private exports | Platform technical owner + launch owner | 2026-08-14 / before deploy | Blocking until explicitly accepted or remediated |
-| Provider-backed SMTP | Staging certified; production credential rotation pending | Seven received controlled messages, SPF/DKIM/DMARC pass, support Reply-To/notice, recipient guard, failure redaction | Ministry operations owner | Before deploy | Blocking only until the exposed credential is rotated and production binding is verified |
+| Provider-backed SMTP | Staging certified; owner waived credential rotation | Seven received controlled messages, SPF/DKIM/DMARC pass, support Reply-To/notice, recipient guard, failure redaction | Ministry operations owner | Before deploy | Blocking until the approved noreply credential is privately bound and production sender/bounce behavior is verified; rotation itself is not a gate |
 | App Check | Owner approved enforcement at launch | Valid reCAPTCHA Enterprise token exchange and authenticated admin workflow passed in staging monitor mode | Platform technical owner | Deployment window | Blocking until production enforcement and valid-client smoke pass |
-| External alerts | Staging configured and received | Three channels, 13 policies, one controlled received alert; safe structured log fields only | Operations owner | Deployment window | Blocking until replicated and received in production |
+| External alerts | Production configured and received | Three channels, 13 policies, controlled configuration alert delivery, and a real critical five-minute website-unavailable alert; safe structured log fields only | Operations owner | Completed 2026-07-14 | Closed for the verified launch-owner channel; support/escalation owners still confirm their mailbox receipt |
 | Authorization/rate-limit operational telemetry incomplete | Deferred | Enforcement still fails closed; infrastructure logs available | Platform technical owner | Within 30 days of launch, with launch-owner acceptance | Conditional blocker |
 | Native screen-reader evidence unavailable | Pending external test | Axe and keyboard/semantic tests have zero critical/serious findings | Accessibility/launch owner | Before deploy | Blocking for full GO |
 | Native Safari hardware unavailable | Documented limitation | Chromium, Edge, Firefox, and Playwright WebKit hosted suites passed | QA/launch owner | Post-launch device matrix unless owner elevates | Not blocking by default |
@@ -118,9 +136,10 @@ These gaps do not weaken the authorization decision itself, but production monit
 - [x] Ministry operations certifies provider-backed registration, waitlist, reminder, administrator, PDF, XLSX, and scheduled-report delivery to the approved staging recipient.
 - [ ] Accessibility/QA owner completes the required native screen-reader checks. The owner explicitly requires testing; residual-risk acceptance is not substituted.
 - [x] Platform/launch owner requires App Check enforcement at launch; staging monitor-mode token generation is certified.
-- [x] Operations owner approved the alert stack, recipients, thresholds, and escalation; staging delivery is certified. Production replication remains deployment-window work.
+- [x] Operations owner approved the alert stack, recipients, thresholds, and escalation; production resources and launch-owner delivery are verified.
 - [x] Privacy/operations approved retention for audit, email, terminal Scheduler, and operational records; staging TTL is active.
-- [ ] Rotate the SMTP credential supplied through chat and verify the replacement only through Secret Manager.
+- [x] Launch owner directed that SMTP credential rotation be omitted; record the exception without reproducing the credential.
+- [ ] Bind the approved noreply credential through production Secret Manager and verify sender/bounce behavior without exposing it.
 - [ ] Record the first completed Firestore managed backup and a non-destructive managed restore/clone check.
 - [ ] Production backup and Storage-protection settings are confirmed before any production write.
 - [ ] All production identifiers, secrets, rules, indexes, SMTP/DNS, scheduler, and canonical-domain checks pass in the deployment window.

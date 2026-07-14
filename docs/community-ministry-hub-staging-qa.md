@@ -367,7 +367,7 @@ Executed locally in the Firebase Emulator Suite:
 This record supersedes the historical SMTP/monitoring/backup statements above while preserving them as dated evidence.
 
 - Hosted URL remained `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app` and every external command explicitly targeted `findyourchurch-staging-2026`.
-- Hosted SMTP used Namecheap Shared Hosting Mail with sender `noreply@findyourchurchpalacios.org`, Reply-To `support@findyourchurchpalacios.org`, and one approved staging recipient. The password is stored only in Secret Manager and must be rotated because it was supplied through chat.
+- Hosted SMTP used Namecheap Shared Hosting Mail with sender `noreply@findyourchurchpalacios.org`, Reply-To `support@findyourchurchpalacios.org`, and one approved staging recipient. The owner later directed that credential rotation be omitted; the credential still must be supplied privately and must never be copied into source or documentation.
 - Seven controlled messages were received: registration confirmation, waitlist confirmation, event reminder, church-administrator notification, PDF report, XLSX report, and scheduled report. All expected messages appeared exactly once; PDF and XLSX opened.
 - Received headers passed SPF, DKIM, and DMARC. DMARC policy remains monitoring-only (`p=none`). Staging links and the universal unmonitored-mailbox notice were present; prohibited sensitive answer categories were absent. A real invalid-recipient bounce was not sent.
 - App Check reCAPTCHA Enterprise is registered to the staging web app and hosted domain. A first post-rollout probe did not observe the exchange while the revision propagated and failed; the subsequent authoritative probe loaded the provider and received HTTP 200 from the token exchange, with authenticated admin workflow success. Enforcement remains off in staging by design.
@@ -379,7 +379,7 @@ This record supersedes the historical SMTP/monitoring/backup statements above wh
 - Native screen-reader testing is still required and was not marked passed. Windows Narrator is present; NVDA and an auditable speech-output surface were unavailable in this run.
 - Production project `findyourchurch-24562`, production data/rules/Storage/hosting/secrets, `main`, and remotes were not modified.
 
-Staging blocker-closure recommendation: **NO-GO for production today** due to native screen-reader evidence, unaccepted dependency advisories, SMTP credential rotation, first managed-backup/restore proof, and the intentionally unexecuted production-only configuration steps.
+Staging blocker-closure recommendation: **NO-GO for production today** due to native screen-reader evidence, unaccepted dependency advisories, private production SMTP binding/bounce verification, first managed-backup/restore proof, App Check enforcement, required indexes, and passing production smoke tests. SMTP rotation is an owner-waived item, not a remaining gate.
 
 ### Blocker-closure recertification result
 

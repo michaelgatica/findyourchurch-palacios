@@ -723,7 +723,21 @@ This section supersedes earlier statements that staging SMTP used `console`, App
 | Dependency audit | 11 moderate nodes, 0 high, 0 critical across Next/PostCSS/Firebase Admin/Google transports/UUID/ExcelJS paths. Available npm suggestions are major, incompatible, or unsupported. | Awaiting explicit owner acceptance/remediation; blocking |
 | Native screen reader | Narrator is installed but no auditable native workflow test was completed. The owner requires native testing before launch. | Blocking |
 
-Current recommendation remains **NO-GO**. Once the native screen-reader run passes, dependency risk is explicitly accepted or remediated, the SMTP secret is rotated, the first managed backup/restore evidence is recorded, and the tested controls are reproduced during production preflight, the project can move to a controlled GO decision. Production was not deployed, modified, merged, or pushed during blocker closure.
+Current recommendation remains **NO-GO**. Once the native screen-reader run passes, dependency risk is explicitly accepted or remediated, the approved noreply secret is privately bound, the first managed backup/restore evidence is recorded, App Check is enforced after valid-token verification, production indexes are ready, and controlled smoke tests pass, the project can move to a controlled GO decision. The owner explicitly waived SMTP credential rotation; that waiver does not waive private secret binding or provider verification.
+
+### Production preflight update — July 14, 2026
+
+- Verified identifiers: project `findyourchurch-24562`, database `findyourchurchpal` (`nam5`), bucket `findyourchurch-24562.firebasestorage.app`, backend `findyourchurch-palacios`.
+- Firestore PITR/delete protection and daily/weekly schedules are active. An isolated PITR clone matched representative church/location document identities and field counts and was removed; Storage soft-delete recovery passed. The first managed backup has not appeared.
+- Production App Check provider and next-rollout variables are configured. Firestore, Storage, and Authentication remain `UNENFORCED` until a served token exchange passes.
+- Production monitoring now has 3 email channels, 1 content uptime check, 12 log metrics, and 13 policies. A controlled incident was actually received and resolved at the launch-owner Gmail mailbox. The website-unavailable policy was corrected from a stale check ID to the verified production check; the current homepage failure then opened a real critical incident after five minutes and delivered the critical outage email.
+- Production Cloud Logging retention is 30 days for `_Default` and 400 days for locked `_Required`; production application-collection TTL policies are still absent.
+- Apex DNS/TLS passed. The `www` 308 resource is pending the required Namecheap A/TXT change and still returns 404.
+- Namecheap plan is Stellar: 50 messages/hour/domain and 100 recipients/message. SPF and DKIM are published; DMARC remains `p=none`. Live bounce behavior and private noreply binding remain unverified.
+- Public smoke passed directory, submit, contact, both sign-in pages, privacy, and terms at 375px without overflow. Homepage, a real church profile, and events failed because production has zero composite indexes and required event indexes are absent.
+- Production application secrets are not Secret Manager references; sensitive backend override values remain readable to project readers. Moving them to versioned secrets is launch-blocking even though the owner waived SMTP credential rotation.
+
+These results close production monitoring and Storage-recovery configuration, but they do not change the **NO-GO** recommendation.
 
 ### Recertification accounting
 
