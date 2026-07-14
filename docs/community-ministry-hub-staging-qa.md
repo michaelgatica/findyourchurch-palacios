@@ -403,4 +403,14 @@ Staging certification remains unchanged. The later owner-authorized production r
 - the required `www` A/TXT records are publicly visible, App Hosting host/ownership/certificate state is active, and path-preserving HTTPS 308 redirects pass;
 - no first scheduled managed backup exists yet, so a managed-backup restore still cannot run.
 
-Native screen-reader evidence, dependency-risk acceptance, first managed-backup restore, and the SMTP bounce decision remain launch gates. This follow-up does not change the historical staging matrix or authorize opening production registrations.
+That production gate statement is superseded by the owner closure record below. It remains valid as historical staging evidence and does not authorize opening production registrations.
+
+## Owner Closure Follow-up — July 14, 2026
+
+- The launch owner reported the documented native Windows Narrator/Chrome listening matrix as passed. No critical/high native-reader finding was reported; the result is owner-supplied manual evidence.
+- The launch owner accepted the 9 moderate production advisory nodes with controls and the August 14, 2026 remediation target; 0 high/critical advisories remain.
+- Production provider session `20260714-154026` sent all 15 Community Hub templates to the approved Gmail mailbox. All 15 arrived; PDF/XLSX attachments were retrieved and parsed; SPF/DKIM/DMARC, TLS 1.3, Return-Path, support Reply-To, canonical-link constraints, and the unmonitored notice passed. A reserved `.invalid` recipient was rejected with sanitized SMTP 550.
+- A current production Firestore export imported successfully into an isolated recovery database with matching source counts/representative records. The recovery database was removed and the protected export retained. The first scheduled managed artifact remains a follow-up restore item.
+- Production Cloud Scheduler API is enabled and `community-hub-registration-jobs-production` is configured but paused. Unauthorized access returned 401 and two authorized empty runs returned 200 with no duplicate work. Keep the job paused until launch approval.
+
+Current recommendation: **CONDITIONAL GO for a controlled production deployment window**. This does not authorize a merge, deployment, Scheduler enablement, or opening registrations; those require the production checklist and explicit release approval.

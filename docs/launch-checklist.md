@@ -353,7 +353,7 @@ Only run live Firebase workflow tests when the environment is intentionally poin
 
 ## Final Certification Gate — July 14, 2026
 
-Current decision: **NO-GO**. Do not merge as an automatic deployment, do not deploy, and do not open production registrations until every unchecked launch gate has a named owner and recorded evidence.
+Current decision after the owner closure record below: **CONDITIONAL GO for a controlled production deployment window**. Do not merge, deploy further, enable automation, or open production registrations without the separate launch-window approvals and smoke checks.
 
 Completed staging evidence:
 
@@ -369,16 +369,16 @@ Completed staging evidence:
 
 Blocking approvals/configuration:
 
-- [ ] Launch owner accepts or remediates the documented production dependency risk.
+- [x] Launch owner accepts the 9 moderate dependency advisory nodes with documented controls and the August 14, 2026 remediation target; 0 high and 0 critical advisories remain.
 - [x] Approved SMTP provider delivered controlled registration, waitlist, reminder, administrator, PDF, XLSX, and scheduled-report messages; SPF/DKIM/DMARC, staging links, notice, Reply-To, attachments, and duplicate prevention were verified. Return-Path was observed; no destructive bounce test was authorized.
-- [ ] Accessibility owner completes native screen-reader evidence or signs residual-risk acceptance.
+- [x] Launch owner reported the documented hosted-staging Windows Narrator/Chrome listening matrix as passed; no critical/high finding was reported.
 - [x] Platform owner requires App Check enforcement at launch; staging monitor-mode token exchange returned HTTP 200 and production configuration rejects any mode other than `enforced`.
 - [x] Operations configured three email channels and 13 Google Cloud alert policies; a controlled alert was received without sensitive content.
 - [x] Audit, email, terminal-job, and operational-event TTL is active with 400/180/90/180-day periods and the superadmin operations portal shows safe summaries.
-- [ ] Production Firestore backup/export and Storage recovery/versioning/soft-delete expectations are verified.
+- [x] Production Firestore PITR, schedules, current export/import recovery, dedicated protected export bucket, and Storage soft-delete recovery are verified.
 - [x] Launch owner explicitly waived SMTP credential rotation; do not reproduce the credential in source, docs, or reports.
-- [ ] Bind the approved noreply credential through production Secret Manager and verify sender/bounce behavior privately.
-- [ ] Record the first completed managed Firestore backup and a safe restore/clone result.
+- [x] Approved noreply credential is bound through production Secret Manager; all 15 templates were received and the reserved-domain failure probe returned sanitized SMTP 550.
+- [ ] Restore the first scheduled managed-backup artifact after it appears. This is a follow-up, not a substitute for the already completed current export/import recovery.
 - [ ] Production Firebase project/database/bucket, App Hosting backend, secrets, canonical DNS/TLS, SMTP DNS, Scheduler, indexes, and rules receive deployment-window verification.
 
 ## Concise Post-Deployment Smoke Checklist
@@ -404,12 +404,13 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] Three Google Cloud email channels, one uptime check, 12 log metrics, and 13 alert policies configured; controlled alert received.
 - [x] Staging daily/weekly Firestore backup schedules created and Storage seven-day soft-delete recovery exercised.
 - [x] Firestore TTL active for audit/email/terminal-job/operational records; safe superadmin summaries visible.
-- [ ] First managed Firestore backup completes and a safe managed restore/clone is verified.
+- [x] Current production export `prelaunch-20260714T203054Z` imported into an isolated recovery database; 42 churches and 1 location matched, and the recovery database was removed.
+- [ ] First scheduled managed-backup artifact is restored after it appears as an operational follow-up.
 - [x] Launch owner explicitly waived SMTP credential rotation; the exception is recorded.
 - [x] Approved noreply credential is privately bound in production Secret Manager; SMTP 250 acceptance, Gmail receipt, SPF/DKIM/DMARC, TLS, Return-Path, support Reply-To, and the unmonitored notice pass.
-- [ ] Run an authorized invalid-recipient bounce test or record explicit owner acceptance of the observed Return-Path/provider handling.
-- [ ] Launch owner accepts/remediates 9 remaining moderate dependency advisory nodes.
-- [ ] Accessibility/launch owner completes the hosted-staging Narrator listening matrix in `docs/community-ministry-hub-accessibility.md`; record versions, role, result, exact finding, and severity without passwords or tokens.
+- [x] Authorized reserved `.invalid` recipient probe was rejected at SMTP with sanitized 550; no third party was contacted.
+- [x] Launch owner accepted all 9 remaining moderate dependency advisory nodes with controls and target date; 0 high/critical advisories remain.
+- [x] Launch owner reported the hosted-staging Narrator listening matrix as passed; this is owner-supplied manual evidence.
 - [ ] Approved controls are reproduced and verified against production identifiers during the deployment window.
 
 ### Production infrastructure preflight — July 14, 2026
@@ -418,7 +419,8 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] Firestore PITR and delete protection enabled.
 - [x] Daily 14-day and Sunday weekly 84-day managed backup schedules created.
 - [x] Production PITR clone completed, representative church/location records matched, and recovery database was removed.
-- [ ] First managed backup appears and is restored into an isolated recovery database.
+- [x] A current production export was imported into an isolated recovery database, source counts and representative records matched, and the recovery database was removed.
+- [ ] Restore the first scheduled managed-backup artifact after it appears and retain that evidence as a follow-up.
 - [x] Production Storage seven-day soft-delete recovery exercise passed.
 - [x] Production monitoring resources created; one controlled alert opened/resolved and the corrected five-minute website-unavailable policy delivered a real critical outage alert to the launch-owner Gmail mailbox.
 - [x] Production Cloud Logging retention verified: `_Default` 30 days, locked `_Required` 400 days.
@@ -429,9 +431,19 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] App Hosting reports active host/ownership/certificate state; verify path-preserving HTTPS 308 redirects and TLS.
 - [x] Namecheap Stellar Plus limit documented as 200 messages/hour/domain and 100 recipients/message.
 - [x] Privately bind the approved noreply credential and verify production delivery, receipt, authentication headers, Return-Path, support Reply-To, and the unmonitored notice.
-- [ ] Verify an authorized live bounce or record an explicit accepted limitation.
+- [x] Authorized reserved-domain invalid-recipient probe returned sanitized SMTP 550 before delivery; no third party was contacted.
 - [x] All six sensitive application values, including SMTP, use versioned Secret Manager resources; App Hosting access is granted and plaintext backend overrides are removed.
 - [x] All 27 required composite indexes are `READY`; homepage, events, directory, and church-profile public routes render without the prior index failure, and post-fix uptime points pass.
 - [x] Re-run controlled public, representative, and platform-admin smoke after indexes/App Check rollout; all checked routes passed and every synthetic record was removed/restored.
 
-Current decision: **NO-GO** until every unchecked item above is closed.
+Current decision: **CONDITIONAL GO for the controlled production deployment window.** The unchecked items are deployment-window execution or explicitly identified follow-ups. Keep registrations closed and the production Scheduler paused until merge/release approval, production rules verification, and controlled public/representative/admin/email/Scheduler smoke tests pass.
+
+### Owner blocker closure and production operations update — July 14, 2026
+
+- [x] Full email provider session `20260714-154026` sent all 15 Community Hub templates exactly once to the approved Gmail mailbox; all 15 arrived. PDF and XLSX attachments downloaded and parsed, SPF/DKIM/DMARC passed, TLS 1.3 and support Reply-To were present, and every message carried the unmonitored-mailbox notice.
+- [x] Cloud Scheduler API is enabled in production. Paused job `community-hub-registration-jobs-production` targets `POST /api/jobs/registration` every 15 minutes in `America/Chicago` with 3 retries. Unauthorized requests return 401; two authorized empty runs returned 200 with zero duplicate work. Keep the job paused until launch approval.
+- [x] The current Firestore export is stored in protected bucket `gs://findyourchurch-24562-firestore-backups` with uniform bucket-level access, public-access prevention, and 7-day soft delete.
+- [x] The launch owner approved the retention decisions, advisory acceptance, backup execution, and native screen-reader pass. SMTP credential rotation remains explicitly waived.
+- [ ] Obtain final merge/release approval, deploy and verify committed Firestore/Storage rules against the explicit production identifiers, run the controlled post-deployment checklist, then explicitly approve Scheduler enablement and opening registrations.
+
+Focused closure recertification passed TypeScript, validation/report/Scheduler/platform/staging/email/performance suites, lint, the 40-page production build, Firestore/Storage/Auth rules emulation, registration emulation, live staging Storage, hosted staging smoke, hosted Scheduler authentication, and diff checks. Audit: 346 production dependencies; 9 moderate, 0 high, 0 critical. Production Rules API readback returned HTTP 403 for the current CLI identity, so production rule deployment/readback remains an explicit launch-window operator step and is not silently marked complete.

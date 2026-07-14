@@ -184,6 +184,14 @@ Use managed Firestore restore/clone/export procedures appropriate to the approve
 
 Never restore staging data into production. Never restore a backup without confirming database ID and timestamp. A restore that overwrites newer registrations requires explicit incident-commander and ministry-operations approval plus a reconciliation plan for records accepted after the backup.
 
+### Verified prelaunch production recovery point — July 14, 2026
+
+- Current export: `gs://findyourchurch-24562-firestore-backups/exports/prelaunch-20260714T203054Z`.
+- Export bucket protections: uniform bucket-level access, public-access prevention, and seven-day soft delete.
+- Recovery exercise: imported into isolated database `recovery-export-20260714-2031` in `nam5`; source/restore aggregation counts matched 42 churches and 1 location, and representative church/location records matched critical fields.
+- Cleanup: the isolated recovery database was removed after its exact project/database/location/delete-protection state was verified. Source database delete protection remained enabled. The protected export was retained.
+- Scheduled recovery: daily 14-day and Sunday weekly 84-day managed schedules remain active. Restore the first scheduled artifact after it appears and add that evidence; do not delete the current export merely because the schedule starts producing artifacts.
+
 ## Recovery Exit Criteria
 
 - Root cause and affected interval are recorded.

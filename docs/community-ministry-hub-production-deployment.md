@@ -1,18 +1,19 @@
 # Community Ministry Hub Production Deployment Plan
 
-Prepared July 14, 2026. The owner later authorized a guarded remediation rollout, not a general launch. Production App Hosting revision `findyourchurch-palacios-build-2026-07-14-001`, required indexes, Secret Manager bindings, SMTP, TTL, monitoring, recovery controls, and App Check enforcement are now in place. No merge to `main`, broad data migration, registration opening, Scheduler production change, or sitemap submission was performed.
+Prepared July 14, 2026. The owner later authorized a guarded remediation rollout, not a general launch. Production App Hosting revision `findyourchurch-palacios-build-2026-07-14-001`, required indexes, Secret Manager bindings, SMTP, TTL, monitoring, recovery controls, App Check enforcement, and a paused Cloud Scheduler job are now in place. No merge to `main`, broad data migration, registration opening, Scheduler enablement, or sitemap submission was performed.
 
 ## Release Gate
 
-The current certification recommendation is **NO-GO for opening registrations** until the remaining conditions in `docs/community-ministry-hub-security-acceptance.md` are resolved. A deployed remediation revision, passing build, or staging rollout is not launch authorization.
+The current certification recommendation is **CONDITIONAL GO for a controlled production deployment window**. Registrations remain closed. A deployed remediation revision, passing build, owner-risk acceptance, or staging rollout is not permission to merge, enable Scheduler, or open registrations.
 
 Required approvals:
 
 - Launch owner approves the release window and final requirement traceability.
-- Launch owner and platform technical owner accept or remediate the 9 remaining moderate dependency advisory nodes.
-- Ministry operations owner authorizes an invalid-recipient bounce test or explicitly accepts the verified Return-Path/provider behavior. Credential binding, sender, delivery, authentication headers, and account limits are verified; the launch owner waived credential rotation.
-- Accessibility/QA owner completes the required native screen-reader run; the launch owner did not approve a waiver.
-- Operations verifies the first scheduled managed backup by restoring it to an isolated database; monitoring, Storage soft delete, PITR, TTL, and schedules are already reproduced against verified production identifiers.
+- The launch owner has accepted the 9 moderate dependency advisory nodes with controls through August 14, 2026; reopen the gate if advisory severity or exposure changes.
+- Ministry operations has certified all 15 provider messages and the reserved-domain SMTP 550 failure path. Credential binding, sender, delivery, authentication headers, attachments, and account limits are verified; credential rotation remains owner-waived.
+- Accessibility/QA owner has reported the documented native Windows Narrator/Chrome listening matrix passed.
+- Operations has verified PITR, Storage soft delete, schedules, and a current protected export imported into an isolated recovery database. Restore the first scheduled managed artifact after it appears as a follow-up.
+- Release owner must approve the merge/release window and the exact production rules/app revision before any remaining deployment step.
 - A second operator verifies the production project, database, bucket, backend, and canonical hostname before every external write.
 
 ## Canonical Host And Redirect Policy
@@ -231,3 +232,13 @@ Reproduce the tested staging design in production during the approved window: on
 - [ ] Monitoring receives/records controlled success and failure evidence without sensitive payloads.
 
 Use only controlled test records. Do not use real registrant, child, medical, allergy, emergency-contact, or complete-address data in deployment smoke tests.
+
+## Prelaunch Blocker Closure Record — July 14, 2026
+
+- Decision: **CONDITIONAL GO for the controlled deployment window**. No merge, additional release deployment, Scheduler enablement, or registration opening is authorized by this record.
+- Full SMTP: session `20260714-154026` delivered all 15 Community Hub templates to the approved Gmail mailbox. PDF/XLSX attachments opened, sender authentication passed, production links were constrained to the canonical host, the support Reply-To and unmonitored notice were present, and a reserved invalid-domain recipient was rejected with sanitized SMTP 550.
+- Firestore recovery: current export `gs://findyourchurch-24562-firestore-backups/exports/prelaunch-20260714T203054Z` imported into isolated database `recovery-export-20260714-2031`; 42 churches and 1 location matched source counts and representative documents matched. The recovery database was deleted after an exact identifier check. Keep the protected export and restore the first scheduled managed artifact when it appears.
+- Scheduler: production API is enabled. Job `community-hub-registration-jobs-production` is configured in `us-central1`, paused, scheduled every 15 minutes in `America/Chicago`, and uses 3 retries. Unauthorized access returned 401 and two authorized empty runs returned 200 without duplication. Enable only after steps 19–25 pass.
+- Accessibility/risk: the launch owner reported the Narrator matrix passed and accepted the 9 moderate dependency advisories with controls through August 14, 2026; 0 high/critical advisories remain.
+
+Cloud Scheduler pricing at this checkpoint is 3 jobs free per billing account per month and USD 0.10 per additional job per month; paused jobs count. Executions are not separately billed by Scheduler, but downstream service usage is. Confirm current pricing at [Google Cloud Scheduler pricing](https://cloud.google.com/scheduler/pricing) before material schedule expansion.
