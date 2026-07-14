@@ -442,7 +442,7 @@ The Community Ministry Hub range is `95a4bfb29fd9d0f5ff2f1b37d7f4dab57ce791ef..f
 
 New public surfaces include `/events`, `/events/[eventSlug]`, `/events/[eventSlug]/register`, its confirmation route, the ICS route, and tokenized registration management. New representative surfaces include event create/edit, registration form builder, registration dashboard/detail/check-in, and exports. New platform surfaces include events, event reports, categories, and operations readiness. The protected registration Scheduler endpoint and private export download endpoint are server routes.
 
-New Firestore collections are `events`, `publicEvents`, `eventCategories`, `eventReports`, `eventRegistrations`, `eventRegistrationConfigurations`, `eventFormVersions`, `eventRegistrationCounters`, `eventRegistrationTokens`, `eventRegistrationConfirmations`, `eventRegistrationIdempotency`, `eventRegistrationRateLimits`, `eventExports`, `eventScheduledJobs`, `operationalEvents`, and `operationalLocks`. Existing `auditLogs` and `emailLogs` receive new safe action types. The production rollout requires all 25 checked-in composite indexes.
+New Firestore collections are `events`, `publicEvents`, `eventCategories`, `eventReports`, `eventRegistrations`, `eventRegistrationConfigurations`, `eventFormVersions`, `eventRegistrationCounters`, `eventRegistrationTokens`, `eventRegistrationConfirmations`, `eventRegistrationIdempotency`, `eventRegistrationRateLimits`, `eventExports`, `eventScheduledJobs`, `operationalEvents`, and `operationalLocks`. Existing `auditLogs` and `emailLogs` receive new safe action types. The production rollout requires all 27 checked-in composite indexes.
 
 New Storage paths are public `churches/{churchId}/events/{eventId}/flyer/{fileName}` and server-only `private/event-exports/{churchId}/{eventId}/{fileName}`. Existing church logo/photo and submission paths remain governed by the same trusted-server model.
 
@@ -467,7 +467,7 @@ Pull-request summary: adds scalable public/community events, church-managed even
 Reviewer checklist:
 
 - Application reviewer: public/portal/admin routes, validation, error states, backwards compatibility, and bounded query/search behavior.
-- Database reviewer: collection ownership, public projection, transactions/counters, 25 indexes, bounded cleanup, migration/backfill statement, and rollback compatibility.
+- Database reviewer: collection ownership, public projection, transactions/counters, 27 indexes, bounded cleanup, migration/backfill statement, and rollback compatibility.
 - Security reviewer: Firestore/Storage rules, trusted-server file paths, cross-church checks, token hashing/expiry, secrets, logs, rate limiting, scheduler auth, and private exports.
 - QA reviewer: hosted public/representative/admin workflows, existing-site regression, accessibility/browser/viewports, performance/exports, SEO/sitemap/calendar, and documented skips/blocks.
 

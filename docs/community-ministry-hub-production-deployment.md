@@ -114,9 +114,9 @@ All writes to these paths are trusted-server operations. Do not enable direct br
 
 ## Required Indexes
 
-Deploy the 25 composite indexes in `firestore.indexes.json` to the approved production database and wait until every required index is `READY` before deploying queries that need it.
+Deploy the 27 composite indexes in `firestore.indexes.json` to the approved production database and wait until every required index is `READY` before deploying queries that need it.
 
-Remediation checkpoint, July 14, 2026: all 25 indexes were created explicitly in `findyourchurch-24562/findyourchurchpal` and reached `READY`. Public homepage, event-listing, directory, and church-profile probes no longer reproduce the missing-index Server Components failure.
+Remediation checkpoint, July 14, 2026: all 27 indexes were created explicitly in `findyourchurch-24562/findyourchurchpal` and reached `READY`. Live probes identified and closed two ascending event-query gaps: `events(status, startsAt ASC)` and `events(churchId, status, startsAt ASC)`. Public homepage, event-listing, directory, and church-profile probes no longer reproduce the missing-index Server Components failure; the production uptime metric subsequently reported passing checks from all probers.
 
 Coverage includes:
 
@@ -193,7 +193,7 @@ Reproduce the tested staging design in production during the approved window: on
 8. **Verify SMTP domain.** Confirm provider, SPF, DKIM, DMARC decision, sender, reply-to, bounce path, and controlled recipients. Rollback gate: failed domain/provider check means keep email disabled.
 9. **Verify scheduler configuration.** Prepare paused jobs, endpoint, cadence, time zone, secret/service identity, and alert ownership. Rollback gate: missing auth/alerts means do not enable.
 10. **Deploy Firestore indexes.** Target only the approved production project/database. Rollback gate: command target mismatch means abort; index creation itself is additive and normally left in place on application rollback.
-11. **Wait for indexes to become ready.** Confirm all 25 required composite indexes report ready. Rollback gate: failed/stuck required index means stop before application deployment.
+11. **Wait for indexes to become ready.** Confirm all 27 required composite indexes report ready. Rollback gate: failed/stuck required index means stop before application deployment.
 12. **Deploy Firestore rules.** Reconfirm project/database and deploy the reviewed rules only. Rollback gate: immediately run public/admin rules probes; restore the prior rules if existing reads break or data becomes overexposed.
 13. **Deploy Storage rules.** Reconfirm project/bucket and deploy reviewed rules only. Rollback gate: run public flyer/private export/cross-church probes; restore prior secure rules or close file workflows on failure.
 14. **Deploy server application or functions.** Deploy the approved backend revision with production environment bindings. Rollback gate: on config validation, startup, auth, or data-access failure, send traffic to the previous compatible revision and keep registrations/email/jobs paused.

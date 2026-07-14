@@ -734,7 +734,7 @@ Current recommendation remains **NO-GO**. Once the native screen-reader run pass
 - Production Cloud Logging retention is 30 days for `_Default` and 400 days for locked `_Required`. TTL policies for audit, email, terminal-job, and operational-event collections are `ACTIVE`; those production collections were empty, so no historical backfill was needed.
 - Apex DNS/TLS passed. The `www` 308 resource is pending the required Namecheap A/TXT change and still returns 404.
 - Namecheap plan is Stellar Plus: 200 messages/hour/domain and 100 recipients/message. SPF and DKIM are published; DMARC remains `p=none`. The supplied noreply credential returned `535 EAUTH`, so live bounce behavior and private binding remain blocked pending a corrected mailbox credential.
-- All 25 production composite indexes are `READY`. Homepage, events, directory, and a real church profile now return meaningful content without the prior Server Components error.
+- All 27 production composite indexes are `READY`. The two production-only gaps discovered by live probes were `events(status, startsAt ASC)` and `events(churchId, status, startsAt ASC)`; both are now checked in and ready. Homepage, events, directory, and a real church profile return meaningful content without the prior Server Components error, and the post-fix Cloud Run stderr query returned no new index failure.
 - Five production Secret Manager resources hold non-SMTP application credentials; App Hosting access is granted and plaintext backend overrides are removed. The SMTP password secret remains absent because authentication failed.
 
 These results close production monitoring and Storage-recovery configuration, but they do not change the **NO-GO** recommendation.

@@ -429,7 +429,7 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] Namecheap Stellar Plus limit documented as 200 messages/hour/domain and 100 recipients/message.
 - [ ] Privately bind the approved noreply credential and verify live bounce/return-path behavior.
 - [x] Non-SMTP application credentials migrated to five versioned Secret Manager resources; App Hosting access granted and plaintext backend overrides removed.
-- [x] All 25 required composite indexes are `READY`; homepage, events, directory, and church-profile public routes render without the prior index failure.
+- [x] All 27 required composite indexes are `READY`; homepage, events, directory, and church-profile public routes render without the prior index failure, and post-fix uptime points pass.
 - [ ] Re-run controlled public, representative, and platform-admin smoke after indexes/App Check rollout.
 
 Current decision: **NO-GO** until every unchecked item above is closed.
