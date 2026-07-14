@@ -558,3 +558,57 @@ Focused SMTP/scheduler recommendation on July 13, 2026: **Still blocked**. The b
 - Sitemap, structured Event data, Open Graph metadata, unlisted privacy, token non-disclosure, Google Calendar, and ICS tests passed.
 
 Recommendation remains **still blocked** for full staging certification because provider-backed SMTP delivery, native screen-reader evidence, and WebKit/Safari evidence remain unavailable. This addendum is not production approval.
+
+## Final Monitoring And Alert Plan — July 14, 2026
+
+This plan defines the production alerts and ownership that must be configured after launch approval and before registrations open. No production alert, sink, recipient, or on-call integration was configured during staging certification.
+
+### Verified Log Coverage
+
+| Operational area | Current evidence source | Coverage | Sensitive-data posture |
+| --- | --- | --- | --- |
+| Event creation/publication/flyer changes | `auditLogs` actions for create, publish, update, upload, replace, and delete | Implemented and exercised in hosted staging | Event/church IDs, status, and Storage metadata only; no registration answers |
+| Registration submissions/capacity/waitlist | Transactional registration/audit records and counters | Implemented; success/waitlist/idempotency/capacity behavior tested | Registration records are private; audit notes omit answer values |
+| Email success/failure | `emailLogs`; `transactional_email_failed` operational event | Template/render and failure redaction verified; provider success not certified | Console body omitted; credential redaction; recipient domain only in operational failure metadata |
+| Export success/failure/expiry | `eventExports`, audit actions, private Storage, scheduler cleanup outcome | Generation, download, expiry, and cleanup tested | Private path; authorized church/event scope; no raw signing token in logs |
+| Scheduler and cleanup | `operationalEvents` start/job/completion/failure records with correlation IDs | Hosted auth, overlap, retry, duplicate, cleanup, retention, and pause/resume verified | Counts, job IDs/types, attempts, safe errors; no registration payload |
+| Event reports | Private report record, audit action, `event_report_created` operational event | Implemented and hosted admin moderation tested | Operational record includes report/event ID and reason only; reporter details stay private |
+| Authorization denial | Framework/infrastructure logs and failed access result | Enforcement verified, dedicated operational event incomplete | Do not log tokens, answers, child/medical data, addresses, or full identity payloads |
+| Rate limiting | Transactional rate-limit record and rejected request | Enforcement tested, dedicated operational event incomplete | Request identity is hashed for the Firestore key; raw IP must not enter operational logs |
+
+Successful event/registration/export operations are distributed across audit, email, export, and operational collections rather than one external monitoring provider. Authorization-denial and rate-limit operational event types are incomplete. These are monitoring gaps, not permission bypasses, and require launch-owner acceptance plus infrastructure-log alerts until application telemetry is expanded.
+
+### Alert Conditions And Response Ownership
+
+Recipient roles must be mapped to named people and private contact channels in the launch record. `Platform technical owner`, `Ministry operations owner`, and `Incident commander` are placeholders until that mapping is approved.
+
+| Condition | Initial threshold | Alert recipient | Manual fallback | Escalation | Response owner |
+| --- | --- | --- | --- | --- | --- |
+| Repeated SMTP failure | 2 consecutive required sends or 3 failures in 15 minutes | Ministry operations owner + platform technical owner | Pause outbound jobs, use approved manual contact, keep registrations closed if confirmation is required | Incident commander after 15 minutes or any broad recipient impact | Ministry operations owner |
+| Repeated scheduler failure | 2 consecutive invocations, any terminal job failure, or no successful run for 45 minutes | Platform technical owner | Pause job, invoke a dry run/manual controlled run, process urgent reminder/report manually | Incident commander after one missed business-critical window | Platform technical owner |
+| Export cleanup failure | Any terminal cleanup failure or expired private export older than 30 hours | Platform technical owner | Pause export generation, delete identified expired files/records through reviewed script | Security/incident commander if a stale link remains usable | Platform technical owner |
+| Retention cleanup failure | Any terminal retention job or data past approved retention by more than 24 hours | Privacy owner + platform technical owner | Close affected event registration, run bounded dry run, then reviewed cleanup | Incident commander/privacy owner for minor-related or sensitive data | Privacy owner |
+| Storage failure | 3 trusted upload/download failures in 15 minutes or any private-export exposure | Platform technical owner | Disable flyer upload/export generation; retain existing safe flyers | Immediate security escalation for cross-church/private exposure | Platform technical owner |
+| Registration-count inconsistency | Any counter/record reconciliation mismatch | Ministry operations + platform technical owner | Close affected registration, pause scheduler/email, rebuild counts with reviewed script | Incident commander if capacity or waitlist decisions were wrong | Platform technical owner |
+| Configuration validation failure | Any production required check fails at startup or `/admin/ops` | Platform technical owner | Keep prior revision serving; do not open registrations/email/jobs | Incident commander before any launch continuation | Deployment operator |
+| High authorization-denial rate | 50 denials in 5 minutes or 5x the established 7-day baseline | Security/technical owner | Inspect infrastructure logs, rate-limit abusive source, verify no valid-user lockout | Incident commander for cross-church attempts or sustained abuse | Security/technical owner |
+| High registration-submission failure rate | More than 10% over 15 minutes with at least 20 attempts | Ministry operations + platform technical owner | Close affected registration, post approved status message, accept controlled manual fallback only if privacy-approved | Incident commander after 15 minutes or capacity inconsistency | Ministry operations owner |
+
+### Escalation Procedure
+
+1. Acknowledge the alert and record environment, project, database, bucket, revision, event/church scope, and correlation IDs without copying sensitive payloads.
+2. Classify public exposure/isolation, data integrity, delivery, availability, or configuration failure.
+3. Apply the smallest containment action: close affected registration, pause Scheduler, disable email/export, or return traffic to the previous release.
+4. Preserve audit/email/operational/infrastructure logs and the backup reference.
+5. Follow `docs/community-ministry-hub-rollback.md` when a rollback trigger is met.
+6. Require incident-commander and ministry-operations approval before resuming registrations, email, or Scheduler.
+
+### Monitoring Launch Gate
+
+Before production registrations open:
+
+- Configure an external log/alert destination and verify one controlled alert reaches the named recipients.
+- Confirm access controls and approved retention for `auditLogs`, `emailLogs`, `eventScheduledJobs`, and `operationalEvents`.
+- Confirm alert queries exclude answers, passwords, secrets, access/export tokens, child information, allergy/medical data, complete addresses, and emergency contacts.
+- Record the manual email, reminder/report, export cleanup, retention cleanup, registration closure, and count-rebuild fallbacks.
+- Assign the observation-window incident commander and response owners.
