@@ -32,6 +32,7 @@ const radiusOptions = [5, 10, 25, 50];
 
 interface DirectoryBrowserProps {
   churches: ChurchRecord[];
+  initialKeyword?: string;
   filterOptions: {
     denominations: string[];
     worshipStyles: string[];
@@ -40,8 +41,11 @@ interface DirectoryBrowserProps {
 
 type LocationSearchStatus = "idle" | "searching" | "locating";
 
-export function DirectoryBrowser({ churches, filterOptions }: DirectoryBrowserProps) {
-  const [filters, setFilters] = useState<DirectoryFilters>(emptyDirectoryFilters);
+export function DirectoryBrowser({ churches, filterOptions, initialKeyword = "" }: DirectoryBrowserProps) {
+  const [filters, setFilters] = useState<DirectoryFilters>({
+    ...emptyDirectoryFilters,
+    keyword: initialKeyword,
+  });
   const [locationQuery, setLocationQuery] = useState("");
   const [locationRadiusMiles, setLocationRadiusMiles] = useState(10);
   const [referencePoint, setReferencePoint] = useState<GeoPoint | null>(null);

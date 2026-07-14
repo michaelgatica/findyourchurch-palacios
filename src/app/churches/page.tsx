@@ -12,7 +12,12 @@ export const metadata = createPageMetadata({
   pathname: "/churches",
 });
 
-export default async function ChurchesPage() {
+export default async function ChurchesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ keyword?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
   const churches = await getPublishedChurches();
   const filterOptions = buildDirectoryFilterOptions(churches);
   const churchesWithMapCoordinates = await resolveChurchesForDirectoryMap(churches);
@@ -25,7 +30,11 @@ export default async function ChurchesPage() {
         <p>{siteConfig.directoryLead}</p>
       </div>
 
-      <DirectoryBrowser churches={churchesWithMapCoordinates} filterOptions={filterOptions} />
+      <DirectoryBrowser
+        churches={churchesWithMapCoordinates}
+        filterOptions={filterOptions}
+        initialKeyword={resolvedSearchParams.keyword ?? ""}
+      />
     </section>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Source_Sans_3 } from "next/font/google";
+import { Libre_Baskerville, Poppins, Source_Sans_3 } from "next/font/google";
 import Script from "next/script";
 import "leaflet/dist/leaflet.css";
 
@@ -16,6 +16,7 @@ import {
 import { isProductionAppEnvironment } from "@/lib/app-environment";
 
 import "./globals.css";
+import "./premium.css";
 
 const headingFont = Poppins({
   subsets: ["latin"],
@@ -28,6 +29,13 @@ const bodyFont = Source_Sans_3({
   subsets: ["latin"],
   variable: "--font-body",
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const displayFont = Libre_Baskerville({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -81,7 +89,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${headingFont.variable} ${bodyFont.variable}`}>
+      <body className={`${displayFont.variable} ${headingFont.variable} ${bodyFont.variable}`}>
         {donationsEnabled ? (
           <Script
             id="zeffy-modal-script"

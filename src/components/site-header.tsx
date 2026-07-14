@@ -14,20 +14,16 @@ import { siteConfig } from "@/lib/config/site";
 
 const navigationItems = [
   {
-    href: "/",
-    label: "Home",
-  },
-  {
     href: "/churches",
-    label: "Browse Churches",
+    label: "Churches",
   },
   {
     href: "/events",
-    label: "Community Calendar",
+    label: "Events",
   },
   {
     href: "/submit",
-    label: "Submit Your Church",
+    label: "List Your Church",
   },
   {
     href: "/about",
@@ -418,7 +414,7 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <Link href="/churches" className="button button--ghost site-header__claim-link">
+          <Link href="/churches" className="button button--primary site-header__claim-link">
             Claim a Church
           </Link>
 
