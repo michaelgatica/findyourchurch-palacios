@@ -9,7 +9,7 @@ The current certification recommendation is **NO-GO** until the blocking conditi
 Required approvals:
 
 - Launch owner approves the release window and final requirement traceability.
-- Launch owner and platform technical owner accept or remediate the 11 moderate dependency advisory nodes.
+- Launch owner and platform technical owner accept or remediate the 9 remaining moderate dependency advisory nodes.
 - Ministry operations owner privately binds the approved noreply credential and verifies sender, account limits, return-path, and bounce behavior. The launch owner waived credential rotation.
 - Accessibility/QA owner completes the required native screen-reader run; the launch owner did not approve a waiver.
 - Operations verifies the staging-certified alert/backup/Storage/retention design after reproducing it against explicitly verified production identifiers.

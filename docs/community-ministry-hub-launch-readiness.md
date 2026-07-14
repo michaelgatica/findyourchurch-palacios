@@ -405,13 +405,14 @@ Previous safe remediation:
 
 - `nodemailer` upgraded to `9.0.3`, clearing the high advisory.
 - Next upgraded within the 15.5 patch line during safe audit fix.
+- Firebase Admin upgraded from `13.10.0` to `14.1.0` after confirming Node 22 deployment, modular imports, TypeScript, all deterministic suites, Firestore/Storage/Auth emulator security, lint, and the 40-page production build. This removed the Firestore and `google-gax` advisory nodes.
 
 Remaining advisories after `npm audit --omit=dev`:
 
-- 11 moderate advisories.
+- 9 moderate advisories, 0 high, and 0 critical.
 - Next/PostCSS advisory remains reported by npm audit, with `npm audit fix --force` suggesting an unsafe downgrade path.
-- Firebase Admin transitive `uuid` advisories remain through Google Cloud dependencies.
-- `npm audit fix --omit=dev --dry-run` did not produce a safe production remediation path; it still left the same 11 moderate advisories and pointed to force-level/breaking changes.
+- Firebase Admin now inherits the remaining UUID/request advisory only through its latest compatible Cloud Storage dependency; the Firestore transport path is clear.
+- `npm audit fix --omit=dev --dry-run` did not produce a safe production remediation path for the remaining 9 nodes and pointed to unsupported parent-package downgrades or major changes.
 
 Accepted residual risk for this phase:
 
@@ -509,7 +510,7 @@ Executed in this phase:
 - `npm run certify:staging-scheduler`: passed real hosted digest, reminder, closing-report, export/token cleanup, retention cleanup, overlap, retry, duplicate, cross-church, and operational-log checks.
 - `npm run test:staging-admin-ops`: passed authenticated platform-admin staging banner, SMTP-blocked state, template catalog, disabled-send, and scheduler-event checks.
 - Manual run of Cloud Scheduler job `community-hub-registration-jobs-staging`: passed; job state remained `ENABLED` with clear last-attempt status.
-- `npm audit --omit=dev`: completed with 11 moderate advisories.
+- `npm audit --omit=dev`: completed with 9 moderate advisories after the Firebase Admin 14 compatibility update.
 - `npm audit fix --omit=dev --dry-run`: reviewed only; no changes kept.
 - `npm run seed:community-hub-staging -- --dry-run`: passed.
 - `npm run seed:community-hub-staging -- --dry-run --large`: passed.
@@ -540,7 +541,7 @@ Manual/staging verification still required:
 | Accessibility | Critical/high resolved | 66 axe scans plus keyboard/semantic review | Hosted | Yes for available engines | Yes | `docs/community-ministry-hub-accessibility.md` | Native screen reader and WebKit/Safari remain unavailable |
 | Responsive browser QA | Verified in available engines | Chromium, Edge, Firefox | Hosted | Yes | Yes | Hosted Playwright matrix | Standalone Chrome and WebKit/Safari unavailable |
 | Performance | Bounded and load-verified | 131 events / 1,125 registrations / 500-record export fixture | Hosted | Yes | Yes | `test:staging-performance-seo` | Supported limits documented; no performance blocker found |
-| Dependency advisories | Documented | Yes audit | N/A | N/A | Yes | `npm audit --omit=dev --json`, security acceptance doc | 11 moderate advisories need owner acceptance |
+| Dependency advisories | Documented | Yes audit | N/A | N/A | Yes | `npm audit --omit=dev --json`, security acceptance doc | 9 moderate advisories need owner acceptance |
 | Monitoring | Ops visibility and correlation logs | Partial | Yes for scheduler success/failure | Yes | Yes | `/admin/ops`, Cloud Scheduler/Application logs | Recommended failure alerts remain unconfigured |
 | Backup | Documented | No | No | No | Yes | Rollback/deployment docs | Needs managed backup confirmation |
 | Rollback | Documented | No | No exercise | No | Yes | `docs/community-ministry-hub-rollback.md` | Needs nonproduction exercise |
@@ -688,7 +689,7 @@ Traceability result: core Community Ministry Hub functionality, isolation, hoste
 | Performance/SEO/export | Passed in final hosted matrix; public and authenticated metrics, 500-record PDF/XLSX, sitemap/schema/OG/calendar/privacy passed |
 | Staging production build | Passed: Next.js 15.5.20, 40 static pages; ignored local production service-account path emitted a non-blocking missing-file warning and was not used |
 | Lint and whitespace | Lint passed with no warnings/errors; final `git diff --check` is required after documentation edits |
-| Dependency audit | Completed: 298 production dependencies, 11 moderate advisory nodes, 0 high, 0 critical; npm exits 1 because advisories remain |
+| Dependency audit | Completed after Firebase Admin 14 compatibility update: 346 production dependencies, 9 moderate advisory nodes, 0 high, 0 critical; npm exits 1 because advisories remain |
 | Environment-blocked evidence | Provider SMTP delivery, native screen-reader, native Safari/standalone Chrome; legacy phase-3/phase-4 integration scripts referenced a missing local production service-account file and were not repointed |
 
 ## Final Certification Decision
@@ -698,7 +699,7 @@ Traceability result: core Community Ministry Hub functionality, isolation, hoste
 The code and hosted staging application are suitable for merge review, but production deployment is not approved. The blocking reasons are:
 
 - no provider-backed SMTP delivery, sender/link/mailbox/attachment/bounce evidence;
-- no explicit launch-owner acceptance or remediation of the 11 moderate advisory nodes;
+- no explicit launch-owner acceptance or remediation of the 9 remaining moderate advisory nodes;
 - no recorded production App Check enforcement-or-monitor decision;
 - no configured and tested external alert destinations;
 - no approved retention periods for audit/email/job/operational logs;
@@ -720,7 +721,7 @@ This section supersedes earlier statements that staging SMTP used `console`, App
 | Firestore backup | Staging has daily/14-day and Sunday-weekly/12-week managed schedules. No first scheduled backup existed yet, so managed restore is not claimed. | Schedule configured; completion/restore evidence blocking |
 | Storage recovery | Seven-day soft delete is active; versioning is intentionally disabled. A fictitious deleted object was restored and matched by hash/size. | Staging certified; production configuration required |
 | Operational retention | Firestore TTL is active: audit 400 days, email 180 days, terminal Scheduler jobs 90 days, operational events 180 days. 605 existing records were backfilled. `/admin/ops` exposes safe superadmin summaries without bodies/recipients. | Staging certified; production TTL required |
-| Dependency audit | 11 moderate nodes, 0 high, 0 critical across Next/PostCSS/Firebase Admin/Google transports/UUID/ExcelJS paths. Available npm suggestions are major, incompatible, or unsupported. | Awaiting explicit owner acceptance/remediation; blocking |
+| Dependency audit | Firebase Admin 14 passed the complete compatibility suite and removed two nodes. The remaining audit is 9 moderate nodes, 0 high, 0 critical across Next/PostCSS/Firebase Admin/Cloud Storage transports/UUID/ExcelJS paths. Available npm suggestions are incompatible downgrades, parent-package major changes, or unsupported overrides. | Awaiting explicit owner acceptance/remediation; blocking |
 | Native screen reader | Narrator is installed but no auditable native workflow test was completed. The owner requires native testing before launch. | Blocking |
 
 Current recommendation remains **NO-GO**. Once the native screen-reader run passes, dependency risk is explicitly accepted or remediated, the approved noreply secret is privately bound, the first managed backup/restore evidence is recorded, App Check is enforced after valid-token verification, production indexes are ready, and controlled smoke tests pass, the project can move to a controlled GO decision. The owner explicitly waived SMTP credential rotation; that waiver does not waive private secret binding or provider verification.

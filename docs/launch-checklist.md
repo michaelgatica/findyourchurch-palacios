@@ -365,7 +365,7 @@ Completed staging evidence:
 - [x] Large-data pagination, 500-record PDF/XLSX, performance, SEO, sitemap, structured data, Open Graph, unlisted privacy, and calendar links passed.
 - [x] Existing homepage/directory/church/legacy/submit/contact/policy/representative/admin/mobile workflows passed on hosted staging.
 - [x] Compatible prior-release rollback and latest-release restoration preserved staging data and verified Scheduler/email pause controls.
-- [x] Production dependency audit recorded 11 moderate advisory nodes, 0 high, and 0 critical; no unsafe force fix was applied.
+- [x] Firebase Admin 14 passed compatibility recertification; the production audit is now 9 moderate advisory nodes, 0 high, and 0 critical, with no unsafe force fix or override applied.
 
 Blocking approvals/configuration:
 
@@ -407,7 +407,7 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [ ] First managed Firestore backup completes and a safe managed restore/clone is verified.
 - [x] Launch owner explicitly waived SMTP credential rotation; the exception is recorded.
 - [ ] Approved noreply credential is privately bound in production Secret Manager and sender/bounce behavior passes.
-- [ ] Launch owner accepts/remediates 11 moderate dependency advisory nodes.
+- [ ] Launch owner accepts/remediates 9 remaining moderate dependency advisory nodes.
 - [ ] Required native screen-reader workflows pass and are documented.
 - [ ] Approved controls are reproduced and verified against production identifiers during the deployment window.
 
