@@ -4,10 +4,11 @@ This runbook is for validating Community Ministry Hub in a nonproduction environ
 
 ## Branch And Scope
 
-- Base commit: `e9010d1`.
-- Validation branch: `feature/community-ministry-hub-staging-validation`.
+- Base commit: `339320f`.
+- Hosted-staging branch: `feature/community-hub-hosted-staging`.
 - Production deployment: not performed.
 - Production data mutation: not allowed.
+- Push status: local only; no branch or commit has been pushed.
 
 ## Environment Options
 
@@ -46,7 +47,7 @@ FIREBASE_PROJECT_ID=demo-find-your-church-staging
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-find-your-church-staging
 ```
 
-The admin area displays a visible nonproduction banner whenever `APP_ENV` is not `production`.
+The authenticated admin and representative portal areas display a visible nonproduction banner whenever `APP_ENV` is not `production`.
 
 Dedicated staging selectors:
 
@@ -120,6 +121,34 @@ Record each item as `Pass`, `Fail`, `Not tested`, or `Blocked`.
 
 Do not mark Safari/WebKit as passed unless actually tested.
 
+## Focused Hosted Smoke Test
+
+Hosted staging URL: `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app`
+
+This checkpoint intentionally covered only the minimum hosted infrastructure and core workflows. It is not the full manual QA, responsive, accessibility, cross-browser, or performance matrix.
+
+| Area | Exact URL or action | Result | Evidence and notes |
+| --- | --- | --- | --- |
+| Public | `/` | Pass | Homepage rendered with Find Your Church content and staging canonical metadata. |
+| Public | `/churches` | Pass | Directory rendered the three fictitious staging churches. |
+| Public | `/events` | Pass | Published events rendered; draft, unlisted, and cancelled fixtures remained absent from the listing. |
+| Public | `/events/staging-published-family-night` | Pass | Published event detail opened. |
+| Public | `/events/staging-draft-community-meal` | Pass | Returned the not-found experience without exposing draft content. |
+| Public | `/events/staging-unlisted-volunteer-training` | Pass | Direct unlisted link opened as designed. |
+| Public | `/events/staging-cancelled-outreach` | Pass | Cancellation state and message rendered. |
+| Public | `/events/staging-full-capacity-workshop` | Pass | Event without a flyer rendered its content without a broken event image. |
+| Church representative | `/portal/events` | Pass | Church A representative signed in and opened the owned event list. |
+| Church representative | Draft, flyer, publish | Pass | Created event `8596822f-7b7f-4895-84fd-e5a250bc926e`, uploaded a 1200x675 PNG through the trusted server flow, and published `/events/hosted-staging-smoke-event-2026-07-13`. |
+| Church representative | `/portal/events/staging-qa-event-published/registration` | Pass | Existing fictitious registrations and counters rendered. |
+| Church representative | Church B edit route | Pass | Church A received the not-found experience for `/portal/events/staging-qa-event-unlisted/edit`. |
+| Church representative | `/admin/events` | Pass | Church A received an explicit admin access-denied page. |
+| Platform administrator | `/admin/events` | Pass | Platform event administration opened. |
+| Platform administrator | `/admin/event-reports` | Pass | Event reports opened. |
+| Platform administrator | `/admin/event-categories` | Pass | Category management opened. |
+| Platform administrator | `/admin/ops` | Pass | Operations readiness opened. |
+
+The uploaded flyer loaded publicly from `findyourchurch-staging-2026.firebasestorage.app` at its expected 1200x675 dimensions. Browser screenshots were not captured because the in-app browser screenshot operation timed out; DOM, console, HTTP, and rendered-image state supplied the focused evidence for this run.
+
 ## Authorization Checklist
 
 - Platform admin can access all admin Community Hub routes.
@@ -131,7 +160,7 @@ Do not mark Safari/WebKit as passed unless actually tested.
 
 ## SMTP Checklist
 
-Staging SMTP is blocked until a staging-safe SMTP provider or mail-testing service is configured.
+Staging SMTP remains blocked. Hosted staging intentionally uses `EMAIL_PROVIDER=console`, and no staging-safe SMTP or Resend credentials are configured locally or in Secret Manager. To use SMTP, configure `EMAIL_PROVIDER=smtp`, `EMAIL_FROM`, `ADMIN_NOTIFICATION_EMAIL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASSWORD`; `SMTP_REPLY_TO` and `TEST_EMAIL_TO` should also be set when applicable. The supported Resend alternative requires `EMAIL_PROVIDER=resend`, `EMAIL_FROM`, `ADMIN_NOTIFICATION_EMAIL`, and `RESEND_API_KEY`. Use only fictitious or approved staging recipients.
 
 When available, send and inspect:
 
@@ -161,6 +190,15 @@ Verify:
 - Failed job records status, attempts, and error.
 - `/admin/ops` and operational logs expose failures.
 
+Hosted endpoint smoke result on July 13, 2026:
+
+- Unauthenticated `POST /api/jobs/registration`: `401`.
+- Authenticated call with the staging-only secret: one due fictitious daily digest completed with zero failures.
+- Immediate repeat: zero due jobs, zero duplicate delivery, and one future pending digest remained.
+- The completed job recorded one attempt and a completion timestamp.
+- App Hosting logs contained the denied request, successful requests, and console digest entry.
+- Cloud Scheduler is not configured because `cloudscheduler.googleapis.com` is disabled in the staging project. The protected endpoint is ready; enable the API and create the staging-only HTTP trigger before final certification.
+
 ## Current Staging Status
 
 Live staging checkpoint recorded July 13, 2026:
@@ -172,6 +210,12 @@ Live staging checkpoint recorded July 13, 2026:
 - Firestore rules: compiled and released to `findyourchurchpal`.
 - Firestore indexes: 25 composite indexes deployed to `findyourchurchpal`; all 25 report `READY`.
 - Deterministic seed: 5 fictitious Auth users and 72 marked Firestore documents created.
+- Firebase Storage bucket: `findyourchurch-staging-2026.firebasestorage.app` in `US-CENTRAL1`.
+- Storage rules: compiled and released to the staging bucket.
+- Hosting: Firebase App Hosting backend `community-hub-staging` in `us-central1`, environment `staging`, runtime `nodejs22`.
+- Hosted URL: `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app`.
+- App Hosting rollout: `build-2026-07-13-002` succeeded.
+- Secret Manager: staging-only Firebase client key, registration-token, export-signing, and scheduler-token secrets are connected to the backend. Secret values are not stored in Git.
 - Reset proof: live dry run finds all 72 marked/prefixed documents; no live reset was executed.
 - Production project `findyourchurch-24562`: not deployed or mutated.
 
@@ -197,17 +241,28 @@ Automated validation passed in this checkpoint:
 - ESLint.
 - Next.js production build with staging client values; the only production project reference in the output is the server-side safety guard.
 - `git diff --check`.
+- Live staging Storage access and trusted-upload smoke tests.
+- Hosted public smoke script, including canonical, visibility, cancellation, fallback, and Storage flyer checks.
+
+QA account labels:
+
+- Platform administrator: `staging-qa-admin@staging.findyourchurch.test`.
+- Church A representative: `staging-qa-rep-user-1@staging.findyourchurch.test`.
+- Church B representative: `staging-qa-rep-user-2@staging.findyourchurch.test`.
+- Church C representative: `staging-qa-rep-user-3@staging.findyourchurch.test`.
+- Limited event manager: `staging-qa-event-manager@staging.findyourchurch.test`.
+- Public anonymous user: no account.
+
+The shared QA-owned password was rotated after hosted testing and stored only as staging Secret Manager secret `FYC_STAGING_QA_PASSWORD`. The App Hosting runtime was not granted access. An authorized QA owner should retrieve it privately into the approved password manager, not paste it into shared terminal output, chat, documentation, or issue comments. To rotate it again, set `STAGING_TEST_USER_PASSWORD` only in ignored local configuration and run `npm run rotate:community-hub-staging-passwords`; never add the password to source or commits.
 
 Remaining full-certification blockers:
 
-- App Hosting is unavailable on the current Spark plan; no hosted staging application URL exists.
-- The configured staging Storage bucket does not exist (`404`), so Storage rules, flyer upload, private export, and cleanup behavior cannot be deployed or verified.
 - Staging SMTP/mail testing is not configured.
-- A deployed scheduler endpoint is unavailable for authentication and idempotency checks.
-- Manual browser, responsive, and accessibility QA remains blocked without a hosted staging application.
-- The generated test-user credential is intentionally not committed; establish a QA-owned credential before manual tester handoff.
+- Cloud Scheduler API and its recurring HTTP trigger are not configured; the endpoint-level authentication, one-job execution, repeat/idempotency behavior, and logging checks passed manually.
+- Full responsive, accessibility, cross-browser, performance, email-delivery, and detailed manual QA remain intentionally unperformed.
+- A QA owner must receive the current password through an approved private channel.
 
-Current recommendation: Firestore/Auth staging foundation is certified for the automated checks above, but full Community Ministry Hub staging certification remains **NO GO** until Hosting/Storage, SMTP, scheduler, and manual accessibility/browser evidence are complete.
+Current recommendation: the hosted application, Auth, Firestore, Storage, and core role workflows are **ready for full staging QA**. This is not final staging certification; SMTP, Cloud Scheduler, and the intentionally deferred certification matrix remain open.
 
 Earlier local/emulator evidence retained from the staging-readiness phase:
 
