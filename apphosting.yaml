@@ -1,16 +1,32 @@
 runConfig:
-  runtime: nodejs20
+  runtime: nodejs22
   concurrency: 80
   minInstances: 0
   maxInstances: 10
 
-# Non-sensitive build-time and runtime values are declared here.
-# Sensitive values (Firebase keys, SMTP passwords, secrets) are managed
-# through Firebase App Hosting → Settings → Environment in the Firebase Console.
-# Do NOT commit real secrets to this file.
+# Production App Hosting configuration. Secret values are resolved from Google
+# Secret Manager and must never be committed to this file.
 env:
+  - variable: APP_ENV
+    value: production
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_APP_ENV
+    value: production
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: NEXT_PUBLIC_SITE_URL
     value: https://findyourchurchpalacios.org
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_ACTIVE_MARKET_KEY
+    value: palacios
     availability:
       - BUILD
       - RUNTIME
@@ -27,14 +43,26 @@ env:
       - BUILD
       - RUNTIME
 
-  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: findyourchurch-24562
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: FYC_PROD_FIREBASE_API_KEY
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: findyourchurch-24562.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: findyourchurch-24562
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: findyourchurch-24562.firebasestorage.app
     availability:
       - BUILD
       - RUNTIME
@@ -57,12 +85,109 @@ env:
       - BUILD
       - RUNTIME
 
+  - variable: NEXT_PUBLIC_APP_CHECK_SITE_KEY
+    value: 6LdXVlMtAAAAANSeRDapdJcyUBsG6nqO37G1hifT
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_USE_FIREBASE_EMULATORS
+    value: "false"
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: FIREBASE_PROJECT_ID
     value: findyourchurch-24562
     availability:
       - RUNTIME
 
+  - variable: FIREBASE_STORAGE_BUCKET
+    value: findyourchurch-24562.firebasestorage.app
+    availability:
+      - RUNTIME
+
   - variable: FIREBASE_DATABASE_ID
     value: findyourchurchpal
+    availability:
+      - RUNTIME
+
+  - variable: PRODUCTION_FIREBASE_PROJECT_ID
+    value: findyourchurch-24562
+    availability:
+      - RUNTIME
+
+  - variable: APP_CHECK_ENFORCEMENT_MODE
+    value: enforced
+    availability:
+      - RUNTIME
+
+  - variable: GOOGLE_CLOUD_OPERATIONS_ENABLED
+    value: "true"
+    availability:
+      - RUNTIME
+
+  - variable: RETENTION_JOB_ENABLED
+    value: "true"
+    availability:
+      - RUNTIME
+
+  - variable: EMAIL_PROVIDER
+    value: smtp
+    availability:
+      - RUNTIME
+
+  - variable: EMAIL_FROM
+    value: noreply@findyourchurchpalacios.org
+    availability:
+      - RUNTIME
+
+  - variable: ADMIN_NOTIFICATION_EMAIL
+    value: support@findyourchurchpalacios.org
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_HOST
+    value: premium43-1.web-hosting.com
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_PORT
+    value: "465"
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_USER
+    value: noreply@findyourchurchpalacios.org
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_PASSWORD
+    secret: FYC_PROD_SMTP_PASSWORD
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_REPLY_TO
+    value: support@findyourchurchpalacios.org
+    availability:
+      - RUNTIME
+
+  - variable: REGISTRATION_TOKEN_SECRET
+    secret: FYC_PROD_REGISTRATION_TOKEN
+    availability:
+      - RUNTIME
+
+  - variable: EXPORT_SIGNING_SECRET
+    secret: FYC_PROD_EXPORT_SIGNING
+    availability:
+      - RUNTIME
+
+  - variable: REGISTRATION_JOBS_CRON_SECRET
+    secret: FYC_PROD_SCHEDULER_TOKEN
+    availability:
+      - RUNTIME
+
+  - variable: LISTING_VERIFICATION_CRON_SECRET
+    secret: FYC_PROD_LISTING_VERIFICATION_TOKEN
     availability:
       - RUNTIME
