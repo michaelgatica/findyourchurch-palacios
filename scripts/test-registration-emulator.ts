@@ -209,6 +209,8 @@ async function run() {
     { saveEventRegistrationSetup },
     { createRegistrationExport },
     { listAuditLogsForEntity },
+    registrationJobRepository,
+    { createRegistrationScheduledJobRecord },
   ] = await Promise.all([
     import("@/lib/firebase/admin"),
     import("@/lib/firebase/firestore"),
@@ -220,6 +222,8 @@ async function run() {
     import("@/lib/services/registration-form-service"),
     import("@/lib/services/registration-export-service"),
     import("@/lib/repositories/firebase-audit-log-repository"),
+    import("@/lib/repositories/firebase-registration-job-repository"),
+    import("@/lib/services/registration-job-service"),
   ]);
   const firestore = getFirebaseAdminFirestore();
   assert.ok(firestore, "The Firestore emulator Admin client should initialize without credentials.");
@@ -452,6 +456,87 @@ async function run() {
   assert.ok(registrationAudits.some((entry) => entry.action === "registration_attended"));
   assert.equal(registrationAudits.some((entry) => JSON.stringify(entry).includes("Manual Registrant")), false);
 
+  const dueAt = "2030-01-01T00:00:00.000Z";
+  const retryClock = new Date("2030-01-01T01:00:00.000Z");
+  const scheduledJob = createRegistrationScheduledJobRecord({
+    eventId: duplicateEvent.event.id,
+    churchId: churchA.id,
+    type: "daily_digest",
+    scheduledFor: dueAt,
+    idempotencySuffix: "emulator-retry",
+  });
+  const firstSave = await registrationJobRepository.saveRegistrationScheduledJob(scheduledJob);
+  const duplicateSave = await registrationJobRepository.saveRegistrationScheduledJob(scheduledJob);
+  assert.equal(firstSave.id, duplicateSave.id);
+
+  assert.equal(await registrationJobRepository.acquireRegistrationJobRunLease("run-one", retryClock), true);
+  assert.equal(await registrationJobRepository.acquireRegistrationJobRunLease("run-two", retryClock), false);
+  assert.equal(await registrationJobRepository.releaseRegistrationJobRunLease("run-one", retryClock), true);
+  assert.equal(await registrationJobRepository.acquireRegistrationJobRunLease("run-two", retryClock), true);
+
+  const firstClaim = await registrationJobRepository.claimRegistrationJob(
+    scheduledJob.id,
+    "run-two",
+    retryClock,
+  );
+  assert.equal(firstClaim?.attempts, 1);
+  assert.equal(
+    await registrationJobRepository.claimRegistrationJob(scheduledJob.id, "overlap-run", retryClock),
+    null,
+  );
+  const retryResult = await registrationJobRepository.failRegistrationJob(
+    scheduledJob.id,
+    "run-two",
+    "Controlled emulator failure without sensitive data.",
+    retryClock,
+  );
+  assert.equal(retryResult?.retryScheduled, true);
+  assert.equal(retryResult?.nextAttemptAt, "2030-01-01T01:01:00.000Z");
+
+  const retryClaim = await registrationJobRepository.claimRegistrationJob(
+    scheduledJob.id,
+    "run-two",
+    new Date("2030-01-01T01:01:00.000Z"),
+  );
+  assert.equal(retryClaim?.attempts, 2);
+  assert.equal(
+    await registrationJobRepository.markRegistrationJobDeliveryCompleted(
+      scheduledJob.id,
+      "run-two",
+      new Date("2030-01-01T01:01:01.000Z"),
+    ),
+    true,
+  );
+  assert.equal(await registrationJobRepository.completeRegistrationJob(scheduledJob.id, "run-two"), true);
+  const completedJob = await firestore!.collection("eventScheduledJobs").doc(scheduledJob.id).get();
+  assert.equal(completedJob.data()?.status, "completed");
+  assert.equal(completedJob.data()?.attempts, 2);
+  assert.equal(Boolean(completedJob.data()?.deliveryCompletedAt), true);
+  const completedDuplicate = await registrationJobRepository.saveRegistrationScheduledJob(scheduledJob);
+  assert.equal(completedDuplicate.status, "completed");
+
+  const terminalJob = {
+    ...createRegistrationScheduledJobRecord({
+      eventId: duplicateEvent.event.id,
+      churchId: churchA.id,
+      type: "daily_digest" as const,
+      scheduledFor: dueAt,
+      idempotencySuffix: "emulator-terminal-failure",
+    }),
+    maxAttempts: 1,
+  };
+  await registrationJobRepository.saveRegistrationScheduledJob(terminalJob);
+  await registrationJobRepository.claimRegistrationJob(terminalJob.id, "run-two", retryClock);
+  const terminalFailure = await registrationJobRepository.failRegistrationJob(
+    terminalJob.id,
+    "run-two",
+    "Controlled terminal emulator failure.",
+    retryClock,
+  );
+  assert.equal(terminalFailure?.terminal, true);
+  assert.equal((await firestore!.collection("eventScheduledJobs").doc(terminalJob.id).get()).data()?.status, "failed");
+  await registrationJobRepository.releaseRegistrationJobRunLease("run-two", retryClock);
+
   console.log(JSON.stringify({
     ok: true,
     suite: "registration-emulator",
@@ -466,6 +551,9 @@ async function run() {
       statusAndAudit: true,
       deletion: true,
       expiredToken: true,
+      schedulerIdempotency: true,
+      schedulerLease: true,
+      schedulerRetry: true,
     },
   }, null, 2));
 }

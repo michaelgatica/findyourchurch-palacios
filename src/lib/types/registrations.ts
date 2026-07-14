@@ -251,7 +251,15 @@ export interface RegistrationScheduledJobRecord {
   scheduledFor: string;
   idempotencyKey: string;
   attempts: number;
+  maxAttempts?: number;
   payload: Record<string, unknown>;
+  correlationId?: string | null;
+  leaseOwnerId?: string | null;
+  leaseExpiresAt?: string | null;
+  lastAttemptAt?: string | null;
+  nextAttemptAt?: string | null;
+  lastFailedAt?: string | null;
+  deliveryCompletedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   completedAt?: string | null;
