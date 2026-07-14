@@ -30,12 +30,6 @@ function getMissionNote() {
   ];
 }
 
-function getDonationNote() {
-  return [
-    `${siteConfig.launchName} is provided at no charge to churches that may not be able to afford another monthly or yearly platform. Donations are welcomed and appreciated because there are ongoing costs to operate and maintain this site. To support this work, visit the ${createEmailLink("El Roi Digital Ministries donate page", siteConfig.ministryDonationUrl)}.`,
-  ];
-}
-
 function getAdminOnlyMinistryNote() {
   return [
     `${siteConfig.launchName} is a ministry project created and maintained by ${siteConfig.ministryName}.`,
@@ -43,7 +37,7 @@ function getAdminOnlyMinistryNote() {
 }
 
 function getMissionAndDonationNote() {
-  return [...getMissionNote(), "", ...getDonationNote()];
+  return getMissionNote();
 }
 
 function getClaimAuthorizationSummary(claimRequest: ChurchClaimRequestRecord) {

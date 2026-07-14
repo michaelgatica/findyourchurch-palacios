@@ -89,6 +89,10 @@ async function run() {
       /This mailbox is not monitored\. Please send replies or questions to support@findyourchurchpalacios\.org\./,
     );
     assert.match(noreplyRendering.html, /This mailbox is not monitored\./);
+    assert.match(noreplyRendering.text, /provided free of charge by El Roi Digital Ministries/i);
+    assert.match(noreplyRendering.text, /https:\/\/elroidigital\.org\/donate\.html/);
+    assert.match(noreplyRendering.html, /Support the ministry/);
+    assert.match(noreplyRendering.html, /https:\/\/elroidigital\.org\/donate\.html/);
 
     assert.equal(stagingEmailTemplateDefinitions.length, 15);
     const attachmentNames: string[] = [];
@@ -106,6 +110,8 @@ async function run() {
       assert.match(renderings.text, /support@findyourchurchpalacios\.org/);
       assert.match(renderings.html, /This mailbox is not monitored\./);
       assert.match(renderings.html, /support@findyourchurchpalacios\.org/);
+      assert.match(renderings.html, /provided free of charge by El Roi Digital Ministries/i);
+      assert.match(renderings.html, /Support the ministry/);
       const links = message.body.match(/https?:\/\/[^\s)]+/g) ?? [];
       assert.equal(
         links.every((url) => new URL(url).hostname.includes("findyourchurch-staging-2026")),

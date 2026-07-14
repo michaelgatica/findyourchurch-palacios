@@ -165,6 +165,9 @@ async function run() {
       assert.equal(pdfBuffer.subarray(0, 4).toString(), "%PDF");
       const pdf = await PDFDocument.load(pdfBuffer);
       assert.ok(pdf.getPageCount() >= 1);
+      assert.equal(pdf.getAuthor(), "El Roi Digital Ministries");
+      assert.equal(pdf.getCreator(), "Find Your Church Palacios");
+      assert.match(pdf.getSubject() ?? "", /Find Your Church Palacios/);
       const [width, height] = pdf.getPage(0).getSize().width > pdf.getPage(0).getSize().height
         ? ["landscape", "portrait"]
         : ["portrait", "landscape"];
@@ -197,8 +200,22 @@ async function run() {
   assert.ok(workbook.getWorksheet("Registrations"));
   assert.ok(workbook.getWorksheet("Participants"));
   assert.ok(workbook.getWorksheet("Answer Summary"));
+  assert.equal(workbook.creator, "Find Your Church Palacios / El Roi Digital Ministries");
+  assert.match(workbook.description ?? "", /provided free of charge/i);
+  assert.equal(
+    workbook.getWorksheet("Event Summary")?.getCell("B12").hyperlink,
+    "https://elroidigital.org/donate.html",
+  );
   const registrationsSheet = workbook.getWorksheet("Registrations");
   assert.ok(registrationsSheet);
+  const registrationsHeaderFill = registrationsSheet!.getRow(1).fill;
+  assert.equal(
+    registrationsHeaderFill.type === "pattern"
+      ? registrationsHeaderFill.fgColor?.argb
+      : undefined,
+    "0B4A24",
+  );
+  assert.match(registrationsSheet!.headerFooter.oddFooter ?? "", /provided free/i);
   const headerValues = registrationsSheet!.getRow(1).values;
   assert.ok(Array.isArray(headerValues));
   const notesColumn = headerValues.findIndex((value) => value === "Notes");
@@ -206,6 +223,8 @@ async function run() {
   assert.match(String(registrationsSheet!.getRow(2).getCell(notesColumn).value), /^'/);
   assert.equal(registrationsSheet!.autoFilter !== undefined, true);
   assert.equal(registrationsSheet!.views[0]?.state, "frozen");
+  const summaryHeaderFill = workbook.getWorksheet("Event Summary")!.getRow(1).fill;
+  assert.equal(summaryHeaderFill.type === "pattern" ? summaryHeaderFill.fgColor?.argb : undefined, "06381C");
 
   const approvedRecipients = validateRegistrationReportRecipients({
     recipients: ["GRACE@EXAMPLE.TEST", "events@church.example", "grace@example.test"],
