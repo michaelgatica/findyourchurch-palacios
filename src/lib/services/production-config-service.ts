@@ -1,5 +1,9 @@
 import { getApplicationEnvironment, getConfiguredProjectIds } from "@/lib/app-environment";
 import { getSiteUrl } from "@/lib/config/site";
+import {
+  getConfiguredEmailProvider,
+  getEmailConfigurationProblems,
+} from "@/lib/services/email-service";
 
 function isProductionEnvironment() {
   return getApplicationEnvironment() === "production";
@@ -35,6 +39,7 @@ export function getProductionConfigurationReport(): ConfigCheckResult[] {
   const siteUrl = getSiteUrl();
   const appEnvironment = getApplicationEnvironment();
   const configuredProjectIds = getConfiguredProjectIds();
+  const emailProvider = getConfiguredEmailProvider();
   const checks: ConfigCheckResult[] = [
     checkEnv("APP_ENV", "Application environment", "required", true),
     checkEnv("NEXT_PUBLIC_SITE_URL", "Public site URL / canonical host", "required", true),
@@ -103,16 +108,34 @@ export function getProductionConfigurationReport(): ConfigCheckResult[] {
     });
   }
 
-  if (process.env.EMAIL_PROVIDER === "smtp") {
+  if (emailProvider === "smtp") {
     checks.push(
       checkEnv("SMTP_HOST", "SMTP host", "required", true),
       checkEnv("SMTP_PORT", "SMTP port", "required", true),
       checkEnv("SMTP_USER", "SMTP user", "required", true),
       checkEnv("SMTP_PASSWORD", "SMTP password", "required", true),
     );
+
+    if (appEnvironment === "staging") {
+      checks.push(
+        checkEnv("TEST_EMAIL_TO", "Approved staging email test recipient", "required", true),
+        checkEnv("ALLOW_REAL_EMAIL_TEST", "Staging email send approval flag", "required", true),
+      );
+    }
   }
 
-  if (process.env.EMAIL_PROVIDER === "console" && isProductionEnvironment()) {
+  const emailConfigurationProblems = getEmailConfigurationProblems(emailProvider);
+  checks.push({
+    key: "EMAIL_CONFIGURATION",
+    label: "Email configuration validation",
+    scope: "required",
+    status: emailConfigurationProblems.length === 0 ? "pass" : "fail",
+    message: emailConfigurationProblems.length === 0
+      ? "Provider, sender, reply-to, administrator, and delivery settings are valid."
+      : emailConfigurationProblems.join(" Secret values are not printed. "),
+  });
+
+  if (emailProvider === "console" && isProductionEnvironment()) {
     checks.push({
       key: "EMAIL_PROVIDER",
       label: "Production email provider",

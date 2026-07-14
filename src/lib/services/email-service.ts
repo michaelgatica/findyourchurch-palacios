@@ -1,7 +1,9 @@
 import nodemailer from "nodemailer";
 
+import { getApplicationEnvironment } from "@/lib/app-environment";
 import { siteConfig } from "@/lib/config/site";
 import { createEmailLogInFirebase } from "@/lib/repositories/firebase-email-log-repository";
+import { createOperationalEvent } from "@/lib/services/operational-log-service";
 
 export type EmailProvider = "console" | "resend" | "smtp";
 
@@ -14,6 +16,19 @@ export interface EmailAttachment {
 function normalizeOptionalValue(value?: string) {
   const normalizedValue = value?.trim();
   return normalizedValue ? normalizedValue : undefined;
+}
+
+function extractEmailAddress(value: string) {
+  const angleBracketMatch = value.match(/<([^<>]+)>\s*$/);
+  return (angleBracketMatch?.[1] ?? value).trim().toLowerCase();
+}
+
+function isValidEmailAddress(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(extractEmailAddress(value));
+}
+
+function getRecipientDomain(value: string) {
+  return extractEmailAddress(value).split("@")[1] ?? "invalid";
 }
 
 function isProductionEnvironment() {
@@ -36,6 +51,10 @@ export function getConfiguredEmailProvider(): EmailProvider {
 
 export function getEmailFromAddress() {
   return normalizeOptionalValue(process.env.EMAIL_FROM) ?? siteConfig.contactEmail;
+}
+
+export function getEmailReplyToAddress() {
+  return normalizeOptionalValue(process.env.SMTP_REPLY_TO);
 }
 
 export function getAdminNotificationEmails() {
@@ -63,13 +82,29 @@ export function getAdminNotificationEmail() {
 export function getEmailConfigurationProblems(provider = getConfiguredEmailProvider()) {
   const problems: string[] = [];
   const from = getEmailFromAddress();
+  const configuredFrom = normalizeOptionalValue(process.env.EMAIL_FROM);
+  const configuredProvider = normalizeOptionalValue(process.env.EMAIL_PROVIDER)?.toLowerCase();
+  const replyTo = getEmailReplyToAddress();
+
+  if (configuredProvider && !["console", "resend", "smtp"].includes(configuredProvider)) {
+    problems.push("EMAIL_PROVIDER must be console, resend, or smtp.");
+  }
 
   if (!from) {
     problems.push("EMAIL_FROM is missing.");
+  } else if (!isValidEmailAddress(from)) {
+    problems.push("EMAIL_FROM must contain a valid email address.");
   }
 
-  if (getAdminNotificationEmails().length === 0) {
+  const adminNotificationEmails = getAdminNotificationEmails();
+  if (adminNotificationEmails.length === 0) {
     problems.push("ADMIN_NOTIFICATION_EMAIL is missing.");
+  } else if (adminNotificationEmails.some((email) => !isValidEmailAddress(email))) {
+    problems.push("ADMIN_NOTIFICATION_EMAIL contains an invalid email address.");
+  }
+
+  if (replyTo && !isValidEmailAddress(replyTo)) {
+    problems.push("SMTP_REPLY_TO must contain a valid email address when configured.");
   }
 
   if (provider === "resend" && !normalizeOptionalValue(process.env.RESEND_API_KEY)) {
@@ -82,12 +117,21 @@ export function getEmailConfigurationProblems(provider = getConfiguredEmailProvi
     const smtpUser = normalizeOptionalValue(process.env.SMTP_USER);
     const smtpPassword = normalizeOptionalValue(process.env.SMTP_PASSWORD);
 
+    if (!configuredFrom) {
+      problems.push("EMAIL_FROM is required for EMAIL_PROVIDER=smtp.");
+    }
+
     if (!smtpHost) {
       problems.push("SMTP_HOST is missing for EMAIL_PROVIDER=smtp.");
     }
 
     if (!smtpPort) {
       problems.push("SMTP_PORT is missing for EMAIL_PROVIDER=smtp.");
+    } else {
+      const parsedPort = Number(smtpPort);
+      if (!Number.isInteger(parsedPort) || parsedPort < 1 || parsedPort > 65535) {
+        problems.push("SMTP_PORT must be an integer between 1 and 65535.");
+      }
     }
 
     if (!smtpUser) {
@@ -97,13 +141,69 @@ export function getEmailConfigurationProblems(provider = getConfiguredEmailProvi
     if (!smtpPassword) {
       problems.push("SMTP_PASSWORD is missing for EMAIL_PROVIDER=smtp.");
     }
+
+    if (getApplicationEnvironment() === "staging") {
+      const testRecipient = normalizeOptionalValue(process.env.TEST_EMAIL_TO);
+      if (!testRecipient) {
+        problems.push("TEST_EMAIL_TO is required for staging SMTP tests.");
+      } else if (!isValidEmailAddress(testRecipient)) {
+        problems.push("TEST_EMAIL_TO must contain one valid staging test address.");
+      } else if (/[;,]/.test(testRecipient)) {
+        problems.push("TEST_EMAIL_TO must contain exactly one staging test address.");
+      }
+
+      if (process.env.ALLOW_REAL_EMAIL_TEST?.trim().toLowerCase() !== "true") {
+        problems.push("ALLOW_REAL_EMAIL_TEST=true is required for staging SMTP tests.");
+      }
+    }
   }
 
   return problems;
 }
 
+export function getStagingEmailTestReadiness() {
+  const environment = getApplicationEnvironment();
+  const provider = getConfiguredEmailProvider();
+  const approvedRecipient = normalizeOptionalValue(process.env.TEST_EMAIL_TO);
+  const problems = getEmailConfigurationProblems(provider);
+
+  if (environment !== "staging") {
+    problems.push("The email test tool is available only in staging.");
+  }
+
+  if (provider !== "smtp") {
+    problems.push("EMAIL_PROVIDER must be smtp before staging delivery tests can run.");
+  }
+
+  return {
+    environment,
+    provider,
+    approvedRecipientConfigured: Boolean(approvedRecipient),
+    ready: problems.length === 0,
+    problems: Array.from(new Set(problems)),
+  };
+}
+
+export function assertApprovedStagingEmailRecipient(recipient: string) {
+  const readiness = getStagingEmailTestReadiness();
+  const approvedRecipient = normalizeOptionalValue(process.env.TEST_EMAIL_TO);
+
+  if (!readiness.ready || !approvedRecipient) {
+    throw createEmailConfigurationError(
+      `Staging email delivery is not ready. ${readiness.problems.join(" ")}`,
+    );
+  }
+
+  if (extractEmailAddress(recipient) !== extractEmailAddress(approvedRecipient)) {
+    throw createEmailConfigurationError(
+      "Staging email tests may send only to the approved TEST_EMAIL_TO recipient.",
+    );
+  }
+}
+
 function createBodyPreview(messageBody: string) {
-  return createTextEmailBody(messageBody).replace(/\s+/g, " ").trim().slice(0, 240);
+  void messageBody;
+  return "Email content omitted from logs.";
 }
 
 function escapeHtml(value: string) {
@@ -158,8 +258,32 @@ function createHtmlEmailBody(messageBody: string) {
   ].join("");
 }
 
+export function createEmailRenderings(messageBody: string) {
+  return {
+    text: createTextEmailBody(messageBody),
+    html: createHtmlEmailBody(messageBody),
+  };
+}
+
 function createEmailConfigurationError(message: string) {
   return new Error(message);
+}
+
+function getSafeEmailErrorMessage(error: unknown) {
+  const originalMessage = error instanceof Error ? error.message : String(error);
+  const secretValues = [
+    process.env.SMTP_PASSWORD,
+    process.env.SMTP_USER,
+    process.env.RESEND_API_KEY,
+  ]
+    .map((value) => value?.trim())
+    .filter((value): value is string => Boolean(value));
+
+  return secretValues
+    .reduce((message, secret) => message.replaceAll(secret, "[redacted]"), originalMessage)
+    .replace(/(?:smtp|smtps):\/\/[^\s]+/gi, "[redacted SMTP endpoint]")
+    .replace(/[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+/g, "[redacted email]")
+    .slice(0, 500);
 }
 
 async function logEmailRecord(input: {
@@ -194,7 +318,7 @@ async function sendConsoleEmail(input: {
   attachments?: EmailAttachment[];
 }) {
   console.log(
-    `[email:console] to=${input.to} subject=${input.subject} attachments=${input.attachments?.map((attachment) => attachment.filename).join(",") || "none"}\n${createTextEmailBody(input.body)}`,
+    `[email:console] recipientDomain=${getRecipientDomain(input.to)} subject=${input.subject} attachmentCount=${input.attachments?.length ?? 0} body=omitted`,
   );
 
   await logEmailRecord({
@@ -212,6 +336,7 @@ async function sendResendEmail(input: {
   relatedEntityType?: string;
   relatedEntityId?: string;
   attachments?: EmailAttachment[];
+  replyTo?: string;
 }) {
   const apiKey = normalizeOptionalValue(process.env.RESEND_API_KEY);
 
@@ -231,6 +356,7 @@ async function sendResendEmail(input: {
       from: input.from,
       to: [input.to],
       subject: input.subject,
+      reply_to: input.replyTo,
       text: createTextEmailBody(input.body),
       html: createHtmlEmailBody(input.body),
       attachments: input.attachments?.map((attachment) => ({
@@ -241,9 +367,7 @@ async function sendResendEmail(input: {
   });
 
   if (!response.ok) {
-    const responseBody = await response.text();
-
-    throw new Error(`Resend request failed: ${response.status} ${responseBody}`);
+    throw new Error(`Resend request failed with HTTP ${response.status}.`);
   }
 
   await logEmailRecord({
@@ -261,6 +385,7 @@ async function sendSmtpEmail(input: {
   relatedEntityType?: string;
   relatedEntityId?: string;
   attachments?: EmailAttachment[];
+  replyTo?: string;
 }) {
   const smtpHost = normalizeOptionalValue(process.env.SMTP_HOST);
   const smtpPort = normalizeOptionalValue(process.env.SMTP_PORT);
@@ -287,6 +412,7 @@ async function sendSmtpEmail(input: {
     from: input.from,
     to: input.to,
     subject: input.subject,
+    replyTo: input.replyTo,
     text: createTextEmailBody(input.body),
     html: createHtmlEmailBody(input.body),
     attachments: input.attachments?.map((attachment) => ({
@@ -314,6 +440,11 @@ export async function sendTransactionalEmail(input: {
 }) {
   const provider = getConfiguredEmailProvider();
   const from = getEmailFromAddress();
+  const replyTo = getEmailReplyToAddress();
+
+  if (provider === "smtp" && getApplicationEnvironment() === "staging") {
+    assertApprovedStagingEmailRecipient(input.to);
+  }
 
   try {
     if (provider === "console") {
@@ -344,6 +475,7 @@ export async function sendTransactionalEmail(input: {
         relatedEntityType: input.relatedEntityType,
         relatedEntityId: input.relatedEntityId,
         attachments: input.attachments,
+        replyTo,
       });
       return;
     }
@@ -356,25 +488,38 @@ export async function sendTransactionalEmail(input: {
       relatedEntityType: input.relatedEntityType,
       relatedEntityId: input.relatedEntityId,
       attachments: input.attachments,
+      replyTo,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorMessage = getSafeEmailErrorMessage(error);
 
-    await logEmailRecord({
-      to: input.to,
-      from,
-      subject: input.subject,
-      body: input.body,
-      status: "failed",
-      provider,
-      relatedEntityType: input.relatedEntityType,
-      relatedEntityId: input.relatedEntityId,
-    });
+    await Promise.allSettled([
+      logEmailRecord({
+        to: input.to,
+        from,
+        subject: input.subject,
+        body: input.body,
+        status: "failed",
+        provider,
+        relatedEntityType: input.relatedEntityType,
+        relatedEntityId: input.relatedEntityId,
+      }),
+      createOperationalEvent({
+        type: "transactional_email_failed",
+        severity: "error",
+        entityType: input.relatedEntityType ?? "email",
+        entityId: input.relatedEntityId,
+        summary: "A transactional email attempt failed. Content and credentials were omitted.",
+        metadata: {
+          provider,
+          recipientDomain: getRecipientDomain(input.to),
+          error: errorMessage,
+        },
+      }),
+    ]);
 
     if (isProductionEnvironment() && input.required !== false) {
-      throw error instanceof Error
-        ? error
-        : new Error(`Email delivery failed. ${errorMessage}`);
+      throw new Error(`Email delivery failed. ${errorMessage}`);
     }
 
     console.warn(`Email delivery skipped or failed: ${errorMessage}`);

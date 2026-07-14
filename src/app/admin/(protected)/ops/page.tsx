@@ -1,8 +1,11 @@
+import { sendStagingEmailTestAction } from "@/lib/actions/staging-email-tests";
 import { getProductionConfigurationSummary } from "@/lib/services/production-config-service";
 import { listRecentOperationalEvents } from "@/lib/services/operational-log-service";
+import { getStagingEmailToolStatus } from "@/lib/services/staging-email-test-service";
 import { formatDateTime } from "@/lib/formatting";
 
 export default async function AdminOpsPage() {
+  const emailTool = getStagingEmailToolStatus();
   const [config, operationalEvents] = await Promise.all([
     Promise.resolve(getProductionConfigurationSummary()),
     listRecentOperationalEvents(20),
@@ -38,6 +41,50 @@ export default async function AdminOpsPage() {
               </span>
             </div>
             <p>{check.message}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="panel">
+        <p className="eyebrow eyebrow--gold">Staging email verification</p>
+        <h2>Authorized transactional email tests</h2>
+        <p className="supporting-text">
+          This platform-administrator tool uses fictitious content and can send only to the
+          approved staging test recipient. Recipient addresses and SMTP credentials are never
+          displayed here.
+        </p>
+        <div className="admin-inline-stats">
+          <span>Environment: {emailTool.environment}</span>
+          <span>Provider: {emailTool.provider}</span>
+          <span>Approved recipient: {emailTool.approvedRecipientConfigured ? "configured" : "missing"}</span>
+          <span>Status: {emailTool.ready ? "ready" : "blocked"}</span>
+        </div>
+        {!emailTool.ready ? (
+          <div className="notice notice--warning">
+            <strong>Delivery is disabled.</strong>
+            <ul>
+              {emailTool.problems.map((problem) => <li key={problem}>{problem}</li>)}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="admin-card-list">
+        {emailTool.templates.map((template) => (
+          <div key={template.key} className="panel admin-card-list__item">
+            <div className="admin-card-list__header">
+              <div>
+                <p className="eyebrow">Email template</p>
+                <h2>{template.label}</h2>
+                <p className="supporting-text">Attachments: {template.attachmentSummary}</p>
+              </div>
+              <form action={sendStagingEmailTestAction}>
+                <input type="hidden" name="templateKey" value={template.key} />
+                <button className="button button--secondary" type="submit" disabled={!emailTool.ready}>
+                  Send approved test
+                </button>
+              </form>
+            </div>
           </div>
         ))}
       </div>
