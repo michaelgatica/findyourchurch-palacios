@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/site-header";
 import {
   buildLaunchHomeTitle,
   buildMetadataImageUrl,
+  areDonationsEnabled,
   getSiteUrl,
   siteConfig,
 } from "@/lib/config/site";
@@ -76,14 +77,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const donationsEnabled = areDonationsEnabled();
+
   return (
     <html lang="en">
       <body className={`${headingFont.variable} ${bodyFont.variable}`}>
-        <Script
-          id="zeffy-modal-script"
-          src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"
-          strategy="afterInteractive"
-        />
+        {donationsEnabled ? (
+          <Script
+            id="zeffy-modal-script"
+            src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"
+            strategy="afterInteractive"
+          />
+        ) : null}
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>

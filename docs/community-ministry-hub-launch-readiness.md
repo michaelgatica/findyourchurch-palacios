@@ -549,7 +549,7 @@ Focused SMTP/scheduler recommendation on July 13, 2026: **Still blocked**. The b
 ## Performance And SEO Validation Addendum — July 14, 2026
 
 - Hosted large-data validation passed with 131 events, 1,125 registrations, and 500 registrations on one event.
-- Public response start was 97–246 ms and public DOM-ready was 159–460 ms in Chromium. The 500-registration dashboard was DOM-ready in 968 ms and rendered 25 rows; platform event administration was DOM-ready in 519 ms and rendered 50 rows.
+- Warm public response start was 97–246 ms and public DOM-ready was 159–460 ms in Chromium. A zero-instance cold homepage request was 3.623 s response start / 4.068 s DOM-ready; staging intentionally retains `minInstances: 0`. The disabled donation integration no longer loads its third-party modal script. The 500-registration dashboard was DOM-ready in 968 ms and rendered 25 rows; platform event administration was DOM-ready in 519 ms and rendered 50 rows.
 - All 25 staging composite indexes remain ready. No index change is required for current application query shapes.
 - Public event queries remain published/public/previously-published and bounded. Registration queries are event/church scoped; admin events and reports now cursor-page at 50. Directory filter values reuse the already loaded bounded church result.
 - Six 500-registration PDFs completed in 2.122–3.545 seconds and 175–203 kB; XLSX completed in 2.027 seconds and 62 kB with correct rows, totals, participant/answer-summary sheets, long text, and formula protection.
