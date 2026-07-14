@@ -2,6 +2,20 @@
 
 This is a plan only. Do not execute these steps until staging validation has passed and the launch owner approves a production window.
 
+## Canonical And Redirect Policy
+
+The intended production canonical origin is `https://findyourchurchpalacios.org` using HTTPS and the non-`www` host. This is a deployment decision, not a claim that DNS, certificates, or redirects are currently active.
+
+- Redirect `http://findyourchurchpalacios.org/*` to `https://findyourchurchpalacios.org/*` with a permanent redirect after HTTPS is ready.
+- Redirect `https://www.findyourchurchpalacios.org/*` to the matching path and query on `https://findyourchurchpalacios.org/*`.
+- Redirect Firebase `web.app`, `firebaseapp.com`, and App Hosting default-domain production traffic to the canonical host where the provider permits; these domains must never be emitted as production canonical or Open Graph origins.
+- Keep `findyourchurch.org` outside this launch policy unless it is separately configured and approved later.
+- Preserve current legacy church-route redirects to the canonical state/city/church route.
+- Use one canonical event route, `/events/[eventSlug]`; any legacy or duplicate event path must permanently redirect to it without registration-management or export tokens.
+- Never place confirmation identifiers, registration-management tokens, export tokens, or scheduler secrets into redirects, canonical URLs, sitemap entries, Open Graph tags, structured data, analytics events, or public logs.
+
+Production sitemap policy: include published churches and upcoming published public events; exclude draft, pending, unlisted, cancelled, past, registration, confirmation, portal, admin, management-token, and export-token routes. Past published details may remain indexable when opened directly, but remain out of the upcoming sitemap. Cancelled details remain direct/noindex with `EventCancelled` structured data. Verify this policy again only after the production domain is actually configured.
+
 ## Required Pre-Launch Evidence
 
 - Staging Firebase project or preview environment verified.

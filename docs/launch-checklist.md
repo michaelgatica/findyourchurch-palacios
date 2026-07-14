@@ -160,6 +160,26 @@ Focused staging evidence recorded July 14, 2026:
 
 Accessibility/browser recommendation: **ready for performance and SEO validation**. This is not production approval.
 
+## Hosted performance and SEO checkpoint
+
+Focused staging evidence recorded July 14, 2026:
+
+- [x] Large staging seed was dry-run before confirmation and stayed pinned to `findyourchurch-staging-2026` / `findyourchurchpal`.
+- [x] Dataset contains 131 events, 1,125 registrations, multiple churches/statuses/modes, and exactly 500 registrations on the export/pagination fixture.
+- [x] Public response/render measurements passed for homepage, directory, event listing/filtering, event detail, church upcoming events, and flyers.
+- [x] Registration dashboard uses 25-row cursor pages; admin events/reports use 50-row cursor pages; check-in, categories, operations, sitemap, and cleanup queries are bounded.
+- [x] All 25 required staging composite indexes are ready; no new index was required.
+- [x] Atomic capacity/idempotency/waitlist/cancellation/promotion/aggregate/rate-limit tests passed without oversubscription.
+- [x] Six 500-registration PDF variants and one XLSX workbook passed time, size, pagination, long-text, totals, selected-field, participant, summary-sheet, and formula-safety checks.
+- [x] Scheduler batch, retry, overlap, cleanup, retention, resume, idempotency, and operational-log checks passed.
+- [x] Titles, descriptions, canonical URLs, Open Graph, structured data, robots, sitemap, unlisted privacy, and token non-disclosure passed on hosted staging.
+- [x] Google Calendar and ICS start/end, timezone, venue, public URL, and cancellation behavior passed.
+- [x] Supported operating limits are documented in `docs/community-ministry-hub-staging-qa.md`.
+- [ ] Provider-backed staging SMTP delivery is still required.
+- [ ] Native screen-reader and WebKit/Safari evidence remain environment gaps.
+
+Performance/SEO result: **still blocked from full staging certification** on the three remaining items above. Do not deploy to production from this checkpoint.
+
 ## Cleanup safety
 
 - Preview demo cleanup with `npm run cleanup:demo-data -- --dry-run`.

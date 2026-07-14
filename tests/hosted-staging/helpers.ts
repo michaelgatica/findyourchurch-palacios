@@ -8,6 +8,7 @@ export const stagingAccounts = {
   platformAdmin: "staging-qa-admin@staging.findyourchurch.test",
   churchA: "staging-qa-rep-user-1@staging.findyourchurch.test",
   churchB: "staging-qa-rep-user-2@staging.findyourchurch.test",
+  churchC: "staging-qa-rep-user-3@staging.findyourchurch.test",
   eventManager: "staging-qa-event-manager@staging.findyourchurch.test",
 } as const;
 

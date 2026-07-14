@@ -2,6 +2,47 @@
 
 This runbook is for validating Community Ministry Hub in a nonproduction environment only. Do not connect staging or preview UI to production Firebase, production SMTP jobs, or real church registration data.
 
+## Performance And SEO Checkpoint — July 14, 2026
+
+- Target: Firebase project `findyourchurch-staging-2026`, Firestore database `findyourchurchpal`, App Hosting backend `community-hub-staging`, and `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app` only.
+- Dataset after the staging-safe `--dry-run --large` / `--confirm --large` sequence: 3 churches, 131 total event documents, 119 public-event projections, 1,125 registrations, and exactly 500 registrations for `staging-qa-event-full`. All records are fictitious. The deterministic manifest itself contains 109 events, 1,112 registrations, and 2,763 writes; the difference is retained staging-only browser-QA fixtures.
+- Public Chromium measurements: homepage 246 ms response start / 460 ms DOM-ready; directory 97/159 ms; event listing 110/337 ms; event detail 112/195 ms; church profile 102/241 ms. Each route used 21–33 browser resources and about 232–866 kB measured transfer. The large event listing deliberately renders at most 60 upcoming public events.
+- Authenticated measurements: the 500-registration dashboard was 198 ms response start / 968 ms DOM-ready with 25 rows; platform event administration was 179/519 ms with 50 rows. Measured Chromium heap was about 10 MB. Registration cursor paging, prefix/exact search, status filtering, check-in bounding, admin next-page behavior, event reports, categories, and operational logs passed.
+- Firestore: all 25 deployed composite indexes remain `READY`; no index was added. Public queries require published/public/previously-published constraints. Church/event/registration/admin queries are scoped and bounded. The directory no longer performs a duplicate published-church read. Admin events and reports now use 50-record cursor pages.
+- Capacity: the emulator accepted 12 simultaneous distinct submissions against capacity 5 plus waitlist 7 as exactly 5 confirmed and 7 waitlisted. Cancelling one confirmed registration promoted one waitlisted registration and preserved aggregate counts. Existing atomic tests also passed final-slot contention, repeated idempotency keys, rate limiting, cancellation, promotion, and cursor paging without oversubscription.
+- Exports at 500 registrations: roster PDF portrait 3.545 s / 175,498 bytes / 127 pages; roster landscape 2.439 s / 196,310 bytes / 168 pages; sign-in portrait 2.304 s / 181,220 bytes / 127 pages; sign-in landscape 2.279 s / 202,737 bytes / 169 pages; check-in portrait 2.310 s / 179,545 bytes / 127 pages; check-in landscape 2.122 s / 200,457 bytes / 169 pages. XLSX took 2.027 s and was 62,227 bytes with 501 registration rows, 833 participant rows, correct totals, Participants and Answer Summary sheets, long-text handling, and formula-injection neutralization. Private exports still expire after 24 hours.
+- Scheduler scale: due-job selection remains 25; notification writes run in batches of 25; retention deletion runs in batches of 400; expired export selection is at most 100 and access-token cleanup at most 400. Hosted certification completed five independent jobs while one controlled failure retried, verified overlap suppression, reminder fan-out, duplicate suppression, cleanup, retention, cross-church isolation, resumability, and operational logs.
+
+Supported operating limits:
+
+| Area | Supported limit |
+| --- | --- |
+| Registration dashboard | 25 rows by default; repository hard maximum 100 rows per cursor page |
+| Platform events and event reports | 50 rows per cursor page; repository hard maximum 100 |
+| Church portal event list | 50 most recent scoped events |
+| Public upcoming-event list | 60 events per rendered listing |
+| Published churches | 500 per market query |
+| Sitemap upcoming events | 1,000 |
+| Registrations per export | 1,000 hard maximum; 500 load-certified in hosted staging |
+| Generated export | 10 MB; private 24-hour expiration |
+| Participants per registration | 25 |
+| Registration form | 20 sections, 100 top-level fields, 30 participant subfields per repeating field |
+| Long-text answer | 5,000 characters per configured field; total answer payload 150 kB |
+| Flyer | 8 MB; 400x300 minimum through 6000x6000 maximum; JPG, PNG, or WebP |
+
+SEO and discovery policy verified in hosted staging:
+
+- Staging canonical and Open Graph URLs use the staging host and never claim the production domain. All staging pages emit `noindex`; staging `robots.txt` disallows `/`.
+- The intended production canonical origin is `https://findyourchurchpalacios.org` (non-`www`). `www.findyourchurchpalacios.org` and Firebase default domains must redirect to it once production domain configuration is confirmed. `findyourchurch.org` is not treated as active for this launch.
+- Sitemap includes published churches and upcoming published public events. Draft, pending-review, unlisted, cancelled, past, registration, confirmation, management-token, portal, admin, and export-token routes are excluded. Past published event detail may remain canonical/indexable in production, but past events are omitted from the upcoming sitemap. Cancelled pages are direct/noindex and carry `EventCancelled` structured data; unlisted pages are direct/noindex and emit no structured data.
+- Event JSON-LD, title, description, canonical, Open Graph title/description/URL/image, flyer dimensions/alt text, and staging robots passed. Absolute Storage flyer URLs are preserved instead of being double-prefixed.
+- Unlisted fixtures were absent from homepage, calendar, church upcoming sections, public search, broad public enumeration, and sitemap. Firestore rules still permit only the intended exact direct read. Test token values were absent from canonical URLs, sitemap, JSON-LD, Open Graph, and ICS output.
+- Google Calendar and ICS actions contain the correct UTC start/end, `America/Chicago` timezone context, venue, staging public URL, and cancellation state. ICS responses are `text/calendar`, attachment-only, and `noindex`.
+
+Validation commands passed: `test:staging-performance-seo` (5/5), hosted smoke, static performance/SEO/calendar tests, TypeScript, event/directory/registration/report/scheduler/scheduler-security/platform/staging suites, Firestore/Storage/Auth rules, registration emulator load tests, live staging Storage, scheduler certification, lint, staging-configured production build, and `git diff --check`.
+
+Performance/SEO recommendation: **still blocked from full staging certification** by the already documented absence of provider-backed SMTP delivery plus unavailable native screen-reader and WebKit/Safari evidence. Performance, query, export, sitemap, structured-data, Open Graph, unlisted privacy, and calendar validation themselves are complete.
+
 ## Branch And Scope
 
 - Base commit: `339320f`.
@@ -213,14 +254,14 @@ Live staging checkpoint recorded July 13, 2026:
 - Authentication: initialized; Email/Password enabled with password required.
 - Firestore rules: compiled and released to `findyourchurchpal`.
 - Firestore indexes: 25 composite indexes deployed to `findyourchurchpal`; all 25 report `READY`.
-- Deterministic seed: 5 fictitious Auth users and 72 marked Firestore documents created.
+- Deterministic large seed: 5 fictitious Auth users reused; current staging totals are 3 churches, 131 events, 119 public-event projections, and 1,125 registrations, including 500 on the load fixture.
 - Firebase Storage bucket: `findyourchurch-staging-2026.firebasestorage.app` in `US-CENTRAL1`.
 - Storage rules: compiled and released to the staging bucket.
 - Hosting: Firebase App Hosting backend `community-hub-staging` in `us-central1`, environment `staging`, runtime `nodejs22`.
 - Hosted URL: `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app`.
-- App Hosting rollout: the accessibility/browser correction rollout succeeded on July 14, 2026.
+- App Hosting rollout: the performance/query/SEO correction rollout succeeded on July 14, 2026; backend reconciliation is complete and the ICS route proves the new revision is serving.
 - Secret Manager: staging-only Firebase client key, registration-token, export-signing, and scheduler-token secrets are connected to the backend. Secret values are not stored in Git.
-- Reset proof: live dry run finds all 72 marked/prefixed documents; no live reset was executed.
+- Reset proof: the earlier small-seed dry run found all 72 marked/prefixed documents. The current large dataset was intentionally retained for QA; no live reset was executed.
 - Production project `findyourchurch-24562`: not deployed or mutated.
 
 Deployed staging access checks passed:
@@ -264,10 +305,10 @@ Remaining full-certification blockers:
 
 - Staging SMTP/mail testing is not configured. `EMAIL_PROVIDER` remains `console`; no SMTP sender, administrator recipient, approved test recipient, or SMTP credentials were available locally or in staging Secret Manager.
 - Actual delivery, provider message IDs, bounce behavior, sender/reply-to inspection, mailbox receipt, and emailed attachment receipt remain blocked until an approved staging SMTP account and test mailbox are supplied privately.
-- Performance, SEO, native screen-reader, WebKit/Safari, email-delivery, and the remaining detailed release matrix remain intentionally separate.
+- Native screen-reader, WebKit/Safari, provider-backed email delivery, and the remaining detailed release matrix remain separate. Performance and SEO validation are complete.
 - A QA owner must receive the current password through an approved private channel.
 
-Current recommendation: **ready for performance and SEO validation** after the hosted accessibility/browser phase. Full staging certification remains blocked because SMTP delivery is unavailable and WebKit/Safari plus native screen-reader coverage could not be performed in this environment.
+Current recommendation: **still blocked from full staging certification** because SMTP delivery is unavailable and WebKit/Safari plus native screen-reader coverage could not be performed in this environment. Performance and SEO validation are complete.
 
 ## SMTP and Scheduler Configuration Record
 

@@ -523,16 +523,16 @@ Manual/staging verification still required:
 | Scheduler | Implemented and configured | Yes local and hosted | Yes, Cloud Scheduler job run | Yes | Yes | `test:registration-scheduler-security`, `certify:staging-scheduler`, Cloud Scheduler logs | Production remains unconfigured by design |
 | Exports | Implemented | Yes for PDF/XLSX generation and opening | Hosted closing-report generation | Yes | Yes | `test:staging-email`, hosted scheduled closing report | Email attachment receipt remains blocked with SMTP |
 | Data retention | Implemented/documented | Yes | Hosted fictitious-data cleanup | Yes | Yes | Registration emulator and `certify:staging-scheduler` | Production schedule/retention approval remains required |
-| Accessibility | Not fully verified | No dedicated a11y automation | No | No | Yes | `docs/community-ministry-hub-accessibility.md` | Full-GO blocker until manual review |
-| Responsive browser QA | Not verified | No | No | No | Yes | QA matrix prepared | Full-GO blocker until browser testing |
-| Performance | Seed/load plan added | No load run | No | No | Yes | `seed:community-hub-staging -- --large` | Needs staging load validation |
+| Accessibility | Critical/high resolved | 66 axe scans plus keyboard/semantic review | Hosted | Yes for available engines | Yes | `docs/community-ministry-hub-accessibility.md` | Native screen reader and WebKit/Safari remain unavailable |
+| Responsive browser QA | Verified in available engines | Chromium, Edge, Firefox | Hosted | Yes | Yes | Hosted Playwright matrix | Standalone Chrome and WebKit/Safari unavailable |
+| Performance | Bounded and load-verified | 131 events / 1,125 registrations / 500-record export fixture | Hosted | Yes | Yes | `test:staging-performance-seo` | Supported limits documented; no performance blocker found |
 | Dependency advisories | Documented | Yes audit | N/A | N/A | Yes | `npm audit --omit=dev --json`, security acceptance doc | 11 moderate advisories need owner acceptance |
 | Monitoring | Ops visibility and correlation logs | Partial | Yes for scheduler success/failure | Yes | Yes | `/admin/ops`, Cloud Scheduler/Application logs | Recommended failure alerts remain unconfigured |
 | Backup | Documented | No | No | No | Yes | Rollback/deployment docs | Needs managed backup confirmation |
 | Rollback | Documented | No | No exercise | No | Yes | `docs/community-ministry-hub-rollback.md` | Needs nonproduction exercise |
 | Existing church workflows | Existing tests pass | Partial | No staging browser | No | Yes | directory routing/build/regression tests | Needs staging regression pass |
 
-The current evidence supports `CONDITIONAL GO` only. Full `GO` remains blocked until staging SMTP delivery, browser QA, accessibility, and production-owner risk acceptance are completed. Scheduler, hosted cleanup, and report-generation staging evidence are complete.
+The current evidence supports `CONDITIONAL GO` only. Full `GO` remains blocked until staging SMTP delivery, native screen-reader/WebKit evidence, and production-owner risk acceptance are completed. Scheduler, hosted cleanup, browser/accessibility, performance, SEO, and report-generation staging evidence are complete.
 
 ## Final Recommendation
 
@@ -546,3 +546,15 @@ Reasons:
 - Remaining dependency advisories require explicit acceptance or future upstream-safe updates.
 
 Focused SMTP/scheduler recommendation on July 13, 2026: **Still blocked**. The blocker is limited to the absent approved staging SMTP provider credentials, sender/reply-to configuration, administrator recipient, and QA-owned `TEST_EMAIL_TO`. Cloud Scheduler is enabled and certified in staging; no production scheduler or deployment was created.
+## Performance And SEO Validation Addendum — July 14, 2026
+
+- Hosted large-data validation passed with 131 events, 1,125 registrations, and 500 registrations on one event.
+- Public response start was 97–246 ms and public DOM-ready was 159–460 ms in Chromium. The 500-registration dashboard was DOM-ready in 968 ms and rendered 25 rows; platform event administration was DOM-ready in 519 ms and rendered 50 rows.
+- All 25 staging composite indexes remain ready. No index change is required for current application query shapes.
+- Public event queries remain published/public/previously-published and bounded. Registration queries are event/church scoped; admin events and reports now cursor-page at 50. Directory filter values reuse the already loaded bounded church result.
+- Six 500-registration PDFs completed in 2.122–3.545 seconds and 175–203 kB; XLSX completed in 2.027 seconds and 62 kB with correct rows, totals, participant/answer-summary sheets, long text, and formula protection.
+- The operating limits and detailed measurements are recorded in `docs/community-ministry-hub-staging-qa.md`.
+- Staging uses its own canonical origin and global `noindex`. The production decision remains the non-`www` HTTPS host `https://findyourchurchpalacios.org`; alternate/default domains must redirect after configuration is confirmed.
+- Sitemap, structured Event data, Open Graph metadata, unlisted privacy, token non-disclosure, Google Calendar, and ICS tests passed.
+
+Recommendation remains **still blocked** for full staging certification because provider-backed SMTP delivery, native screen-reader evidence, and WebKit/Safari evidence remain unavailable. This addendum is not production approval.
