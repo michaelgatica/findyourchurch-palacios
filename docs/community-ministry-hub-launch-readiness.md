@@ -259,10 +259,24 @@ Remaining production check:
 
 Defaults:
 
-- Registration retention is configured per event registration setup.
+- Registration retention is configured per event registration setup: 180 days by default, with validated range 30–730 days after the event ends.
 - Export retention is 24 hours.
-- Access tokens expire and cleanup jobs remove expired records.
+- Registration-management tokens expire after 180 days; rotating the token secret revokes all existing links.
+- Access/export token and temporary export cleanup is authenticated, idempotent, bounded, audited, church/event scoped, and certified in hosted staging.
 - Audit records should keep minimal metadata and avoid answer values.
+
+Retention decisions still required before production:
+
+| Record | Current application behavior | Production decision |
+| --- | --- | --- |
+| Registrations and related answers | Per-event cleanup after 30–730 days, default 180; deletes registrations, token/confirmation/idempotency/rate-limit records and counter in batches of 400 | Privacy owner approves default/allowed overrides and minor-data handling |
+| Temporary exports and export tokens | Private download expires after 24 hours; cleanup selects at most 100 exports and 400 tokens per pass | Operations verifies schedule, alert, and bucket deletion |
+| Management tokens | Hash stored; normal expiry 180 days; expired-token cleanup bounded to 400 | Ministry operations approves duration and communication on secret rotation |
+| Scheduler jobs | Lease/retry/idempotency state retained; no approved record-retention cleanup | Operations/privacy set and enforce a duration |
+| Audit, email, and operational logs | Minimal metadata retained; no answer payload; no approved automated retention | Operations/privacy set and enforce durations before launch |
+| Event-level cleanup | Registration personal data is deleted while event/form definitions and minimal audit history remain | Privacy/legal approve deletion/anonymization policy |
+
+One failed scheduler record is isolated and retried without stopping the batch; leases allow safe resume. Hosted certification proved authenticated cleanup, cross-church isolation, duplicate suppression, retry, and operational logging.
 
 Operational process:
 
@@ -532,11 +546,11 @@ Manual/staging verification still required:
 | Rollback | Documented | No | No exercise | No | Yes | `docs/community-ministry-hub-rollback.md` | Needs nonproduction exercise |
 | Existing church workflows | Existing tests pass | Partial | No staging browser | No | Yes | directory routing/build/regression tests | Needs staging regression pass |
 
-The current evidence supports `CONDITIONAL GO` only. Full `GO` remains blocked until staging SMTP delivery, native screen-reader/WebKit evidence, and production-owner risk acceptance are completed. Scheduler, hosted cleanup, browser/accessibility, performance, SEO, and report-generation staging evidence are complete.
+This was the pre-certification checkpoint and supported `CONDITIONAL GO` only. The final July 14 certification below supersedes it. Scheduler, hosted cleanup, browser/accessibility, performance, SEO, and report-generation staging evidence are complete.
 
 ## Final Recommendation
 
-Current recommendation: `CONDITIONAL GO`.
+Historical pre-certification recommendation: `CONDITIONAL GO`.
 
 Reasons:
 
@@ -557,7 +571,7 @@ Focused SMTP/scheduler recommendation on July 13, 2026: **Still blocked**. The b
 - Staging uses its own canonical origin and global `noindex`. The production decision remains the non-`www` HTTPS host `https://findyourchurchpalacios.org`; alternate/default domains must redirect after configuration is confirmed.
 - Sitemap, structured Event data, Open Graph metadata, unlisted privacy, token non-disclosure, Google Calendar, and ICS tests passed.
 
-Recommendation remains **still blocked** for full staging certification because provider-backed SMTP delivery, native screen-reader evidence, and WebKit/Safari evidence remain unavailable. This addendum is not production approval.
+At this checkpoint, full staging certification remained blocked by provider-backed SMTP delivery and assistive-technology/browser evidence. The later final matrix passed Playwright WebKit; native screen-reader evidence remains unavailable. This addendum is not production approval.
 
 ## Final Monitoring And Alert Plan — July 14, 2026
 
@@ -612,3 +626,84 @@ Before production registrations open:
 - Confirm alert queries exclude answers, passwords, secrets, access/export tokens, child information, allergy/medical data, complete addresses, and emergency contacts.
 - Record the manual email, reminder/report, export cleanup, retention cleanup, registration closure, and count-rebuild fallbacks.
 - Assign the observation-window incident commander and response owners.
+
+## Final Requirement Traceability — July 14, 2026
+
+Documentation is not counted as functional evidence. `Automated` names an executed test surface; `Hosted/manual` distinguishes real hosted execution from operator inspection. Production-only checks remain open by design.
+
+| Requirement | Implemented | Automated evidence | Hosted staging evidence | Manual evidence | Production-only verification remaining | Risk | Launch blocking |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Public events | Yes | Event validation, security rules, hosted workflows | Listing/filter/status/visibility passed in all engines | Hosted output inspected during rollback | Canonical production content | Low | No |
+| Event detail | Yes | Metadata, calendar, accessibility, workflow tests | Published/cancelled/unlisted/direct-link states passed | Public smoke during rollback | Controlled production event | Low | No |
+| Church events | Yes | Directory routing and hosted workflow tests | Church upcoming-event projection passed | Existing church record counts reconciled | Production church content | Low | No |
+| Representative event management | Yes | Validation, security, hosted workflows | Create/edit/draft/publish/cancel/archive controls passed | Staging records observed before/after rollback | Controlled production representative | Low | No |
+| Flyer upload | Yes | Storage emulator/live Storage tests | Trusted server upload and public display passed | Bucket/path metadata inspected | Production bucket/CORS/runtime identity | Medium | Yes if failed in deployment window |
+| Registration modes | Yes | 25 validation cases and browser workflows | None/simple/external/custom paths exercised | None separate | Controlled production mode sample | Low | No |
+| Custom form builder | Yes | Validation, accessibility, workflow tests | Build/reorder/conditional/repeating controls passed | None separate | Controlled production form | Low | No |
+| Capacity | Yes | Atomic emulator concurrency/counter tests | 500-record dashboard/export fixture passed | Counter counts reconciled | One controlled production registration | Medium | Yes on inconsistency |
+| Waitlists | Yes | Atomic capacity, cancellation, promotion tests | Hosted registration states and scheduler fixture passed | Scheduler outcomes inspected | Controlled production capacity edge | Medium | Yes on oversubscription |
+| Confirmation | Yes | Render/template and browser tests | Confirmation page/number/management handoff passed | None separate | Provider-backed received email | High | Yes: SMTP delivery blocked |
+| Registration management | Yes | Token, expiry, isolation, cancellation tests | Tokenized management/cancellation passed | Token values never recorded | Production secret/expiry check | Medium | Yes on token exposure |
+| Check-in | Yes | Hosted workflow/accessibility tests | Search/action/toggle/restore passed in all engines | None separate | Controlled production record | Low | No |
+| PDF exports | Yes | Six report variants plus 500-record load | Portrait/landscape roster/sign-in/check-in passed | Generated files opened during SMTP tests | Production timeout/private download | Medium | Yes on privacy failure |
+| XLSX exports | Yes | Workbook/sheet/formula-injection tests | 500-row workbook, 833 participant rows passed | Generated workbook opened | Production timeout/private download | Medium | Yes on privacy failure |
+| Report emails | Application yes; delivery no | Templates, attachments, recipient guard, failure redaction | Admin send stayed disabled with console provider | `/admin/ops` SMTP-blocked state inspected | Real provider receipt/sender/links/bounce | High | **Yes** |
+| Scheduled jobs | Yes | Auth, lease, retry, idempotency, cleanup/retention tests | Authorized/unauthorized endpoint and real Scheduler passed | Job pause/resume and status inspected | Production job/secret/alerts | Medium | Yes until configured |
+| Platform administration | Yes | Launch-readiness and hosted workflows | Events/locks/ops passed in all engines | Admin records inspected | Controlled production admin | Low | No |
+| Event moderation | Yes | Platform and hosted workflow tests | Report queue/action passed | None separate | Controlled production report | Low | No |
+| Category management | Yes | Platform and hosted workflow tests | Category surface/actions passed | None separate | Controlled production category | Low | No |
+| Security isolation | Yes | Firestore/Auth emulator and hosted role tests | Public registration denial, cross-church event/registration denial passed | Rules/project identifiers reviewed | Production rules probes after deploy | High impact | Yes on any failure |
+| Storage security | Yes | 8 emulator and live staging controls | Public flyer/private export/cross-church/write/delete policy passed | Bucket name and rules inspected | Production rules/bucket probes | High impact | Yes on any failure |
+| Accessibility | Yes for tested scope | 63 final axe scans; keyboard/reflow suite | 209/210 matrix tests passed; no critical/high open | DOM/accessibility semantics reviewed; native reader unavailable | Native screen-reader test or acceptance | Medium | **Yes pending owner decision** |
+| Browser support | Yes for available engines | Chromium/Firefox/WebKit final; prior Edge pass | Public/rep/admin workflows passed | Native Safari/standalone Chrome unavailable | Owner-defined device matrix | Low | No by default |
+| Performance | Yes within limits | Static and hosted performance/load tests | 137 events, 1,131 registrations, 500-record fixture; bounded pages | Metrics and index readiness inspected | Production cold/warm baseline/alerts | Medium | No if limits accepted |
+| SEO | Yes | Metadata, robots, sitemap, schema, OG, calendar tests | Staging canonical/noindex and exclusions passed | Hosted documents inspected | Production domain, Search Console, sitemap submit | Medium | Yes before indexing |
+| Monitoring | Application logging yes; external alerts no | Scheduler/email failure and redaction tests | `/admin/ops`, audit/email/operational events passed | Logs/correlation/status inspected | Configure/verify alert destinations and retention | High | **Yes** |
+| Retention | Registration/export/token cleanup yes; log policy open | Authenticated bounded idempotent cleanup tests | Retention/export/token cleanup passed | Cleanup outcomes inspected | Approve audit/email/job/log periods and production schedule | High | **Yes** |
+| Backup | Plan/inventory only | No restore automation claimed | Staging reported no managed backup schedule | Project/bucket/rules/index/secret-name inventory inspected | Enable and verify production Firestore/Storage recovery | High | **Yes** |
+| Rollback | Yes for compatible application release | Hosted smoke/dataset checks around exercise | Prior release and latest release both passed; data preserved | Scheduler pause/resume and counts observed | Production backup reference/previous revision/operator | Medium | Yes until preflight complete |
+| Existing church workflows | Yes | Directory routing plus final regression spec | Homepage, directory/count/filter, church/legacy/claim, submit/contact/policies, portal/account/edit, admin, mobile nav passed | Donation disabled-state inspected | Production donation, contact delivery, real content | Medium | Yes for production-only integrations |
+
+Traceability result: core Community Ministry Hub functionality, isolation, hosted workflows, accessibility automation, performance, SEO, Scheduler, exports, rollback compatibility, and existing-site regressions are evidenced. The unresolved launch gates are operational rather than undocumented: provider-backed SMTP, explicit advisory/App Check/native-reader risk decisions, external alerting/log retention, production backup/Storage recovery, and deployment-window production checks.
+
+## Final Automated And Hosted Evidence
+
+| Test surface | Final result |
+| --- | --- |
+| TypeScript | Passed: `npx tsc --noEmit` |
+| Event/directory/registration validation | Passed: 9 event checks, directory routing, 25 field types/6 presets |
+| Reports | Passed: 6 PDF variants, workbook sheets, 8 templates; hosted 500-record exports passed |
+| Scheduler unit/security | Passed: auth, request/method/body, retry, lease, policy, idempotency |
+| Platform/staging/performance-SEO static | Passed: 7 launch checks, 6 staging guards, 8 SEO/calendar/limit checks |
+| Firestore and Storage emulator rules | Passed: 8 Firestore and 8 Storage controls |
+| Registration emulator | Passed: authorization, capacity, idempotency, waitlist, versioning, pagination/search, audit/deletion/token/scheduler paths |
+| Live staging Storage | Passed after loading an ephemeral OAuth token into process memory; no credential persisted |
+| Hosted public smoke | Passed: 8 public visibility/canonical/flyer/token checks |
+| SMTP application tests | Passed: 15 templates/rendering, PDF/XLSX, recipient guard, redacted controlled failure; real delivery not attempted |
+| Hosted Scheduler | Passed: unauthorized/authenticated requests, environment/body/method guards, correlation, retry/overlap/deduplication/digest/reminder/report/cleanup/retention |
+| Admin operations | Passed: staging banner, SMTP-blocked state, template catalog, scheduler logs |
+| Hosted final browser matrix | Passed 209, skipped 1 intentional evidence-capture case, failed 0 in 14.1 minutes across Chromium/Firefox/WebKit; prior Edge evidence also passed |
+| Existing-site final regression | Passed in all three final engines: public/legacy/forms/policies/mobile/representative/admin |
+| Accessibility | 63 final axe scans passed with no critical/serious findings; keyboard, 7 viewports, 200% reflow passed |
+| Performance/SEO/export | Passed in final hosted matrix; public and authenticated metrics, 500-record PDF/XLSX, sitemap/schema/OG/calendar/privacy passed |
+| Staging production build | Passed: Next.js 15.5.20, 40 static pages; ignored local production service-account path emitted a non-blocking missing-file warning and was not used |
+| Lint and whitespace | Lint passed with no warnings/errors; final `git diff --check` is required after documentation edits |
+| Dependency audit | Completed: 298 production dependencies, 11 moderate advisory nodes, 0 high, 0 critical; npm exits 1 because advisories remain |
+| Environment-blocked evidence | Provider SMTP delivery, native screen-reader, native Safari/standalone Chrome; legacy phase-3/phase-4 integration scripts referenced a missing local production service-account file and were not repointed |
+
+## Final Certification Decision
+
+### NO-GO
+
+The code and hosted staging application are suitable for merge review, but production deployment is not approved. The blocking reasons are:
+
+- no provider-backed SMTP delivery, sender/link/mailbox/attachment/bounce evidence;
+- no explicit launch-owner acceptance or remediation of the 11 moderate advisory nodes;
+- no recorded production App Check enforcement-or-monitor decision;
+- no configured and tested external alert destinations;
+- no approved retention periods for audit/email/job/operational logs;
+- no verified production Firestore backup and Storage recovery settings;
+- no native screen-reader evidence or signed residual-risk acceptance;
+- production secrets, DNS/canonical host, SMTP/DNS, Scheduler, App Check, indexes/rules, and controlled smoke tests necessarily remain deployment-window work.
+
+`GO` requires every blocking acceptance item in `community-ministry-hub-security-acceptance.md` plus the release gate in `community-ministry-hub-production-deployment.md`. No production deployment, merge, or push is authorized by this certification.

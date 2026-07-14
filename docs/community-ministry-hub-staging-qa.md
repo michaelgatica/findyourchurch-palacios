@@ -19,6 +19,7 @@ Supported operating limits:
 | --- | --- |
 | Registration dashboard | 25 rows by default; repository hard maximum 100 rows per cursor page |
 | Platform events and event reports | 50 rows per cursor page; repository hard maximum 100 |
+| Platform event keyword/city/mode search | 50-row result page; at most 500 ordered event documents scanned in 50-document batches per request |
 | Church portal event list | 50 most recent scoped events |
 | Public upcoming-event list | 60 events per rendered listing |
 | Published churches | 500 per market query |
@@ -41,7 +42,7 @@ SEO and discovery policy verified in hosted staging:
 
 Validation commands passed: `test:staging-performance-seo` (5/5), hosted smoke, static performance/SEO/calendar tests, TypeScript, event/directory/registration/report/scheduler/scheduler-security/platform/staging suites, Firestore/Storage/Auth rules, registration emulator load tests, live staging Storage, scheduler certification, lint, staging-configured production build, and `git diff --check`.
 
-Performance/SEO recommendation: **still blocked from full staging certification** by the already documented absence of provider-backed SMTP delivery plus unavailable native screen-reader and WebKit/Safari evidence. Performance, query, export, sitemap, structured-data, Open Graph, unlisted privacy, and calendar validation themselves are complete.
+Performance/SEO recommendation at that checkpoint: **still blocked from full staging certification** by the already documented absence of provider-backed SMTP delivery and unavailable native assistive-technology/browser evidence. Performance, query, export, sitemap, structured-data, Open Graph, unlisted privacy, and calendar validation themselves are complete. The final matrix later passed Playwright WebKit.
 
 ## Branch And Scope
 
@@ -159,9 +160,9 @@ Hosted browser evidence recorded July 14, 2026. `Pass` means the route/workflow 
 | Platform events/reports/categories/operations | Chromium, Edge, Firefox | 320x720 | Pass | Admin surfaces wrap without horizontal page overflow. |
 | Registration reflow | Chromium, Edge, Firefox | 1024x768 at 200% | Pass | No information/control loss or horizontal page overflow. |
 | Standalone Google Chrome | Chrome | All | Not tested | Browser unavailable in this environment; Chromium was tested separately. |
-| WebKit/Safari equivalent | WebKit/Safari | All | Not tested | Browser unavailable in this environment. |
+| WebKit/Safari equivalent | Playwright WebKit | All hosted suite routes/workflows | Pass | Authoritative final run passed; native Safari hardware was unavailable. |
 
-Automated axe coverage completed 66 hosted route/state scans across the three tested engines with no critical or serious violations after fixes. Native screen-reader software was unavailable; semantics were reviewed through axe, the accessibility tree/DOM, and keyboard operation.
+The authoritative final run completed 63 axe route/state scans across Chromium, Firefox, and WebKit with no critical or serious violations after fixes; the earlier installed-Edge evidence also passed. Native screen-reader software was unavailable; semantics were reviewed through axe, the accessibility tree/DOM, and keyboard operation.
 
 ## Focused Hosted Smoke Test
 
@@ -259,6 +260,7 @@ Live staging checkpoint recorded July 13, 2026:
 - Storage rules: compiled and released to the staging bucket.
 - Hosting: Firebase App Hosting backend `community-hub-staging` in `us-central1`, environment `staging`, runtime `nodejs22`.
 - Hosted URL: `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app`.
+- Serving revision after the final correction: `community-hub-staging-build-2026-07-14-014` at 100 percent traffic.
 - App Hosting rollout: the performance/query/SEO correction rollout succeeded on July 14, 2026; backend reconciliation is complete and the ICS route proves the new revision is serving.
 - Secret Manager: staging-only Firebase client key, registration-token, export-signing, and scheduler-token secrets are connected to the backend. Secret values are not stored in Git.
 - Reset proof: the earlier small-seed dry run found all 72 marked/prefixed documents. The current large dataset was intentionally retained for QA; no live reset was executed.
@@ -305,10 +307,10 @@ Remaining full-certification blockers:
 
 - Staging SMTP/mail testing is not configured. `EMAIL_PROVIDER` remains `console`; no SMTP sender, administrator recipient, approved test recipient, or SMTP credentials were available locally or in staging Secret Manager.
 - Actual delivery, provider message IDs, bounce behavior, sender/reply-to inspection, mailbox receipt, and emailed attachment receipt remain blocked until an approved staging SMTP account and test mailbox are supplied privately.
-- Native screen-reader, WebKit/Safari, provider-backed email delivery, and the remaining detailed release matrix remain separate. Performance and SEO validation are complete.
+- Native screen-reader and provider-backed email delivery remain separate. Playwright WebKit passed in final certification; native Safari hardware was unavailable. Performance and SEO validation are complete.
 - A QA owner must receive the current password through an approved private channel.
 
-Current recommendation: **still blocked from full staging certification** because SMTP delivery is unavailable and WebKit/Safari plus native screen-reader coverage could not be performed in this environment. Performance and SEO validation are complete.
+Historical checkpoint recommendation: **still blocked from full staging certification** because SMTP delivery and assistive-technology/browser evidence were incomplete. The final certification below supersedes this status; Playwright WebKit now passes, while SMTP and native screen-reader evidence remain blocked.
 
 ## SMTP and Scheduler Configuration Record
 
@@ -333,6 +335,24 @@ Scheduler status:
 - Retry policy: 3 Cloud Scheduler retries, 30-second minimum backoff, 300-second maximum backoff, 900-second maximum retry duration; application jobs use 3 attempts with bounded exponential backoff.
 - Application protection: 20-minute global run lease, per-job lease, stale-lease recovery, deterministic job IDs, delivery completion markers, terminal failure visibility, and correlation-linked operational events.
 - Recommended alerts, not configured in this focused task: two consecutive dispatcher failures, two consecutive SMTP failures, and any terminal digest, reminder, report, export-cleanup, or retention-cleanup failure.
+
+## Final Certification Checkpoint — July 14, 2026
+
+- Project: `findyourchurch-staging-2026`; Firestore database: `findyourchurchpal`; Storage bucket: `findyourchurch-staging-2026.firebasestorage.app`.
+- Hosted URL: `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app`.
+- The final read-only performance snapshot contained 3 churches, 137 events, 125 public projections, 1,131 registrations, and exactly 500 registrations on the load/export fixture. The growth from the initial large seed is limited to fictitious records created by hosted workflow QA.
+- App Hosting was redeployed only to the explicit staging project after a bounded admin-search defect was corrected. Search now scans at most 500 ordered event documents in 50-document batches and returns cursor pages; it no longer searches only the first page.
+- Final hosted matrix: 209 passed, 0 failed, 1 intentional screenshot-evidence skip in 14.1 minutes across Chromium, Firefox, and Playwright WebKit. The earlier installed Microsoft Edge matrix also passed. Standalone Chrome, native Safari hardware, and a native screen reader were unavailable and are not marked passed.
+- All 63 final axe route scans passed without critical or serious violations. Keyboard, focus return, first-error focus, labels, seven target viewport widths, 320px authenticated surfaces, and 200 percent reflow passed.
+- Existing-site hosted regression passed in every final engine: homepage, directory count/filter, canonical and legacy church/claim routes, Submit Your Church, contact, privacy, terms, staging-disabled donation integration, mobile navigation, representative account/portal/edit, and existing platform church administration.
+- Public, representative, limited-manager, cross-church, and platform-admin Community Hub workflows passed. PDF/XLSX generation, private download, check-in restore, report moderation, category management, and operations readiness passed.
+- Staging Scheduler authentication, environment/method/body limits, correlation, lease/overlap, retry, idempotency, digest, reminder, closing report, export/token cleanup, registration retention, and operational logs passed. The job remained enabled after the pause/resume rollback control exercise.
+- SMTP application behavior passed 15 template/render checks, PDF/XLSX attachment creation, one-recipient enforcement, and controlled-failure redaction. Provider delivery was not attempted because staging remains `EMAIL_PROVIDER=console`; receipt/sender/links/provider ID/bounce evidence is blocked.
+- Rollback exercise passed by deploying compatible prior commit `1d5049b743ef4c5b49bcbe53d489c68beac4353e`, verifying public/authenticated data, restoring `8c0263274805d0e2818ee90e65c1fd76775c22de`, and reconciling the baseline. Core data counts were preserved; two expected scheduler operational events were added while the exercise ran.
+- Staging has no managed Firestore backup schedule, and Storage versioning/retention/soft-delete protection was not confirmed. These are production launch gates, not a reason to mutate staging during this task.
+- Production project `findyourchurch-24562`, production data, production rules, production Storage, production hosting, `main`, and remotes were not modified.
+
+Final production recommendation: **NO-GO**. Hosted staging functionality is suitable for merge review, but production is blocked by provider-backed SMTP certification, explicit advisory/App Check/native-screen-reader risk acceptance, external monitoring/alert delivery, log-retention approval, production backup/Storage recovery, and deployment-window production configuration and smoke tests.
 
 Earlier local/emulator evidence retained from the staging-readiness phase:
 

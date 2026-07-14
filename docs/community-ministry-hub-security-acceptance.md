@@ -6,7 +6,7 @@ This record separates verified controls from risks that still require an owner d
 
 ## Current Decision
 
-**NO-GO for production deployment today.** The deployed staging controls and automated isolation evidence are strong, but the launch owner has not accepted the remaining dependency risk, provider-backed email has not been certified, production App Check/monitoring/backup decisions are incomplete, and native screen-reader plus WebKit/Safari evidence remains unavailable.
+**NO-GO for production deployment today.** The deployed staging controls and automated isolation evidence are strong, but the launch owner has not accepted the remaining dependency risk, provider-backed email has not been certified, production App Check/monitoring/backup decisions are incomplete, and native screen-reader evidence remains unavailable. The available WebKit equivalent now passes; native Safari hardware remains a non-blocking environment limitation unless the launch owner requires device-specific proof.
 
 The Community Ministry Hub changes may be prepared for review and merge, but deployment must remain gated on the blocking acceptance items at the end of this document.
 
@@ -88,7 +88,7 @@ These gaps do not weaken the authorization decision itself, but production monit
 | External alerts not configured | Deferred but blocking | `/admin/ops`, operational/audit/email logs, manual scheduler inspection | Operations owner | Before public registration opens | Blocking |
 | Authorization/rate-limit operational telemetry incomplete | Deferred | Enforcement still fails closed; infrastructure logs available | Platform technical owner | Within 30 days of launch, with launch-owner acceptance | Conditional blocker |
 | Native screen-reader evidence unavailable | Pending external test | Axe and keyboard/semantic tests have zero critical/serious findings | Accessibility/launch owner | Before deploy | Blocking for full GO |
-| WebKit/Safari evidence unavailable | Pending external test | Chromium, Edge, Firefox hosted suites passed | QA/launch owner | Before deploy | Blocking for full GO |
+| Native Safari hardware unavailable | Documented limitation | Chromium, Edge, Firefox, and Playwright WebKit hosted suites passed | QA/launch owner | Post-launch device matrix unless owner elevates | Not blocking by default |
 | Audit/email/job/log retention policy absent | Pending policy | Registration/export/token cleanup is bounded and certified | Privacy owner + operations owner | Before deploy | Blocking |
 | Async export queue not implemented beyond 1,000 records | Accepted design limit pending owner sign-off | Hard 1,000-registration and 10 MB caps; tested 500-record exports | Platform technical owner | Before expansion beyond local launch | Not blocking at Palacios scale if accepted |
 
@@ -96,7 +96,7 @@ These gaps do not weaken the authorization decision itself, but production monit
 
 - [ ] Launch owner accepts or remediates all 11 moderate dependency advisory nodes.
 - [ ] Ministry operations certifies one provider-backed registration confirmation, administrator notification, and attached report to approved staging recipients.
-- [ ] Accessibility/QA owner completes native screen-reader and WebKit/Safari checks or signs an explicit residual-risk acceptance.
+- [ ] Accessibility/QA owner completes native screen-reader checks or signs an explicit residual-risk acceptance.
 - [ ] Platform/launch owner records the App Check enforcement or monitor-first decision.
 - [ ] Operations owner configures production alert destinations, escalation, and on-call response ownership.
 - [ ] Privacy/operations owners approve retention for audit logs, email logs, scheduler records, and operational logs.

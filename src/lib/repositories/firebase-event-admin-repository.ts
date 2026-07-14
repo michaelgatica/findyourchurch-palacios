@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 
 import { getFirebaseAdminFirestore } from "@/lib/firebase/admin";
+import { communityHubLimits } from "@/lib/community-hub-limits";
 import {
   createSlug,
   firestoreCollectionNames,
@@ -35,6 +36,37 @@ export interface AdminEventListFilters {
   sort?: "startsAt_desc" | "startsAt_asc" | "updatedAt_desc" | "createdAt_desc";
   limit?: number;
   cursor?: string;
+}
+
+function matchesAdminEventLocalFilters(
+  event: FirebaseFirestore.DocumentData,
+  filters: AdminEventListFilters,
+) {
+  if (filters.keyword) {
+    const normalizedKeyword = filters.keyword.trim().toLowerCase();
+    const searchableValue = [
+      event.title,
+      event.summary,
+      event.churchName,
+      event.primaryType,
+      ...(Array.isArray(event.audienceTags) ? event.audienceTags : []),
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    if (!searchableValue.includes(normalizedKeyword)) return false;
+  }
+
+  if (filters.city) {
+    const normalizedCity = filters.city.trim().toLowerCase();
+    if (!String(event.address?.city ?? "").toLowerCase().includes(normalizedCity)) return false;
+  }
+
+  if (filters.registrationMode && event.registration?.mode !== filters.registrationMode) {
+    return false;
+  }
+
+  return true;
 }
 
 export async function listAdminEventsFromFirebase(filters: AdminEventListFilters = {}) {
@@ -77,40 +109,63 @@ export async function listAdminEventsFromFirebase(filters: AdminEventListFilters
   }
 
   const pageSize = Math.min(Math.max(filters.limit ?? 50, 1), 100);
-  const snapshot = await query.limit(pageSize + 1).get();
-  const pageDocuments = snapshot.docs.slice(0, pageSize);
-  let events = pageDocuments.map((documentSnapshot) => documentSnapshot.data());
+  const hasLocalFilters = Boolean(filters.keyword || filters.city || filters.registrationMode);
+  if (!hasLocalFilters) {
+    const snapshot = await query.limit(pageSize + 1).get();
+    const pageDocuments = snapshot.docs.slice(0, pageSize);
+    return {
+      events: pageDocuments.map((documentSnapshot) => documentSnapshot.data()),
+      nextCursor: snapshot.docs.length > pageSize ? pageDocuments.at(-1)?.id ?? null : null,
+    };
+  }
 
-  if (filters.keyword) {
-    const normalizedKeyword = filters.keyword.trim().toLowerCase();
-    events = events.filter((event) =>
-      [
-        event.title,
-        event.summary,
-        event.churchName,
-        event.primaryType,
-        ...(Array.isArray(event.audienceTags) ? event.audienceTags : []),
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedKeyword),
+  const matchingDocuments: FirebaseFirestore.QueryDocumentSnapshot[] = [];
+  let scannedDocuments = 0;
+  let lastScannedDocument: FirebaseFirestore.QueryDocumentSnapshot | null = null;
+  let sourceExhausted = false;
+  let scanQuery = query;
+
+  while (
+    matchingDocuments.length <= pageSize &&
+    scannedDocuments < communityHubLimits.adminEventSearchScan
+  ) {
+    const batchSize = Math.min(
+      pageSize,
+      communityHubLimits.adminEventSearchScan - scannedDocuments,
     );
+    const snapshot = await scanQuery.limit(batchSize).get();
+    if (snapshot.empty) {
+      sourceExhausted = true;
+      break;
+    }
+
+    scannedDocuments += snapshot.docs.length;
+    for (const documentSnapshot of snapshot.docs) {
+      lastScannedDocument = documentSnapshot;
+      if (matchesAdminEventLocalFilters(documentSnapshot.data(), filters)) {
+        matchingDocuments.push(documentSnapshot);
+        if (matchingDocuments.length > pageSize) break;
+      }
+    }
+
+    if (matchingDocuments.length > pageSize) break;
+    if (snapshot.docs.length < batchSize) {
+      sourceExhausted = true;
+      break;
+    }
+    scanQuery = query.startAfter(snapshot.docs.at(-1)!);
   }
 
-  if (filters.city) {
-    const normalizedCity = filters.city.trim().toLowerCase();
-    events = events.filter((event) =>
-      String(event.address?.city ?? "").toLowerCase().includes(normalizedCity),
-    );
-  }
-
-  if (filters.registrationMode) {
-    events = events.filter((event) => event.registration?.mode === filters.registrationMode);
-  }
+  const pageDocuments = matchingDocuments.slice(0, pageSize);
+  const nextCursor = matchingDocuments.length > pageSize
+    ? pageDocuments.at(-1)?.id ?? null
+    : !sourceExhausted && scannedDocuments >= communityHubLimits.adminEventSearchScan
+      ? lastScannedDocument?.id ?? null
+      : null;
 
   return {
-    events,
-    nextCursor: snapshot.docs.length > pageSize ? pageDocuments.at(-1)?.id ?? null : null,
+    events: pageDocuments.map((documentSnapshot) => documentSnapshot.data()),
+    nextCursor,
   };
 }
 

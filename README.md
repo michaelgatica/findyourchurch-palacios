@@ -802,3 +802,16 @@ The remaining launch steps are operational rather than architectural:
 - confirm the live Zeffy donation modal and embed behavior
 - finish final manual UI testing on live infrastructure
 - begin outreach to Palacios churches
+
+## Community Hub final certification status
+
+The July 14, 2026 hosted staging evidence is complete for core functionality, isolation, Storage, Scheduler, accessibility automation, available browsers, responsive layouts, realistic-load exports, performance, SEO, rollback compatibility, and existing-site regressions. The authoritative final browser run completed 209 tests with 0 failures and 1 intentional evidence-capture skip across Chromium, Firefox, and Playwright WebKit; an earlier installed-Edge pass is also recorded.
+
+The production decision is **NO-GO** until the launch owner closes the operational gates: provider-backed SMTP delivery, explicit dependency/App Check/native-screen-reader risk decisions, external alert delivery, log-retention policy, production Firestore/Storage recovery, production secret/DNS/Scheduler verification, and controlled deployment-window smoke tests. See:
+
+- `docs/community-ministry-hub-launch-readiness.md` for final traceability and the decision.
+- `docs/community-ministry-hub-security-acceptance.md` for risk owners and acceptance gates.
+- `docs/community-ministry-hub-production-deployment.md` for the exact deployment order and rollback gates.
+- `docs/community-ministry-hub-rollback.md` for the completed staging exercise and recovery procedure.
+
+No production deployment, `main` merge, or remote push is implied by the certification documents.

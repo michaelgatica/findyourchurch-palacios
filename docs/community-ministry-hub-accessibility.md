@@ -6,9 +6,9 @@ This document records the hosted staging accessibility, keyboard, responsive, an
 
 - Firebase project: `findyourchurch-staging-2026`.
 - Hosted staging URL: `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app`.
-- Tested engines: Playwright Chromium, installed Microsoft Edge, and Playwright Firefox.
+- Tested engines: Playwright Chromium, installed Microsoft Edge, Playwright Firefox, and Playwright WebKit.
 - Standalone Google Chrome: **Not tested — browser unavailable in this environment.**
-- WebKit/Safari equivalent: **Not tested — browser unavailable in this environment.**
+- WebKit/Safari equivalent: **Pass in Playwright WebKit.** Native Safari hardware was not available.
 - Viewports: 320x720, 375x812, 430x932, 768x1024, 1024x768, 1366x768, and 1920x1080.
 - Reflow: registration form checked at 200 percent zoom from a 1024x768 viewport.
 - Automated semantics: axe-core WCAG 2 A/AA, WCAG 2.1 A/AA, and WCAG 2.2 AA tags.
@@ -18,7 +18,7 @@ The committed runner loads the Firebase client key and QA password only into chi
 
 ## Automated Results
 
-The hosted suite covers 21 fixed public, representative, and administrator routes plus the newly created registration-management state in each tested engine. Across Chromium, Edge, and Firefox, 66 axe scans completed with no critical or serious violations after corrections.
+The final hosted suite covers 21 fixed public, representative, and administrator routes plus the newly created registration-management state. The authoritative July 14 rerun completed 63 axe scans across Chromium, Firefox, and WebKit with no critical or serious violations; the prior installed-Edge pass also completed without a critical or serious violation.
 
 The scanned surfaces include the homepage, sign-in pages, directory, church profile, event listing, published and cancelled event detail, registration and confirmation, registration management, representative dashboard/editor/form builder/registration/check-in pages, and all four Community Hub administration areas.
 
@@ -65,7 +65,7 @@ All critical and high findings identified in this phase are resolved in the depl
 
 ## Responsive Review
 
-Chromium, Edge, and Firefox each passed no-horizontal-overflow checks for the homepage, event listing, event detail, and registration form at all seven target viewports. At 320px, representative registration, form builder, check-in, export, and administrator event/report/category/operations surfaces also passed. The registration form reflowed at 200 percent zoom without horizontal page overflow or loss of controls.
+Chromium, Edge, Firefox, and WebKit each passed the applicable no-horizontal-overflow checks for the homepage, event listing, event detail, and registration form at all seven target viewports. At 320px, representative registration, form builder, check-in, export, and administrator event/report/category/operations surfaces also passed. The registration form reflowed at 200 percent zoom without horizontal page overflow or loss of controls.
 
 Visual evidence was captured outside the repository and contains no password or management token:
 
@@ -74,4 +74,4 @@ Visual evidence was captured outside the repository and contains no password or 
 
 ## Current Recommendation
 
-No critical or high accessibility/browser blocker remains in the tested hosted staging scope. The Community Ministry Hub is **ready for performance and SEO validation**. This is not production approval; native screen-reader coverage, WebKit/Safari coverage, the event-specific not-found wording, staging SMTP delivery, and final release certification remain separate work.
+No critical or high accessibility/browser blocker remains in the tested hosted staging scope. Chromium, installed Edge, Firefox, and the available WebKit equivalent passed. Native screen-reader coverage and native Safari hardware remain external evidence gaps; the event-specific not-found wording and narrowly allowlisted Firefox/Next recovery messages remain medium findings. Accessibility evidence supports release review but is not, by itself, production approval.

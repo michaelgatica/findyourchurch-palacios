@@ -41,6 +41,7 @@
     "test:staging-scheduler-hosted": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-staging-scheduler-smoke.ps1",
     "test:staging-admin-ops": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-staging-admin-ops-smoke.ps1",
     "test:staging-accessibility": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-staging-accessibility-qa.ps1",
+    "test:staging-final-certification": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-staging-accessibility-qa.ps1 --project=chromium tests/hosted-staging/final-certification.spec.ts",
     "test:performance-seo": "tsx scripts/test-community-hub-performance-seo.ts",
     "test:staging-performance-seo": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-staging-performance-seo-qa.ps1",
     "test:event-security": "firebase emulators:exec --project demo-find-your-church --only firestore,storage,auth \"tsx scripts/test-firestore-rules.ts && tsx scripts/test-storage-rules.ts\"",

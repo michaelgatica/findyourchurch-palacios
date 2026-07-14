@@ -147,7 +147,7 @@ Focused staging evidence recorded July 14, 2026:
 
 - Hosted URL and Firebase project remained `https://community-hub-staging--findyourchurch-staging-2026.us-central1.hosted.app` and `findyourchurch-staging-2026`.
 - Chromium, installed Microsoft Edge, and Firefox completed public, representative, and platform-administrator workflow coverage.
-- Standalone Chrome was not installed; WebKit/Safari was unavailable. Neither is marked passed.
+- Standalone Chrome was not installed. Playwright WebKit passed in the final matrix; native Safari hardware was unavailable and is not inferred from WebKit.
 - Seven viewport widths from 320px through 1920px passed public overflow checks in all three tested engines.
 - Representative registration, form builder, check-in, export, and administrator surfaces passed 320px checks; registration passed 200 percent zoom/reflow.
 - Sixty-six axe route/state scans completed with no critical or serious findings after corrections.
@@ -155,7 +155,7 @@ Focused staging evidence recorded July 14, 2026:
 - All identified high findings were fixed: unnamed admin controls, focus/landmark/live-region defects, ambiguous builder controls, Firefox 320px overflow, and Firefox multipart event-save navigation.
 - Each tested engine created a fictitious draft, confirmed draft privacy, uploaded a staging flyer, published the event, verified the flyer publicly, toggled/restored check-in, and downloaded PDF and XLSX reports.
 - Church A/B isolation and limited-manager/platform-admin boundaries passed in every tested engine.
-- Remaining medium issues: event denials use church-oriented not-found wording, and Firefox/Next can log exact `Connection closed.` RSC errors or React 419 client-render recovery after successful representative navigation without workflow loss. Remaining environment gaps: native screen reader and WebKit/Safari.
+- Remaining medium issues: event denials use church-oriented not-found wording, and Firefox/Next can log exact `Connection closed.` RSC errors or React 419 client-render recovery after successful representative navigation without workflow loss. The remaining accessibility environment gap is a native screen reader; native Safari hardware was not available.
 - SMTP remains a separate full-certification blocker; no production deployment or production data change occurred.
 
 Accessibility/browser recommendation: **ready for performance and SEO validation**. This is not production approval.
@@ -176,9 +176,10 @@ Focused staging evidence recorded July 14, 2026:
 - [x] Google Calendar and ICS start/end, timezone, venue, public URL, and cancellation behavior passed.
 - [x] Supported operating limits are documented in `docs/community-ministry-hub-staging-qa.md`.
 - [ ] Provider-backed staging SMTP delivery is still required.
-- [ ] Native screen-reader and WebKit/Safari evidence remain environment gaps.
+- [x] Playwright WebKit equivalent passed; native Safari hardware was unavailable.
+- [ ] Native screen-reader evidence remains an environment gap.
 
-Performance/SEO result: **still blocked from full staging certification** on the three remaining items above. Do not deploy to production from this checkpoint.
+Performance/SEO itself passed. Production remains blocked by the final-certification gates documented below; do not deploy from this checkpoint.
 
 ## Cleanup safety
 
@@ -349,3 +350,45 @@ npm run build
 ```
 
 Only run live Firebase workflow tests when the environment is intentionally pointed at a non-production project or when production test data has been explicitly approved.
+
+## Final Certification Gate — July 14, 2026
+
+Current decision: **NO-GO**. Do not merge as an automatic deployment, do not deploy, and do not open production registrations until every unchecked launch gate has a named owner and recorded evidence.
+
+Completed staging evidence:
+
+- [x] Firestore and Storage rules passed emulator and live staging access tests.
+- [x] Hosted public, representative, limited-manager, and platform-admin workflows passed.
+- [x] Scheduler authentication, idempotency, retry, overlap, digest/reminder/report, cleanup, and retention passed.
+- [x] Chromium, Firefox, Playwright WebKit, and an earlier installed-Edge pass cover available browser engines; 7 viewports and 200 percent reflow passed.
+- [x] 63 final axe scans had no critical or serious finding; all discovered critical/high issues are resolved.
+- [x] Large-data pagination, 500-record PDF/XLSX, performance, SEO, sitemap, structured data, Open Graph, unlisted privacy, and calendar links passed.
+- [x] Existing homepage/directory/church/legacy/submit/contact/policy/representative/admin/mobile workflows passed on hosted staging.
+- [x] Compatible prior-release rollback and latest-release restoration preserved staging data and verified Scheduler/email pause controls.
+- [x] Production dependency audit recorded 11 moderate advisory nodes, 0 high, and 0 critical; no unsafe force fix was applied.
+
+Blocking approvals/configuration:
+
+- [ ] Launch owner accepts or remediates the documented production dependency risk.
+- [ ] Approved SMTP provider sends one registration confirmation, one administrator notification, and one PDF/XLSX report to controlled recipients; sender, links, receipt, redaction, provider ID, and bounce behavior are verified.
+- [ ] Accessibility owner completes native screen-reader evidence or signs residual-risk acceptance.
+- [ ] Platform owner records App Check enforcement or monitor-first acceptance.
+- [ ] Operations configures and tests alert destinations, escalation, and response owners.
+- [ ] Privacy/operations approve and enforce audit, email, job, and operational-log retention.
+- [ ] Production Firestore backup/export and Storage recovery/versioning/soft-delete expectations are verified.
+- [ ] Production Firebase project/database/bucket, App Hosting backend, secrets, canonical DNS/TLS, SMTP DNS, Scheduler, indexes, and rules receive deployment-window verification.
+
+## Concise Post-Deployment Smoke Checklist
+
+Use only controlled records and stop on any isolation, privacy, counter, or environment mismatch.
+
+- [ ] Homepage, directory count/filter, church page, and legacy redirect work on canonical HTTPS.
+- [ ] Events listing, published/cancelled detail, flyer/fallback, and private/unlisted exclusions work.
+- [ ] Controlled representative signs in, creates one draft, uploads a flyer, publishes/cleans up, and cannot cross church scope.
+- [ ] One controlled registration produces correct capacity/counter, confirmation page, management link, and received email.
+- [ ] Registration dashboard/detail/check-in and private PDF/XLSX work; links expire.
+- [ ] Platform admin opens events, moderation, categories, and operations; ordinary representative is denied.
+- [ ] Unauthorized Scheduler request is denied; one authorized invocation and repeat produce one outcome.
+- [ ] Monitoring receives controlled success/failure signals without registration answers, children/medical data, addresses, tokens, or secrets.
+
+Rollback immediately for cross-church/private-data exposure, oversubscription/counter drift, duplicate email/job delivery, configuration mismatch, sustained registration failure, broken existing church workflows, or an unmonitorable release. Follow `docs/community-ministry-hub-rollback.md`.

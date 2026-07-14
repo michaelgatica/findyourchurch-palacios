@@ -128,6 +128,7 @@ assert.equal(
 assert.equal(communityHubLimits.registrationsPerExport, 1_000);
 assert.equal(communityHubLimits.participantsPerRegistration, 25);
 assert.equal(communityHubLimits.generatedExportBytes, 10 * 1024 * 1024);
+assert.equal(communityHubLimits.adminEventSearchScan, 500);
 assert.equal(communityHubLimits.schedulerBatchSize, 25);
 
 console.log(

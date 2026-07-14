@@ -11,7 +11,7 @@ Required approvals:
 - Launch owner approves the release window and final requirement traceability.
 - Launch owner and platform technical owner accept or remediate the 11 moderate dependency advisory nodes.
 - Ministry operations owner certifies provider-backed SMTP delivery and production sender/DNS readiness.
-- Accessibility/QA owner completes or accepts the native screen-reader and WebKit/Safari gaps.
+- Accessibility/QA owner completes or accepts the native screen-reader gap; Playwright WebKit already passes, while native Safari hardware remains optional unless the owner elevates it.
 - Operations/privacy owners approve monitoring, alert recipients, backups, Storage recovery, and log-retention policy.
 - A second operator verifies the production project, database, bucket, backend, and canonical hostname before every external write.
 

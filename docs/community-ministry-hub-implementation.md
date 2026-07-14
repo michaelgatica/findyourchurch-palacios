@@ -435,3 +435,40 @@ Recommended next phase:
 - configure and observe production-like scheduler
 - decide whether to enforce Firebase App Check
 - add async export processing for very large events
+
+## Final Merge And Release Surface — July 14, 2026
+
+The Community Ministry Hub range is `95a4bfb29fd9d0f5ff2f1b37d7f4dab57ce791ef..feature/community-hub-final-certification`. It is additive to the existing church directory, claims, representative portal, submissions, updates, messages, and platform administration. It does not require a destructive data migration or existing-church backfill.
+
+New public surfaces include `/events`, `/events/[eventSlug]`, `/events/[eventSlug]/register`, its confirmation route, the ICS route, and tokenized registration management. New representative surfaces include event create/edit, registration form builder, registration dashboard/detail/check-in, and exports. New platform surfaces include events, event reports, categories, and operations readiness. The protected registration Scheduler endpoint and private export download endpoint are server routes.
+
+New Firestore collections are `events`, `publicEvents`, `eventCategories`, `eventReports`, `eventRegistrations`, `eventRegistrationConfigurations`, `eventFormVersions`, `eventRegistrationCounters`, `eventRegistrationTokens`, `eventRegistrationConfirmations`, `eventRegistrationIdempotency`, `eventRegistrationRateLimits`, `eventExports`, `eventScheduledJobs`, `operationalEvents`, and `operationalLocks`. Existing `auditLogs` and `emailLogs` receive new safe action types. The production rollout requires all 25 checked-in composite indexes.
+
+New Storage paths are public `churches/{churchId}/events/{eventId}/flyer/{fileName}` and server-only `private/event-exports/{churchId}/{eventId}/{fileName}`. Existing church logo/photo and submission paths remain governed by the same trusted-server model.
+
+Required application variables and secrets are inventoried in `.env.example` and the production deployment plan. The launch-critical private values are Firebase Admin credentials/identity, `REGISTRATION_TOKEN_SECRET`, `EXPORT_SIGNING_SECRET`, `REGISTRATION_JOBS_CRON_SECRET`, the chosen SMTP or Resend credential, and monitoring/App Check configuration. Values must live in the production secret manager and must never be copied from staging.
+
+Required Scheduler work is one authenticated registration dispatcher calling `POST /api/jobs/registration` on the approved production cadence/time zone, plus preservation of the existing listing-verification job if still used. Create jobs paused, verify authentication and idempotency, then enable only after email and alerts pass. Required email work is provider selection, sender/reply-to/admin recipient, an approved controlled recipient, SPF/DKIM and DMARC decision, bounce path, and received-message tests.
+
+Suggested merge sequence:
+
+1. Review the full Community Hub application/data-model commits.
+2. Review Firestore rules, Storage rules, and all indexes as a database/security unit.
+3. Review staging guards, environment examples, App Hosting configuration, seed/reset scripts, and secret boundaries.
+4. Review Scheduler/email/retention/monitoring behavior.
+5. Review accessibility/browser/performance/SEO corrections and evidence.
+6. Review the final risk, rollback, deployment, and launch-gate documentation.
+7. Merge only after required reviewers approve; do not deploy as an automatic consequence of merge.
+
+Suggested pull-request title: **Launch Community Ministry Hub with staged registration and operations**
+
+Pull-request summary: adds scalable public/community events, church-managed event and registration workflows, secure flyer/export Storage, capacity/waitlists/check-in, PDF/XLSX/report email generation, scheduled reminder/digest/cleanup processing, platform moderation/categories/operations, production-safe SEO, and staging certification tooling while preserving existing church workflows.
+
+Reviewer checklist:
+
+- Application reviewer: public/portal/admin routes, validation, error states, backwards compatibility, and bounded query/search behavior.
+- Database reviewer: collection ownership, public projection, transactions/counters, 25 indexes, bounded cleanup, migration/backfill statement, and rollback compatibility.
+- Security reviewer: Firestore/Storage rules, trusted-server file paths, cross-church checks, token hashing/expiry, secrets, logs, rate limiting, scheduler auth, and private exports.
+- QA reviewer: hosted public/representative/admin workflows, existing-site regression, accessibility/browser/viewports, performance/exports, SEO/sitemap/calendar, and documented skips/blocks.
+
+Potential rollback compatibility issue: older compatible code ignores the additive collections and preserved staging data, as exercised. Do not roll application code back together with older permissive rules, do not delete additive documents, and do not roll back after a future incompatible document-shape migration without a tested compensating migration.
