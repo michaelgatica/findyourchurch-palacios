@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { saveEventAction } from "@/lib/actions/portal-events";
 import {
   audienceAndMinistryOptions,
   primaryEventTypeOptions,
@@ -85,7 +84,7 @@ export function EventEditorForm({
   );
 
   return (
-    <form action={saveEventAction} className="event-editor-form" encType="multipart/form-data">
+    <form action="/api/portal/events/save" method="post" className="event-editor-form" encType="multipart/form-data">
       {event ? <input type="hidden" name="eventId" value={event.id} /> : null}
       <input type="hidden" name="churchId" value={church.id} />
 

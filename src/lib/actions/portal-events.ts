@@ -4,13 +4,14 @@ import { redirect } from "next/navigation";
 
 import { getServerAuthenticatedUserFromSessionCookie } from "@/lib/firebase/session";
 import {
-  createManagedEvent,
   deleteManagedDraftEvent,
   duplicateManagedEvent,
   transitionManagedEvent,
-  updateManagedEvent,
 } from "@/lib/services/event-management-service";
-import { validateEventFormData } from "@/lib/validation/event-management";
+import {
+  getEventEditorSubmissionEventId,
+  saveEventEditorSubmission,
+} from "@/lib/services/event-editor-submission-service";
 
 function buildRedirectWithMessage(pathname: string, key: "success" | "error", value: string) {
   const separator = pathname.includes("?") ? "&" : "?";
@@ -39,34 +40,17 @@ async function requirePortalActor() {
 
 export async function saveEventAction(formData: FormData) {
   const actor = await requirePortalActor();
-  const eventId = typeof formData.get("eventId") === "string" ? String(formData.get("eventId")).trim() : "";
-  const intent = getRequiredString(formData, "intent");
-  const churchId = getRequiredString(formData, "churchId");
+  const eventId = getEventEditorSubmissionEventId(formData);
   const redirectBase = eventId ? `/portal/events/${eventId}/edit` : "/portal/events/new";
   let redirectTo = "";
 
   try {
-    const validatedInput = await validateEventFormData(formData);
-    const publishNow = intent === "publish";
-    const savedEvent = eventId
-      ? await updateManagedEvent({
-          eventId,
-          churchId,
-          actorUserId: actor.id,
-          validatedInput,
-          publishNow,
-        })
-      : await createManagedEvent({
-          churchId,
-          actorUserId: actor.id,
-          validatedInput,
-          publishNow,
-        });
+    const result = await saveEventEditorSubmission({ formData, actorUserId: actor.id });
 
     redirectTo = buildRedirectWithMessage(
-      `/portal/events/${savedEvent.id}/edit`,
+      `/portal/events/${result.event.id}/edit`,
       "success",
-      publishNow ? "event-published" : "event-saved",
+      result.publishNow ? "event-published" : "event-saved",
     );
   } catch (error) {
     redirect(

@@ -1994,6 +1994,44 @@ input[type="checkbox"] {
   padding: 0.55rem 0.9rem;
   text-transform: uppercase;
   width: fit-content;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.admin-shell,
+.portal-shell,
+.admin-content,
+.admin-content > *,
+.admin-card-list__item {
+  min-width: 0;
+}
+
+.admin-content,
+.admin-card-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.admin-card-list__header,
+.admin-card-list__header > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.admin-card-list__header h2 {
+  overflow-wrap: anywhere;
+}
+
+.admin-card-list__header .status-badge {
+  width: fit-content;
+}
+
+.admin-shell p,
+.admin-shell dd,
+.admin-shell code,
+.portal-shell p,
+.portal-shell dd,
+.portal-shell code {
+  overflow-wrap: anywhere;
 }
 
 .admin-shell__header,
