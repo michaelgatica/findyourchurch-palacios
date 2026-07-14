@@ -6,6 +6,7 @@ import {
   stripUndefinedDeep,
 } from "@/lib/firebase/firestore";
 import type { AuditLogRecord, CreateAuditLogInput } from "@/lib/types/directory";
+import { getRetentionExpiration, operationalRecordRetentionDays } from "@/lib/retention-policy";
 
 export async function createAuditLogInFirebase(input: CreateAuditLogInput) {
   const firestore = getFirebaseAdminFirestore();
@@ -31,9 +32,23 @@ export async function createAuditLogInFirebase(input: CreateAuditLogInput) {
   await firestore
     .collection(firestoreCollectionNames.auditLogs)
     .doc(record.id)
-    .set(stripUndefinedDeep(record));
+    .set({
+      ...stripUndefinedDeep(record),
+      retentionExpiresAt: getRetentionExpiration(operationalRecordRetentionDays.auditLogs),
+    });
 
   return record;
+}
+
+export async function listRecentAuditLogs(limit = 20) {
+  const firestore = getFirebaseAdminFirestore();
+  if (!firestore) return [];
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.auditLogs)
+    .orderBy("createdAt", "desc")
+    .limit(Math.min(Math.max(limit, 1), 100))
+    .get();
+  return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as AuditLogRecord);
 }
 
 export async function listAuditLogsForEntity(entityType: string, entityId: string) {

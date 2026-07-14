@@ -3,12 +3,19 @@ import { getProductionConfigurationSummary } from "@/lib/services/production-con
 import { listRecentOperationalEvents } from "@/lib/services/operational-log-service";
 import { getStagingEmailToolStatus } from "@/lib/services/staging-email-test-service";
 import { formatDateTime } from "@/lib/formatting";
+import { listRecentAuditLogs } from "@/lib/repositories/firebase-audit-log-repository";
+import { listRecentEmailLogs } from "@/lib/repositories/firebase-email-log-repository";
+import { listRecentRegistrationJobs } from "@/lib/repositories/firebase-registration-job-repository";
+import { operationalRecordRetentionDays } from "@/lib/retention-policy";
 
 export default async function AdminOpsPage() {
   const emailTool = getStagingEmailToolStatus();
-  const [config, operationalEvents] = await Promise.all([
+  const [config, operationalEvents, auditLogs, emailLogs, scheduledJobs] = await Promise.all([
     Promise.resolve(getProductionConfigurationSummary()),
     listRecentOperationalEvents(20),
+    listRecentAuditLogs(10),
+    listRecentEmailLogs(10),
+    listRecentRegistrationJobs(10),
   ]);
 
   return (
@@ -43,6 +50,44 @@ export default async function AdminOpsPage() {
             <p>{check.message}</p>
           </div>
         ))}
+      </div>
+
+      <div className="panel">
+        <p className="eyebrow eyebrow--gold">Retained operational records</p>
+        <h2>Recent audit, email, and Scheduler activity</h2>
+        <p className="supporting-text">
+          Platform administrators can review safe summaries here. Recipient addresses, message
+          bodies, registration answers, access tokens, and secrets are not displayed. Retention:
+          audit {operationalRecordRetentionDays.auditLogs} days; email {operationalRecordRetentionDays.emailLogs} days;
+          Scheduler {operationalRecordRetentionDays.eventScheduledJobs} days; operational events {operationalRecordRetentionDays.operationalEvents} days.
+        </p>
+      </div>
+
+      <div className="admin-card-list">
+        <div className="panel admin-card-list__item">
+          <h2>Audit activity</h2>
+          {auditLogs.length === 0 ? <p>No audit activity is available.</p> : (
+            <ul>{auditLogs.map((record) => (
+              <li key={record.id}>{record.action} / {record.entityType} / {formatDateTime(record.createdAt)}</li>
+            ))}</ul>
+          )}
+        </div>
+        <div className="panel admin-card-list__item">
+          <h2>Email delivery records</h2>
+          {emailLogs.length === 0 ? <p>No email delivery records are available.</p> : (
+            <ul>{emailLogs.map((record) => (
+              <li key={record.id}>{record.subject} / {record.status} / {record.provider ?? "unknown"} / {formatDateTime(record.createdAt)}</li>
+            ))}</ul>
+          )}
+        </div>
+        <div className="panel admin-card-list__item">
+          <h2>Scheduler job records</h2>
+          {scheduledJobs.length === 0 ? <p>No Scheduler job records are available.</p> : (
+            <ul>{scheduledJobs.map((record) => (
+              <li key={record.id}>{record.type} / {record.status} / {formatDateTime(record.updatedAt)}</li>
+            ))}</ul>
+          )}
+        </div>
       </div>
 
       <div className="panel">

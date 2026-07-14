@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { getFirebaseAdminFirestore } from "@/lib/firebase/admin";
 import { firestoreCollectionNames, stripUndefinedDeep } from "@/lib/firebase/firestore";
 import type { EmailLogRecord } from "@/lib/types/directory";
+import { getRetentionExpiration, operationalRecordRetentionDays } from "@/lib/retention-policy";
 
 export async function createEmailLogInFirebase(input: {
   to: string;
@@ -36,9 +37,23 @@ export async function createEmailLogInFirebase(input: {
   await firestore
     .collection(firestoreCollectionNames.emailLogs)
     .doc(record.id)
-    .set(stripUndefinedDeep(record));
+    .set({
+      ...stripUndefinedDeep(record),
+      retentionExpiresAt: getRetentionExpiration(operationalRecordRetentionDays.emailLogs),
+    });
 
   return record;
+}
+
+export async function listRecentEmailLogs(limit = 20) {
+  const firestore = getFirebaseAdminFirestore();
+  if (!firestore) return [];
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.emailLogs)
+    .orderBy("createdAt", "desc")
+    .limit(Math.min(Math.max(limit, 1), 100))
+    .get();
+  return snapshot.docs.map((documentSnapshot) => documentSnapshot.data() as EmailLogRecord);
 }
 
 export async function listEmailLogsForEntity(relatedEntityType: string, relatedEntityId: string) {

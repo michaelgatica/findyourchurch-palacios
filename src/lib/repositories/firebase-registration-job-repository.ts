@@ -9,6 +9,11 @@ import {
   registrationJobRunLeaseDurationMs,
 } from "@/lib/services/registration-job-policy";
 import type { RegistrationScheduledJobRecord } from "@/lib/types/registrations";
+import { getRetentionExpiration, operationalRecordRetentionDays } from "@/lib/retention-policy";
+
+function jobRetentionExpiration(from = new Date()) {
+  return getRetentionExpiration(operationalRecordRetentionDays.eventScheduledJobs, from);
+}
 
 function collection() {
   const firestore = getFirebaseAdminFirestore();
@@ -44,6 +49,7 @@ export async function cancelPendingRegistrationJobsForEvent(eventId: string) {
       status: "completed",
       completedAt: new Date().toISOString(),
       errorMessage: "Replaced by updated registration settings.",
+      retentionExpiresAt: jobRetentionExpiration(),
     }));
   await batch.commit();
 }
@@ -120,10 +126,24 @@ export async function completeRegistrationJob(jobId: string, runId: string) {
       errorMessage: null,
       leaseOwnerId: null,
       leaseExpiresAt: null,
+      retentionExpiresAt: jobRetentionExpiration(new Date(now)),
       nextAttemptAt: null,
     });
     return true;
   });
+}
+
+export async function listRecentRegistrationJobs(limit = 20) {
+  const firestore = getFirebaseAdminFirestore();
+  if (!firestore) return [];
+  const snapshot = await firestore
+    .collection(firestoreCollectionNames.eventScheduledJobs)
+    .orderBy("updatedAt", "desc")
+    .limit(Math.min(Math.max(limit, 1), 100))
+    .get();
+  return snapshot.docs.map(
+    (documentSnapshot) => documentSnapshot.data() as RegistrationScheduledJobRecord,
+  );
 }
 
 export async function markRegistrationJobDeliveryCompleted(
@@ -173,6 +193,7 @@ export async function failRegistrationJob(
       errorMessage: errorMessage.slice(0, 500),
       leaseOwnerId: null,
       leaseExpiresAt: null,
+      ...(!retryScheduled ? { retentionExpiresAt: jobRetentionExpiration(now) } : {}),
     });
     return {
       attempts: job.attempts,

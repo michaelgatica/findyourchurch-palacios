@@ -47,12 +47,18 @@ async function run() {
   assert.equal(html.includes("STAGING"), true);
   assert.equal(html.includes("Authorized transactional email tests"), true);
   assert.equal(html.includes("Status:"), true);
-  assert.equal(html.includes("blocked"), true);
+  assert.equal(html.includes("Provider: <!-- -->smtp"), true);
+  assert.equal(html.includes("Status: <!-- -->ready"), true);
   assert.equal(html.includes("Registration confirmation"), true);
   assert.equal(html.includes("Combined registration report"), true);
   assert.equal(html.includes("Scheduled registration digest"), true);
-  assert.equal(html.includes("disabled"), true);
+  assert.equal(html.includes("Delivery is disabled."), false);
   assert.equal(html.includes("registration_scheduler_completed"), true);
+  assert.equal(html.includes("Retained operational records"), true);
+  assert.equal(html.includes("Audit activity"), true);
+  assert.equal(html.includes("Email delivery records"), true);
+  assert.equal(html.includes("Scheduler job records"), true);
+  assert.equal(html.includes("Recipient addresses, message"), true);
 
   console.log(JSON.stringify({
     ok: true,
@@ -60,10 +66,12 @@ async function run() {
     url: `${baseUrl}/admin/ops`,
     platformAdministratorAuthenticated: true,
     stagingBannerVisible: true,
-    smtpStatus: "blocked",
+    smtpStatus: "ready",
     emailTemplateCatalogVisible: true,
-    sendControlsDisabled: true,
+    sendControlsEnabled: true,
     schedulerOperationalEventsVisible: true,
+    retainedOperationalSummariesVisible: true,
+    sensitiveEmailDetailsHidden: true,
   }, null, 2));
 }
 
