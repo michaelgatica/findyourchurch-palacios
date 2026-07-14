@@ -52,6 +52,9 @@ function run() {
     EMAIL_PROVIDER: "console",
     REGISTRATION_TOKEN_SECRET: undefined,
     REGISTRATION_JOBS_CRON_SECRET: undefined,
+    NEXT_PUBLIC_APP_CHECK_SITE_KEY: undefined,
+    APP_CHECK_ENFORCEMENT_MODE: undefined,
+    GOOGLE_CLOUD_OPERATIONS_ENABLED: undefined,
   });
   const failingSummary = getProductionConfigurationSummary();
   assert.ok(failingSummary.failed > 0);
@@ -81,6 +84,9 @@ function run() {
     SMTP_PORT: "465",
     SMTP_USER: "support@findyourchurchpalacios.org",
     SMTP_PASSWORD: "secret-value-that-should-not-print",
+    NEXT_PUBLIC_APP_CHECK_SITE_KEY: "configured-public-site-key",
+    APP_CHECK_ENFORCEMENT_MODE: "enforced",
+    GOOGLE_CLOUD_OPERATIONS_ENABLED: "true",
   });
   const configuredSummary = getProductionConfigurationSummary();
   assert.equal(configuredSummary.failed, 0);

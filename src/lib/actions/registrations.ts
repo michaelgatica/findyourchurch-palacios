@@ -20,6 +20,7 @@ import {
   submitPublicRegistration,
   updateRegistrationWithAccessToken,
 } from "@/lib/services/public-registration-service";
+import { createOperationalEvent } from "@/lib/services/operational-log-service";
 import type { RegistrationStatus } from "@/lib/types/registrations";
 
 export interface PublicRegistrationActionState {
@@ -161,6 +162,13 @@ export async function submitPublicRegistrationAction(
       honeypot: stringValue(formData, "website"),
       requestIdentity,
     });
+    await createOperationalEvent({
+      type: "public_registration_submitted",
+      severity: "info",
+      entityType: "event",
+      entityId: result.registration.eventId,
+      summary: "A public registration was submitted successfully.",
+    });
     const params = new URLSearchParams({
       confirmation: result.registration.confirmationNumber,
     });
@@ -171,6 +179,18 @@ export async function submitPublicRegistrationAction(
   } catch (error) {
     if (error && typeof error === "object" && "digest" in error) {
       throw error;
+    }
+    try {
+      await createOperationalEvent({
+        type: error instanceof Error && /too many|rate limit/i.test(error.message)
+          ? "public_registration_rate_limited"
+          : "public_registration_failed",
+        severity: "warning",
+        entityType: "registration",
+        summary: "A public registration attempt was rejected or failed. Submitted answers were omitted.",
+      });
+    } catch {
+      console.warn("Registration failure operational logging failed; submitted data was omitted.");
     }
     return {
       status: "error",

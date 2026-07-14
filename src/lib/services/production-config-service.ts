@@ -61,8 +61,9 @@ export function getProductionConfigurationReport(): ConfigCheckResult[] {
     checkEnv("RETENTION_JOB_ENABLED", "Registration retention cleanup flag", "recommended"),
     checkEnv("NEXT_PUBLIC_GA_MEASUREMENT_ID", "Analytics measurement ID", "optional"),
     checkEnv("NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION", "Google Search Console verification", "optional"),
-    checkEnv("ERROR_MONITORING_DSN", "Error monitoring DSN", "recommended"),
-    checkEnv("APP_CHECK_SITE_KEY", "Firebase App Check site key", "recommended"),
+    checkEnv("GOOGLE_CLOUD_OPERATIONS_ENABLED", "Google Cloud operations monitoring", "required", true),
+    checkEnv("NEXT_PUBLIC_APP_CHECK_SITE_KEY", "Firebase App Check site key", "required", true),
+    checkEnv("APP_CHECK_ENFORCEMENT_MODE", "Firebase App Check enforcement mode", "required", true),
   ];
 
   if (process.env.NEXT_PUBLIC_APP_ENV && process.env.NEXT_PUBLIC_APP_ENV !== appEnvironment) {
@@ -82,6 +83,32 @@ export function getProductionConfigurationReport(): ConfigCheckResult[] {
       scope: "required",
       status: "pass",
       message: "Staging mode is active. Admin users should see a nonproduction banner.",
+    });
+  }
+
+  if (
+    isProductionEnvironment() &&
+    process.env.APP_CHECK_ENFORCEMENT_MODE?.trim().toLowerCase() !== "enforced"
+  ) {
+    checks.push({
+      key: "APP_CHECK_ENFORCEMENT_MODE",
+      label: "Production App Check enforcement",
+      scope: "required",
+      status: "fail",
+      message: "Production App Check must be set to enforced before launch.",
+    });
+  }
+
+  if (
+    isProductionEnvironment() &&
+    process.env.GOOGLE_CLOUD_OPERATIONS_ENABLED?.trim().toLowerCase() !== "true"
+  ) {
+    checks.push({
+      key: "GOOGLE_CLOUD_OPERATIONS_ENABLED",
+      label: "Production Google Cloud operations monitoring",
+      scope: "required",
+      status: "fail",
+      message: "Google Cloud Monitoring, Error Reporting, and Cloud Logging must be enabled before launch.",
     });
   }
 

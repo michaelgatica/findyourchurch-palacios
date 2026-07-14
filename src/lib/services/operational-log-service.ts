@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 
 import { getFirebaseAdminFirestore } from "@/lib/firebase/admin";
 import { firestoreCollectionNames, stripUndefinedDeep } from "@/lib/firebase/firestore";
+import { getRetentionExpiration, operationalRecordRetentionDays } from "@/lib/retention-policy";
 
 export type OperationalEventSeverity = "info" | "warning" | "error";
 
@@ -16,7 +17,37 @@ export interface CreateOperationalEventInput {
   metadata?: Record<string, string | number | boolean | null>;
 }
 
+function writeSafeStructuredOperationalLog(input: CreateOperationalEventInput) {
+  const metadata = input.metadata ?? {};
+  const safeCounts = Object.fromEntries(
+    Object.entries(metadata).filter(([key, value]) =>
+      [
+        "attempts",
+        "completed",
+        "due",
+        "dueJobs",
+        "failed",
+        "retryScheduled",
+        "skipped",
+        "terminalFailed",
+      ].includes(key) && (typeof value === "number" || typeof value === "boolean"),
+    ),
+  );
+
+  console.log(JSON.stringify({
+    severity: input.severity === "error" ? "ERROR" : input.severity === "warning" ? "WARNING" : "INFO",
+    message: input.summary,
+    logType: "community_hub_operational_event",
+    eventType: input.type,
+    entityType: input.entityType ?? null,
+    correlationId: input.correlationId ?? null,
+    jobType: typeof metadata.jobType === "string" ? metadata.jobType : null,
+    ...safeCounts,
+  }));
+}
+
 export async function createOperationalEvent(input: CreateOperationalEventInput) {
+  writeSafeStructuredOperationalLog(input);
   const firestore = getFirebaseAdminFirestore();
 
   if (!firestore) {
@@ -36,7 +67,10 @@ export async function createOperationalEvent(input: CreateOperationalEventInput)
     createdAt: new Date().toISOString(),
   });
 
-  await firestore.collection(firestoreCollectionNames.operationalEvents).doc(record.id).set(record);
+  await firestore.collection(firestoreCollectionNames.operationalEvents).doc(record.id).set({
+    ...record,
+    retentionExpiresAt: getRetentionExpiration(operationalRecordRetentionDays.operationalEvents),
+  });
   return record;
 }
 
