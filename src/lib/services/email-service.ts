@@ -107,6 +107,15 @@ export function getEmailConfigurationProblems(provider = getConfiguredEmailProvi
     problems.push("SMTP_REPLY_TO must contain a valid email address when configured.");
   }
 
+  if (
+    extractEmailAddress(from).startsWith("noreply@") &&
+    extractEmailAddress(replyTo ?? "") !== siteConfig.contactEmail.toLowerCase()
+  ) {
+    problems.push(
+      `SMTP_REPLY_TO must be ${siteConfig.contactEmail} when EMAIL_FROM uses a noreply mailbox.`,
+    );
+  }
+
   if (provider === "resend" && !normalizeOptionalValue(process.env.RESEND_API_KEY)) {
     problems.push("RESEND_API_KEY is missing for EMAIL_PROVIDER=resend.");
   }
@@ -206,6 +215,21 @@ function createBodyPreview(messageBody: string) {
   return "Email content omitted from logs.";
 }
 
+function createUnmonitoredMailboxNotice() {
+  const fromAddress = extractEmailAddress(getEmailFromAddress());
+  if (!fromAddress.startsWith("noreply@")) {
+    return null;
+  }
+
+  const supportAddress = getEmailReplyToAddress() ?? siteConfig.contactEmail;
+  return `This mailbox is not monitored. Please send replies or questions to ${supportAddress}.`;
+}
+
+function appendDeliveryNotice(messageBody: string) {
+  const notice = createUnmonitoredMailboxNotice();
+  return notice ? `${messageBody.trimEnd()}\n\n${notice}` : messageBody;
+}
+
 function escapeHtml(value: string) {
   return value
     .replaceAll("&", "&amp;")
@@ -238,11 +262,14 @@ function renderInlineHtml(value: string) {
 }
 
 function createTextEmailBody(messageBody: string) {
-  return messageBody.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$1: $2");
+  return appendDeliveryNotice(messageBody).replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    "$1: $2",
+  );
 }
 
 function createHtmlEmailBody(messageBody: string) {
-  const blocks = messageBody
+  const blocks = appendDeliveryNotice(messageBody)
     .split(/\n\s*\n/)
     .map((block) => block.trim())
     .filter(Boolean)

@@ -6,6 +6,25 @@
   "storage": {
     "rules": "storage.rules"
   },
+  "apphosting": [
+    {
+      "backendId": "community-hub-staging",
+      "rootDir": ".",
+      "ignore": [
+        "node_modules",
+        ".git",
+        ".next",
+        ".env",
+        ".env.*",
+        "!.env.example",
+        "!.env.staging.example",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "playwright-report",
+        "test-results"
+      ]
+    }
+  ],
   "emulators": {
     "auth": {
       "port": 9099

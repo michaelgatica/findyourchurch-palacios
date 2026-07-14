@@ -81,6 +81,15 @@ async function run() {
       /approved TEST_EMAIL_TO recipient/,
     );
 
+    process.env.EMAIL_FROM = "Find Your Church Palacios <noreply@findyourchurchpalacios.org>";
+    process.env.SMTP_REPLY_TO = "support@findyourchurchpalacios.org";
+    const noreplyRendering = createEmailRenderings("Staging message body.");
+    assert.match(
+      noreplyRendering.text,
+      /This mailbox is not monitored\. Please send replies or questions to support@findyourchurchpalacios\.org\./,
+    );
+    assert.match(noreplyRendering.html, /This mailbox is not monitored\./);
+
     assert.equal(stagingEmailTemplateDefinitions.length, 15);
     const attachmentNames: string[] = [];
     for (const definition of stagingEmailTemplateDefinitions) {
@@ -93,6 +102,10 @@ async function run() {
       const renderings = createEmailRenderings(message.body);
       assert.equal(Boolean(renderings.text.trim()), true);
       assert.equal(renderings.html.includes("font-family"), true);
+      assert.match(renderings.text, /This mailbox is not monitored\./);
+      assert.match(renderings.text, /support@findyourchurchpalacios\.org/);
+      assert.match(renderings.html, /This mailbox is not monitored\./);
+      assert.match(renderings.html, /support@findyourchurchpalacios\.org/);
       const links = message.body.match(/https?:\/\/[^\s)]+/g) ?? [];
       assert.equal(
         links.every((url) => new URL(url).hostname.includes("findyourchurch-staging-2026")),

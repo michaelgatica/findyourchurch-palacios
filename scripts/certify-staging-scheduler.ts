@@ -99,6 +99,12 @@ async function deleteDocuments(client: FirestoreRestClient, documents: Firestore
 }
 
 async function run() {
+  const approvedEmailRecipient = process.env.FYC_STAGING_APPROVED_EMAIL_RECIPIENT?.trim();
+  assert.match(
+    approvedEmailRecipient ?? "",
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    "The approved staging email recipient must be loaded into process memory.",
+  );
   assert.equal(process.env.APP_ENV, "staging");
   assert.equal(process.env.NEXT_PUBLIC_APP_ENV, "staging");
   assert.equal(process.env.FIREBASE_PROJECT_ID, stagingProjectId);
@@ -156,7 +162,7 @@ async function run() {
     id: activeEventId,
     slug: activeEventId,
     title: "Scheduler Certification Event",
-    contactEmail: "scheduler-certification@example.test",
+    contactEmail: approvedEmailRecipient,
     startsAt: "2030-09-10T23:00:00.000Z",
     endsAt: "2030-09-11T01:00:00.000Z",
     timeZone: "America/Chicago",
@@ -189,7 +195,7 @@ async function run() {
     contactName: "Scheduler Test Registrant",
     contactNameNormalized: "scheduler test registrant",
     contactSearchPrefixes: ["s", "sc"],
-    contactEmail: "scheduler-registrant@example.test",
+    contactEmail: approvedEmailRecipient,
     attendeeCount: 2,
     capacityUnits: 2,
     answers: {},

@@ -9,6 +9,7 @@ if ($selectedFirebaseProject -ne $projectId -or $selectedFirebaseProject -eq "fi
 
 $previousSecret = $env:REGISTRATION_JOBS_CRON_SECRET
 $previousAccessToken = $env:FYC_STAGING_GCLOUD_ACCESS_TOKEN
+$previousApprovedRecipient = $env:FYC_STAGING_APPROVED_EMAIL_RECIPIENT
 try {
   $env:REGISTRATION_JOBS_CRON_SECRET = (& gcloud.cmd secrets versions access latest `
     --secret=FYC_STAGING_SCHEDULER_TOKEN `
@@ -19,6 +20,12 @@ try {
   $env:FYC_STAGING_GCLOUD_ACCESS_TOKEN = (& gcloud.cmd auth print-access-token 2>$null).Trim()
   if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($env:FYC_STAGING_GCLOUD_ACCESS_TOKEN)) {
     throw "A Google Cloud access token could not be loaded into process memory."
+  }
+  $env:FYC_STAGING_APPROVED_EMAIL_RECIPIENT = (& gcloud.cmd secrets versions access latest `
+    --secret=FYC_STAGING_TEST_EMAIL_TO `
+    --project=$projectId 2>$null).Trim()
+  if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($env:FYC_STAGING_APPROVED_EMAIL_RECIPIENT)) {
+    throw "The approved staging email recipient could not be loaded into process memory."
   }
   & npx.cmd tsx scripts/certify-staging-scheduler.ts
   if ($LASTEXITCODE -ne 0) {
@@ -34,5 +41,10 @@ try {
     Remove-Item Env:FYC_STAGING_GCLOUD_ACCESS_TOKEN -ErrorAction SilentlyContinue
   } else {
     $env:FYC_STAGING_GCLOUD_ACCESS_TOKEN = $previousAccessToken
+  }
+  if ($null -eq $previousApprovedRecipient) {
+    Remove-Item Env:FYC_STAGING_APPROVED_EMAIL_RECIPIENT -ErrorAction SilentlyContinue
+  } else {
+    $env:FYC_STAGING_APPROVED_EMAIL_RECIPIENT = $previousApprovedRecipient
   }
 }

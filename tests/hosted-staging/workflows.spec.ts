@@ -49,15 +49,28 @@ test.describe("public browser workflows", () => {
   test("registration, repeating participant, confirmation, management, and cancellation work", async ({ page }, testInfo) => {
     test.setTimeout(90_000);
     const assertNoPageErrors = collectPageErrors(page);
+    const approvedEmailRecipient = process.env.FYC_STAGING_APPROVED_EMAIL_RECIPIENT?.trim();
+    expect(
+      approvedEmailRecipient,
+      "The approved staging email recipient must be loaded into process memory.",
+    ).toBeTruthy();
     await openHostedPage(page, "/events/staging-published-family-night/register");
 
     const uniqueLabel = `${testInfo.project.name}-${Date.now()}`;
     await page.getByLabel(/^Full name/).fill(`Staging Browser QA ${uniqueLabel}`);
-    await page.getByLabel(/^Email/).fill(`browser-qa-${uniqueLabel}@staging.findyourchurch.test`);
+    await page.getByLabel(/^Email/).fill(approvedEmailRecipient!);
     await page.getByLabel(/^Number attending/).fill("2");
     await page.getByRole("button", { name: "Add attendee" }).click();
     await page.getByLabel(/^Participant name/).fill("Fictitious Attendee");
     await page.waitForTimeout(1_000);
+    const invalidControls = await page.locator("form.registration-public-form :invalid").evaluateAll(
+      (controls) => controls.map((control) => ({
+        id: control.id,
+        name: control.getAttribute("name"),
+        type: control.getAttribute("type"),
+      })),
+    );
+    expect(invalidControls, `Registration form had invalid controls: ${JSON.stringify(invalidControls)}`).toEqual([]);
     await page.getByRole("button", { name: "Submit registration" }).click();
 
     await expect(page.getByRole("heading", { name: "Your registration is complete" })).toBeVisible({ timeout: 30_000 });

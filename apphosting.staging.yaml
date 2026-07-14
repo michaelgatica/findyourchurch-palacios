@@ -77,6 +77,22 @@ env:
       - BUILD
       - RUNTIME
 
+  - variable: NEXT_PUBLIC_APP_CHECK_SITE_KEY
+    value: 6LcGVlMtAAAAAMT_oNXSjFvxzRiQMxEETVDV-A_9
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: APP_CHECK_ENFORCEMENT_MODE
+    value: monitor
+    availability:
+      - RUNTIME
+
+  - variable: GOOGLE_CLOUD_OPERATIONS_ENABLED
+    value: "true"
+    availability:
+      - RUNTIME
+
   - variable: NEXT_PUBLIC_USE_FIREBASE_EMULATORS
     value: "false"
     availability:
@@ -99,7 +115,52 @@ env:
       - RUNTIME
 
   - variable: EMAIL_PROVIDER
-    value: console
+    value: smtp
+    availability:
+      - RUNTIME
+
+  - variable: EMAIL_FROM
+    secret: FYC_STAGING_EMAIL_FROM
+    availability:
+      - RUNTIME
+
+  - variable: ADMIN_NOTIFICATION_EMAIL
+    secret: FYC_STAGING_ADMIN_NOTIFICATION_EMAIL
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_HOST
+    secret: FYC_STAGING_SMTP_HOST
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_PORT
+    secret: FYC_STAGING_SMTP_PORT
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_USER
+    secret: FYC_STAGING_SMTP_USER
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_PASSWORD
+    secret: FYC_STAGING_SMTP_PASSWORD
+    availability:
+      - RUNTIME
+
+  - variable: SMTP_REPLY_TO
+    secret: FYC_STAGING_SMTP_REPLY_TO
+    availability:
+      - RUNTIME
+
+  - variable: TEST_EMAIL_TO
+    secret: FYC_STAGING_TEST_EMAIL_TO
+    availability:
+      - RUNTIME
+
+  - variable: ALLOW_REAL_EMAIL_TEST
+    value: "true"
     availability:
       - RUNTIME
 
