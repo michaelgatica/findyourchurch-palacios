@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isProductionAppEnvironment } from "@/lib/app-environment";
 
 import {
   getActiveLaunchCity,
@@ -133,6 +134,10 @@ export function getPlatformUrl() {
 }
 
 export function buildAbsoluteUrl(pathname = "/") {
+  if (/^https?:\/\//i.test(pathname)) {
+    return pathname;
+  }
+
   const safePath = pathname.startsWith("/") ? pathname : `/${pathname}`;
   return `${getSiteUrl()}${safePath}`;
 }
@@ -208,15 +213,22 @@ export function createPageMetadata({
   description,
   pathname = "/",
   imagePath,
+  imageWidth,
+  imageHeight,
+  imageAlt,
   noIndex = false,
 }: {
   title: string;
   description: string;
   pathname?: string;
   imagePath?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageAlt?: string;
   noIndex?: boolean;
 }): Metadata {
   const resolvedImageUrl = buildMetadataImageUrl(imagePath);
+  const shouldPreventIndexing = noIndex || !isProductionAppEnvironment();
 
   return {
     title,
@@ -224,7 +236,7 @@ export function createPageMetadata({
     alternates: {
       canonical: pathname,
     },
-    robots: noIndex
+    robots: shouldPreventIndexing
       ? {
           index: false,
           follow: false,
@@ -239,9 +251,9 @@ export function createPageMetadata({
       images: [
         {
           url: resolvedImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${siteConfig.launchName} branding`,
+          width: imageWidth ?? 512,
+          height: imageHeight ?? 512,
+          alt: imageAlt ?? `${siteConfig.launchName} branding`,
         },
       ],
     },

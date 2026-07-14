@@ -142,6 +142,26 @@ export function EventBrowser({ events }: EventBrowserProps) {
           </select>
         </label>
 
+        <div className="form-grid">
+          <label className="field">
+            <span className="field__label">From date</span>
+            <input
+              type="date"
+              value={filters.startsOnOrAfter}
+              onChange={(event) => updateFilter("startsOnOrAfter", event.target.value)}
+            />
+          </label>
+          <label className="field">
+            <span className="field__label">Through date</span>
+            <input
+              type="date"
+              min={filters.startsOnOrAfter || undefined}
+              value={filters.startsOnOrBefore}
+              onChange={(event) => updateFilter("startsOnOrBefore", event.target.value)}
+            />
+          </label>
+        </div>
+
         <div className="events-filter-panel__toggles">
           <label className="toggle-field">
             <input

@@ -1,8 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import { AdminSignOutButton } from "@/components/admin/admin-signout-button";
 import { RepresentativeShell } from "@/components/portal/representative-shell";
 import { requireRepresentativePortalSession } from "@/lib/services/representative-access-service";
+import { createPageMetadata, siteConfig } from "@/lib/config/site";
+
+export const metadata: Metadata = createPageMetadata({
+  title: `Church Portal | ${siteConfig.launchName}`,
+  description: "Private church representative tools for Find Your Church.",
+  pathname: "/portal",
+  noIndex: true,
+});
 
 export default async function ProtectedPortalLayout({
   children,

@@ -12,6 +12,7 @@ import {
   getSiteUrl,
   siteConfig,
 } from "@/lib/config/site";
+import { isProductionAppEnvironment } from "@/lib/app-environment";
 
 import "./globals.css";
 
@@ -36,6 +37,12 @@ export const metadata: Metadata = {
   icons: {
     icon: siteConfig.brandAssets.squareLogoSrc,
   },
+  robots: isProductionAppEnvironment()
+    ? undefined
+    : {
+        index: false,
+        follow: false,
+      },
   openGraph: {
     title: buildLaunchHomeTitle(),
     description: siteConfig.launchDescription,
@@ -45,8 +52,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: buildMetadataImageUrl(),
-        width: 1200,
-        height: 630,
+        width: 512,
+        height: 512,
         alt: `${siteConfig.launchName} branding`,
       },
     ],

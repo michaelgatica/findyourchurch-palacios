@@ -247,6 +247,8 @@ export interface EventFilters {
   primaryType: string;
   audienceTag: string;
   language: string;
+  startsOnOrAfter: string;
+  startsOnOrBefore: string;
   registrationMode: string;
   costStatus: string;
   locationMode: string;
@@ -261,6 +263,8 @@ export const emptyEventFilters: EventFilters = {
   primaryType: "",
   audienceTag: "",
   language: "",
+  startsOnOrAfter: "",
+  startsOnOrBefore: "",
   registrationMode: "",
   costStatus: "",
   locationMode: "",

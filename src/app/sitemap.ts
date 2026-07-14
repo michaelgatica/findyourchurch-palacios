@@ -4,13 +4,14 @@ import { buildEventPath } from "@/lib/event-utils";
 import { buildAbsoluteUrl, buildChurchProfilePath } from "@/lib/config/site";
 import { getPublishedChurches } from "@/lib/repositories/church-repository";
 import { getUpcomingPublishedEvents } from "@/lib/repositories/event-repository";
+import { communityHubLimits } from "@/lib/community-hub-limits";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [churches, events] = await Promise.all([
     getPublishedChurches(),
-    getUpcomingPublishedEvents(100),
+    getUpcomingPublishedEvents(communityHubLimits.sitemapEvents),
   ]);
   const baseRoutes = [
     "/",

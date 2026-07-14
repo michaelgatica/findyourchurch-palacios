@@ -34,7 +34,15 @@ export function buildGoogleCalendarUrl(event: EventRecord) {
     new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
   const start = formatCalendarDate(event.startsAt);
   const end = formatCalendarDate(event.endsAt ?? event.startsAt);
-  const details = [event.description, event.informationUrl].filter(Boolean).join("\n\n");
+  const publicUrl = buildAbsoluteUrl(buildEventPath(event));
+  const details = [
+    event.status === "cancelled" ? `CANCELLED${event.cancellationMessage ? `: ${event.cancellationMessage}` : ""}` : null,
+    event.description,
+    event.informationUrl,
+    `Event page: ${publicUrl}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
   const location = event.address
     ? formatAddress(event.address)
     : event.onlineUrl ?? event.venueName ?? "";
@@ -44,6 +52,65 @@ export function buildGoogleCalendarUrl(event: EventRecord) {
   )}&dates=${start}/${end}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(
     location,
   )}`;
+}
+
+function escapeCalendarText(value: string) {
+  return value
+    .replaceAll("\\", "\\\\")
+    .replaceAll("\r\n", "\\n")
+    .replaceAll("\n", "\\n")
+    .replaceAll(",", "\\,")
+    .replaceAll(";", "\\;");
+}
+
+function formatCalendarTimestamp(value: string) {
+  return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function formatAllDayCalendarDate(value: string) {
+  return new Date(value).toISOString().slice(0, 10).replaceAll("-", "");
+}
+
+export function buildEventCalendarFile(event: EventRecord) {
+  const publicUrl = buildAbsoluteUrl(buildEventPath(event));
+  const location = event.address
+    ? formatAddress(event.address)
+    : event.onlineUrl ?? event.venueName ?? "";
+  const description = [
+    event.status === "cancelled" ? `CANCELLED${event.cancellationMessage ? `: ${event.cancellationMessage}` : ""}` : null,
+    event.description,
+    `Event page: ${publicUrl}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+  const start = event.allDay
+    ? `DTSTART;VALUE=DATE:${formatAllDayCalendarDate(event.startsAt)}`
+    : `DTSTART:${formatCalendarTimestamp(event.startsAt)}`;
+  const endValue = event.endsAt ?? event.startsAt;
+  const end = event.allDay
+    ? `DTEND;VALUE=DATE:${formatAllDayCalendarDate(endValue)}`
+    : `DTEND:${formatCalendarTimestamp(endValue)}`;
+
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Find Your Church//Community Ministry Hub//EN",
+    "CALSCALE:GREGORIAN",
+    `X-WR-TIMEZONE:${escapeCalendarText(event.timeZone)}`,
+    "BEGIN:VEVENT",
+    `UID:${escapeCalendarText(`${event.id}@findyourchurch.org`)}`,
+    `DTSTAMP:${formatCalendarTimestamp(event.updatedAt)}`,
+    start,
+    end,
+    `SUMMARY:${escapeCalendarText(event.title)}`,
+    `DESCRIPTION:${escapeCalendarText(description)}`,
+    `LOCATION:${escapeCalendarText(location)}`,
+    `URL:${publicUrl}`,
+    event.status === "cancelled" ? "STATUS:CANCELLED" : "STATUS:CONFIRMED",
+    "END:VEVENT",
+    "END:VCALENDAR",
+    "",
+  ].join("\r\n");
 }
 
 export function buildEventStructuredData(event: EventRecord) {
@@ -112,6 +179,13 @@ export function filterEvents(events: EventRecord[], filters: EventFilters) {
   const keyword = filters.keyword.trim().toLowerCase();
 
   return events.filter((event) => {
+    const eventLocalDate = new Intl.DateTimeFormat("en-CA", {
+      timeZone: event.timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(event.startsAt));
+
     if (keyword && !createSearchableEventText(event).includes(keyword)) {
       return false;
     }
@@ -133,6 +207,14 @@ export function filterEvents(events: EventRecord[], filters: EventFilters) {
     }
 
     if (filters.language && !event.languages.includes(filters.language)) {
+      return false;
+    }
+
+    if (filters.startsOnOrAfter && eventLocalDate < filters.startsOnOrAfter) {
+      return false;
+    }
+
+    if (filters.startsOnOrBefore && eventLocalDate > filters.startsOnOrBefore) {
       return false;
     }
 

@@ -64,6 +64,9 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
     description: event.summary,
     pathname: buildEventPath(event),
     imagePath: event.flyerImage?.src,
+    imageWidth: event.flyerImage?.width ?? undefined,
+    imageHeight: event.flyerImage?.height ?? undefined,
+    imageAlt: event.flyerImage?.alt,
     noIndex: event.status !== "published",
   });
 }
@@ -81,10 +84,12 @@ export default async function EventPage({ params }: EventPageProps) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildEventStructuredData(event)) }}
-      />
+      {event.visibility === "public" ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(buildEventStructuredData(event)) }}
+        />
+      ) : null}
 
       <section className="shell page-section">
         <div className="event-detail-layout">
@@ -204,6 +209,9 @@ export default async function EventPage({ params }: EventPageProps) {
               <div className="button-row">
                 <Link href={buildGoogleCalendarUrl(event)} target="_blank" rel="noreferrer" className="button button--ghost">
                   Add to Google Calendar
+                </Link>
+                <Link href={`${buildEventPath(event)}/calendar.ics`} className="button button--ghost">
+                  Download calendar file
                 </Link>
                 <Link href={`mailto:?subject=${encodeURIComponent(event.title)}&body=${encodeURIComponent(eventUrl)}`} className="button button--ghost">
                   Share by Email

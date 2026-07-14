@@ -1,9 +1,18 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminSignOutButton } from "@/components/admin/admin-signout-button";
 import { getServerAuthenticatedUserFromSessionCookie } from "@/lib/firebase/session";
+import { createPageMetadata, siteConfig } from "@/lib/config/site";
+
+export const metadata: Metadata = createPageMetadata({
+  title: `Platform Administration | ${siteConfig.launchName}`,
+  description: "Private platform administration for Find Your Church.",
+  pathname: "/admin",
+  noIndex: true,
+});
 
 export default async function ProtectedAdminLayout({
   children,
