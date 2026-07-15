@@ -24,11 +24,12 @@ export default defineConfig({
   testDir: "./tests/production-acceptance",
   fullyParallel: false,
   workers: 1,
-  timeout: 900_000,
+  timeout: 300_000,
   expect: { timeout: 30_000 },
   outputDir: path.join(outputRoot, "artifacts"),
   reporter: [["line"]],
   use: {
+    actionTimeout: 45_000,
     baseURL: configuredUrl,
     colorScheme: "light",
     locale: "en-US",

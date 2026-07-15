@@ -207,10 +207,15 @@ export async function cleanupProductionAcceptanceFixture(
   const submissions = await queryFirestoreDocuments(
     request,
     "churchSubmissions",
-    "slug",
+    "customShareSlug",
     input.churchSlug,
   );
-  const churches = await queryFirestoreDocuments(request, "churches", "slug", input.churchSlug);
+  const churches = await queryFirestoreDocuments(
+    request,
+    "churches",
+    "customShareSlug",
+    input.churchSlug,
+  );
   for (const document of [...submissions, ...churches]) documents.set(document.name, document);
 
   const submissionIds = submissions.map(firestoreDocumentId);
@@ -308,8 +313,8 @@ export async function cleanupProductionAcceptanceFixture(
   await batchDeleteAuthUsers(request, userIds);
 
   const [remainingSubmissions, remainingChurches, remainingUsers] = await Promise.all([
-    queryFirestoreDocuments(request, "churchSubmissions", "slug", input.churchSlug),
-    queryFirestoreDocuments(request, "churches", "slug", input.churchSlug),
+    queryFirestoreDocuments(request, "churchSubmissions", "customShareSlug", input.churchSlug),
+    queryFirestoreDocuments(request, "churches", "customShareSlug", input.churchSlug),
     lookupAuthUsers(request, input.emails),
   ]);
   expect(remainingSubmissions, "Acceptance submissions remain after cleanup.").toEqual([]);

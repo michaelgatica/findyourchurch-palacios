@@ -21,6 +21,8 @@
     "test:email": "tsx scripts/test-email.ts",
     "test:admin-email-forwarding": "tsx scripts/test-admin-notification-forwarding.ts",
     "test:production-acceptance": "playwright test --config=playwright.production-acceptance.config.ts",
+    "test:production-acceptance:guarded": "tsx scripts/run-guarded-production-acceptance.ts",
+    "cleanup:production-acceptance:guarded": "tsx scripts/cleanup-production-acceptance-fixtures.ts",
     "test:staging-email": "tsx scripts/test-staging-email.ts",
     "render:brand-previews": "tsx scripts/render-brand-previews.ts",
     "certify:production-email": "tsx scripts/certify-production-email-provider.ts",

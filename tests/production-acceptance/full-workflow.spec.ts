@@ -2,13 +2,21 @@ import { mkdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type APIRequestContext,
+  type Browser,
+  type BrowserContext,
+  type Page,
+} from "@playwright/test";
 
 import {
   acceptanceAccounts,
   assertNoHorizontalOverflow,
   cleanupProductionAcceptanceFixture,
   firestoreDocumentId,
+  firestoreString,
   lookupAuthUsers,
   openProductionPage,
   productionBaseUrl,
@@ -18,8 +26,13 @@ import {
 
 const session = process.env.PRODUCTION_ACCEPTANCE_SESSION?.trim();
 const password = process.env.PRODUCTION_QA_PASSWORD?.trim();
+const appCheckDebugToken = process.env.PRODUCTION_APP_CHECK_DEBUG_TOKEN?.trim();
 expect(session, "A unique production acceptance session marker is required.").toBeTruthy();
 expect(password, "A disposable QA password must be supplied in process memory.").toBeTruthy();
+expect(
+  appCheckDebugToken,
+  "A temporary Firebase App Check debug token must be supplied in process memory.",
+).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 
 const safeSession = session!.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const churchName = `Faith Harbor Acceptance Church ${session}`;
@@ -38,6 +51,18 @@ let editorContext: BrowserContext | null = null;
 let churchProfilePath = "";
 let eventId = "";
 let eventPublicPath = "";
+
+async function createAcceptanceContext(browser: Browser) {
+  const context = await browser.newContext({ baseURL: productionBaseUrl });
+  await context.addInitScript((token) => {
+    (
+      globalThis as typeof globalThis & {
+        FIREBASE_APPCHECK_DEBUG_TOKEN?: string;
+      }
+    ).FIREBASE_APPCHECK_DEBUG_TOKEN = token;
+  }, appCheckDebugToken!);
+  return context;
+}
 
 function collectPageFailures(page: Page) {
   const failures: string[] = [];
@@ -104,6 +129,27 @@ async function openAdminCard(page: Page, path: string, heading: string) {
   });
   await expect(card).toBeVisible();
   await card.getByRole("link").last().click();
+}
+
+async function expectStoredSubmissionMessage(
+  request: APIRequestContext,
+  submissionId: string,
+  messageBody: string,
+) {
+  await expect
+    .poll(
+      async () => {
+        const messages = await queryFirestoreDocuments(
+          request,
+          "messages",
+          "submissionId",
+          submissionId,
+        );
+        return messages.some((message) => firestoreString(message, "messageBody") === messageBody);
+      },
+      { timeout: 45_000 },
+    )
+    .toBe(true);
 }
 
 async function fillChurchSubmission(page: Page) {
@@ -227,7 +273,9 @@ async function fillAndSaveEvent(page: Page) {
   await page.locator('[name="title"]').fill(eventTitle);
   await page.locator('[name="hostMinistry"]').fill("Acceptance Outreach Ministry");
   await page.locator('[name="summary"]').fill("A fictitious public event used for a controlled production acceptance test.");
-  await page.locator('[name="description"]').fill("This fictitious event verifies publishing, registration, email, exports, check-in, administration, responsive design, and cleanup.");
+  await page
+    .locator('textarea[name="description"]')
+    .fill("This fictitious event verifies publishing, registration, email, exports, check-in, administration, responsive design, and cleanup.");
   await page.locator('[name="primaryType"]').selectOption("fellowship-or-social-gathering");
   await page.locator('[name="audienceTags"]').evaluateAll((boxes: HTMLInputElement[]) => boxes.forEach((box) => { box.checked = true; }));
   await page.locator('[name="customTags"]').fill("Acceptance, Community, Prayer, Outreach");
@@ -270,38 +318,40 @@ async function fillAndSaveEvent(page: Page) {
 
 async function activateRegistration(page: Page) {
   await openProductionPage(page, `/portal/events/${eventId}/registration/form`);
-  await page.getByLabel("Registration mode", { exact: true }).selectOption("simple_rsvp");
-  await page.getByLabel("Capacity", { exact: true }).fill("1");
-  await page.getByLabel("Capacity counts").selectOption("registrations");
-  await page.getByLabel("Maximum attendees per registration").fill("4");
-  await page.getByLabel("Waitlist capacity").fill("5");
-  for (const label of [
-    "Enable waitlist",
-    "Automatically promote in submission order",
-    "Show capacity status publicly",
-    "Allow registrant editing",
-    "Allow registrant cancellation",
-    "Send confirmation emails",
-    "Enable event reminders",
-    "Notify event contact of new registrations",
-    "Enable daily digest job",
-    "Email a final report when registration closes",
-    "Email a report 24 hours before the event",
-    "Excel workbook",
+  await expect(page).toHaveURL(new RegExp(`/portal/events/${eventId}/registration/form`));
+  await expect(page.getByRole("heading", { level: 1, name: eventTitle })).toBeVisible();
+  await page.locator('select[name="mode"]').selectOption("simple_rsvp");
+  await page.locator('input[name="capacity"]').fill("1");
+  await page.locator('select[name="capacityUnit"]').selectOption("registrations");
+  await page.locator('input[name="maximumAttendeesPerRegistration"]').fill("4");
+  await page.locator('input[name="waitlistCapacity"]').fill("5");
+  for (const name of [
+    "waitlistEnabled",
+    "automaticWaitlistPromotion",
+    "showCapacityStatus",
+    "allowRegistrantEditing",
+    "allowRegistrantCancellation",
+    "confirmationEmailEnabled",
+    "reminderEmailEnabled",
+    "organizerNewRegistrationEmail",
+    "organizerDailyDigestEmail",
+    "registrationClosingReportEnabled",
+    "preEventReportEnabled",
   ]) {
-    await page.getByLabel(label, { exact: true }).check();
+    await page.locator(`input[name="${name}"]`).check();
   }
-  await page.getByLabel("Success message").fill("Your fictitious acceptance registration is complete.");
-  await page.getByLabel("Registration closed message").fill("This fictitious acceptance registration is closed.");
-  await page.getByLabel("Waitlist message").fill("You are on the fictitious acceptance waitlist.");
-  await page.getByLabel("Required consent text").fill("By submitting, you confirm that all information is fictitious acceptance-test data.");
-  await page.getByLabel("Retain registration data after event (days)").fill("30");
-  await page.getByRole("button", { name: "Activate registration" }).click();
+  await page.locator('input[name="scheduledReportFormats"][value="xlsx"]').check();
+  await page.locator('textarea[name="successMessage"]').fill("Your fictitious acceptance registration is complete.");
+  await page.locator('textarea[name="closedMessage"]').fill("This fictitious acceptance registration is closed.");
+  await page.locator('textarea[name="waitlistMessage"]').fill("You are on the fictitious acceptance waitlist.");
+  await page.locator('textarea[name="consentText"]').fill("By submitting, you confirm that all information is fictitious acceptance-test data.");
+  await page.locator('input[name="retentionDays"]').fill("30");
+  await page.locator('button[name="intent"][value="activate"]').click();
   await expect(page).toHaveURL(new RegExp(`/portal/events/${eventId}/registration\\?success=Registration`), { timeout: 60_000 });
 }
 
 async function submitRsvp(browser: Browser, name: string) {
-  const context = await browser.newContext({ baseURL: productionBaseUrl });
+  const context = await createAcceptanceContext(browser);
   const page = await context.newPage();
   await openProductionPage(page, `${eventPublicPath}/register`);
   await page.getByLabel(/^Contact name/).fill(name);
@@ -337,7 +387,7 @@ test.describe.serial("real production acceptance workflow", () => {
     const existing = await lookupAuthUsers(request, Object.values(acceptanceAccounts));
     expect(existing, "Approved acceptance aliases must be unused before the run starts.").toEqual([]);
 
-    const publicContext = await browser.newContext({ baseURL: productionBaseUrl });
+    const publicContext = await createAcceptanceContext(browser);
     const page = await publicContext.newPage();
     const assertNoFailures = collectPageFailures(page);
     await openProductionPage(page, "/");
@@ -353,7 +403,7 @@ test.describe.serial("real production acceptance workflow", () => {
     await promoteUserToTemporaryAdministrator(request, authUsers[0].localId);
     await publicContext.close();
 
-    administratorContext = await browser.newContext({ baseURL: productionBaseUrl });
+    administratorContext = await createAcceptanceContext(browser);
     const adminPage = await administratorContext.newPage();
     await signIn(adminPage, "admin", acceptanceAccounts.administrator);
     await expect(adminPage.getByRole("navigation", { name: "Admin" })).toBeVisible();
@@ -362,7 +412,7 @@ test.describe.serial("real production acceptance workflow", () => {
   });
 
   test("complete church submission, administrator review, and public publication", async ({ browser, request }) => {
-    const publicContext = await browser.newContext({ baseURL: productionBaseUrl });
+    const publicContext = await createAcceptanceContext(browser);
     const page = await publicContext.newPage();
     await fillChurchSubmission(page);
     await publicContext.close();
@@ -370,12 +420,22 @@ test.describe.serial("real production acceptance workflow", () => {
     const adminPage = await administratorContext!.newPage();
     await openAdminCard(adminPage, "/admin/submissions?status=pending_review", churchName);
     await expect(adminPage.getByRole("heading", { level: 1, name: churchName })).toBeVisible();
-    await adminPage.getByLabel("Internal note").fill(`Controlled production acceptance session ${session}`);
+    const submissionId = adminPage.url().match(/\/admin\/submissions\/([^/?]+)/)?.[1] ?? "";
+    expect(submissionId, "The submission ID could not be captured from the admin URL.").toBeTruthy();
+    const internalNote = `Controlled production acceptance session ${session}`;
+    await adminPage.getByLabel("Internal note").fill(internalNote);
     await adminPage.getByRole("button", { name: "Save note" }).click();
-    await expect(adminPage.getByText(`Controlled production acceptance session ${session}`, { exact: true })).toBeVisible();
-    await adminPage.getByLabel("Public message").fill(`Your fictitious listing passed intake review for acceptance session ${session}.`);
+    await expectStoredSubmissionMessage(request, submissionId, internalNote);
+    await adminPage.reload({ waitUntil: "domcontentloaded" });
+    await expect(
+      adminPage.getByText(internalNote, { exact: true }).first(),
+    ).toBeVisible();
+    const publicMessage = `Your fictitious listing passed intake review for acceptance session ${session}.`;
+    await adminPage.getByLabel("Public message").fill(publicMessage);
     await adminPage.getByRole("button", { name: "Send message" }).click();
-    await expect(adminPage.getByText(/Your fictitious listing passed intake review/)).toBeVisible();
+    await expectStoredSubmissionMessage(request, submissionId, publicMessage);
+    await adminPage.reload({ waitUntil: "domcontentloaded" });
+    await expect(adminPage.getByText(publicMessage, { exact: true }).first()).toBeVisible();
     await adminPage.getByLabel("Optional admin note").fill("Approved during a controlled production acceptance test.");
     await adminPage.getByRole("button", { name: "Approve and publish" }).click();
     await expect(adminPage.getByText("approved", { exact: true }).first()).toBeVisible({ timeout: 60_000 });
@@ -385,20 +445,26 @@ test.describe.serial("real production acceptance workflow", () => {
     await capture(adminPage, "05-approved-submission-admin.png", { width: 1366, height: 900 });
     await adminPage.close();
 
-    const churches = await queryFirestoreDocuments(request, "churches", "slug", churchSlug);
+    const churches = await queryFirestoreDocuments(
+      request,
+      "churches",
+      "customShareSlug",
+      churchSlug,
+    );
     expect(churches).toHaveLength(1);
-    const publicPage = await browser.newPage({ baseURL: productionBaseUrl });
+    const profileContext = await createAcceptanceContext(browser);
+    const publicPage = await profileContext.newPage();
     await openProductionPage(publicPage, churchProfilePath);
     await expect(publicPage.getByRole("heading", { level: 1, name: churchName })).toBeVisible();
-    await expect(publicPage.getByText("Spanish service available", { exact: false })).toBeVisible();
+    await expect(publicPage.getByText("Spanish service", { exact: true }).first()).toBeVisible();
     await verifyAccessibility(publicPage, "published acceptance church profile");
     await capture(publicPage, "06-church-profile-desktop.png", { width: 1366, height: 900 });
     await capture(publicPage, "07-church-profile-mobile.png", { width: 375, height: 812 });
-    await publicPage.close();
+    await profileContext.close();
   });
 
   test("claim request, administrator approval, and primary-owner access", async ({ browser, request }) => {
-    primaryContext = await browser.newContext({ baseURL: productionBaseUrl });
+    primaryContext = await createAcceptanceContext(browser);
     const claimPage = await primaryContext.newPage();
     await createClaim(claimPage);
     await claimPage.close();
@@ -407,7 +473,7 @@ test.describe.serial("real production acceptance workflow", () => {
     expect(claims).toHaveLength(1);
     const adminPage = await administratorContext!.newPage();
     await openAdminCard(adminPage, "/admin/claims?status=pending_review", "Faith Harbor Test Owner");
-    await expect(adminPage.getByText(churchName, { exact: true })).toBeVisible();
+    await expect(adminPage.getByText(churchName, { exact: true }).first()).toBeVisible();
     await adminPage.getByLabel("Internal note").fill(`Claim evidence reviewed for ${session}.`);
     await adminPage.getByRole("button", { name: "Save note" }).click();
     await adminPage.getByLabel("Public message").fill(`Your fictitious claim is ready for approval for ${session}.`);
@@ -419,7 +485,7 @@ test.describe.serial("real production acceptance workflow", () => {
 
     const portalPage = await primaryContext.newPage();
     await openProductionPage(portalPage, "/portal");
-    await expect(portalPage.getByText(churchName, { exact: true })).toBeVisible();
+    await expect(portalPage.getByText(churchName, { exact: true }).first()).toBeVisible();
     await expect(portalPage.getByRole("link", { name: "Team", exact: true })).toBeVisible();
     await capture(portalPage, "09-primary-portal-desktop.png", { width: 1366, height: 900 });
     await capture(portalPage, "10-primary-portal-mobile.png", { width: 375, height: 812 });
@@ -435,16 +501,16 @@ test.describe.serial("real production acceptance workflow", () => {
     await primaryPage.getByLabel("Role / title").fill("Communications Director");
     await primaryPage.getByRole("button", { name: "Invite editor" }).click();
     await expect(primaryPage).toHaveURL(/\/portal\/team\?success=editor-invited/);
-    await expect(primaryPage.getByText(/editor \/ invited/i)).toBeVisible();
+    await expect(primaryPage.getByText(/editor \/ invited/i).first()).toBeVisible();
     await capture(primaryPage, "11-team-invitation-desktop.png", { width: 1366, height: 900 });
     await primaryPage.close();
 
-    editorContext = await browser.newContext({ baseURL: productionBaseUrl });
+    editorContext = await createAcceptanceContext(browser);
     const editorPage = await editorContext.newPage();
     await createPortalAccount(editorPage, acceptanceAccounts.editor, "Faith Harbor Test Editor");
-    await expect(editorPage.getByText(churchName, { exact: true })).toBeVisible();
+    await expect(editorPage.getByText(churchName, { exact: true }).first()).toBeVisible();
     await openProductionPage(editorPage, "/portal/team");
-    await expect(editorPage.getByText(/editor \/ active/i)).toBeVisible();
+    await expect(editorPage.getByText(/editor \/ active/i).first()).toBeVisible();
     await expect(editorPage.getByText("Only the primary owner can invite an editor for this church.")).toBeVisible();
     await openProductionPage(editorPage, "/admin/events");
     await expect(editorPage.getByRole("heading", { name: "This account does not have admin access" })).toBeVisible();
@@ -492,7 +558,9 @@ test.describe.serial("real production acceptance workflow", () => {
 
     const primaryPage = await primaryContext!.newPage();
     await openProductionPage(primaryPage, `/portal/events/${eventId}/registration`);
-    await expect(primaryPage.getByText(`Waitlist Acceptance Registrant ${session}`, { exact: true })).toBeVisible();
+    await expect(
+      primaryPage.getByText(`Waitlist Acceptance Registrant ${session}`, { exact: true }).first(),
+    ).toBeVisible();
     await expect(primaryPage.getByRole("table")).toBeVisible();
     await capture(primaryPage, "16-registration-dashboard-desktop.png", { width: 1366, height: 900 });
     await openProductionPage(primaryPage, `/portal/events/${eventId}/check-in`);
