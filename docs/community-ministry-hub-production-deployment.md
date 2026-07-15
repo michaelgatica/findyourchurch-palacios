@@ -215,21 +215,21 @@ Reproduce the tested staging design in production during the approved window: on
 
 ## Post-Deployment Controlled Smoke Checklist
 
-- [ ] Homepage loads on canonical HTTPS with no production/staging confusion.
-- [ ] Directory count and filters match published churches.
-- [ ] Canonical church page and legacy redirect work.
-- [ ] Events listing excludes draft/unlisted/private records.
-- [ ] Published/cancelled event detail and flyer work; missing flyer falls back.
-- [ ] Representative signs in with the controlled account and sees only its church.
-- [ ] Representative creates one controlled draft event and removes/archives it through the approved cleanup path.
-- [ ] One controlled registration confirms capacity, counter, confirmation page, and management link.
-- [ ] Confirmation email arrives with correct sender and canonical production links.
-- [ ] Registration dashboard and detail show only the controlled church/event.
-- [ ] Controlled PDF and XLSX exports generate, download privately, escape formulas, and expire.
-- [ ] Platform admin opens events, moderation, category management, and operations readiness.
-- [ ] Ordinary representative remains denied from platform-admin routes.
-- [ ] One authorized scheduler invocation succeeds; unauthorized and duplicate invocations fail safely.
-- [ ] Monitoring receives/records controlled success and failure evidence without sensitive payloads.
+- [x] Homepage loads on canonical HTTPS with no production/staging confusion.
+- [x] Directory count and filters match published churches.
+- [x] Canonical church page and legacy redirect work.
+- [x] Events listing excludes draft/unlisted/private records; the controlled production draft stayed private.
+- [x] Production publication/flyer passed; cancelled-event and missing-flyer behavior passed on the identical staged revision.
+- [x] Representative signs in with the controlled account and sees only its church.
+- [x] Representative creates one controlled draft event and removes it through the approved cleanup path.
+- [x] One controlled registration confirms capacity, counter, confirmation page, and management link.
+- [x] Confirmation email arrives with correct sender and canonical production links.
+- [x] Registration dashboard and detail show only the controlled church/event.
+- [x] Controlled PDF and XLSX exports generate and download privately in production; formula/expiration controls passed on the identical staged revision.
+- [x] Platform admin opens events, moderation, category management, and operations readiness.
+- [x] Ordinary representative remains denied from platform-admin routes.
+- [x] Authorized Scheduler invocations succeed; unauthorized, wrong-environment, and repeat requests fail safely or produce zero duplicate work.
+- [x] Monitoring records controlled success/failure evidence without sensitive payloads; fresh uptime points pass.
 
 Use only controlled test records. Do not use real registrant, child, medical, allergy, emergency-contact, or complete-address data in deployment smoke tests.
 
@@ -261,3 +261,21 @@ Deployment-window order for this release:
 10. Verify App Check valid traffic and monitoring. Only then enable the production Scheduler and begin the staffed observation window.
 
 The branded communications must state that the service is provided free of charge by El Roi Digital Ministries and direct optional support to `https://elroidigital.org/donate.html`. Every noreply message must state that the mailbox is unmonitored and direct replies or questions to `support@findyourchurchpalacios.org`.
+
+## Executed Premium Production Release — July 15, 2026
+
+Release state: **GO / live with active observation**.
+
+- Source branch: `codex/community-hub-premium-production-launch`; deployed source commit: `f023f62f6011879b0ea6984efc20e21107f364a0`; App Hosting revision: `findyourchurch-palacios-build-2026-07-15-001`.
+- Target: project `findyourchurch-24562`, database `findyourchurchpal`, bucket `findyourchurch-24562.firebasestorage.app`, backend `findyourchurch-palacios`, canonical `https://findyourchurchpalacios.org`.
+- Production Firestore/Storage rules and indexes deployed successfully. Firebase index reconciliation initially deleted four untracked TTL field overrides; this triggered the rollback gate. All four were restored to `ACTIVE` immediately and the exact overrides are now versioned in `firestore.indexes.json` to prevent recurrence.
+- Public smoke: homepage, churches, events, about, contact, privacy, terms, portal/admin login, robots, and sitemap returned HTTP 200. `www` redirected `/events` to the same canonical path with HTTPS 308. The sitemap excluded portal, admin, registration, management, and tokenized routes.
+- Authenticated smoke: controlled representative and administrator navigation passed. The representative created a draft, verified public privacy, uploaded a flyer, published, activated RSVP, submitted one registration, saw dashboard/detail, toggled/restored check-in, and downloaded private PDF (2,408 bytes) and XLSX (9,256 bytes). The controlled event and all fixtures were removed; no live test object remains.
+- Email: all 15 branded templates were accepted and received by the approved mailbox; Gmail authentication reported SPF/DKIM/DMARC pass. Reply-To, Return-Path, support direction, exact unmonitored notice, production links, no staging links, free-service language, donation link, and PDF/XLSX branding passed. The controlled registration produced and delivered the expected confirmation and administrator notification.
+- App Check: valid browser traffic and representative sign-in passed while unattested/headless Authentication was rejected.
+- Scheduler: unauthorized/invalid requests returned 401, wrong environment returned 400, two authorized repeats returned 200 without duplicate or failed work, and Cloud Logging captured both. The production job is enabled; the first automatic run completed successfully at 2026-07-15T01:00:56Z.
+- Monitoring: 13 policies and 3 email channels are enabled. The old homepage content matcher was stale after the premium copy launch; the uptime check now measures canonical HTTPS 200 and fresh Google checker points pass. The new revision had zero error-level Cloud Run entries in the verification window.
+- Recovery: PITR/delete protection, daily/weekly schedules, protected export/import recovery, and seven-day Storage soft delete are active. The first scheduled managed-backup artifact remains unavailable and must be restored into an isolated database when it appears.
+- Release hygiene: temporary Auth, Firestore, and live Storage fixtures were deleted and verified absent. `main` was not modified and this branch was not pushed.
+
+Rollback remains mandatory on isolation/privacy failure, counter inconsistency or oversubscription, missing required email, duplicate jobs, valid-client App Check rejection, sustained 5xx/unavailability, broken existing church workflows, or unavailable monitoring.

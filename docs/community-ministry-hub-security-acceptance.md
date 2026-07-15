@@ -151,6 +151,16 @@ Firestore exposes managed-backup creation through schedules, not an on-demand ba
 - [x] Controlled public, church-editor, and platform-admin production smoke passes; temporary records were cleaned up.
 - [x] App Hosting reports active `www` ownership/host/certificate state and path-preserving HTTPS 308 redirects pass.
 - [x] Production Scheduler API/job/authentication/repeat-empty-run checks pass; the job remains paused.
-- [ ] Deploy and verify the committed production Firestore/Storage rules and run final controlled launch-window smoke before enabling Scheduler or opening registrations.
+- [x] Deploy and verify the committed production Firestore/Storage rules and run final controlled launch-window smoke before enabling Scheduler or opening registrations.
 
-Owner-risk blockers are resolved. The production recommendation is **CONDITIONAL GO for a controlled deployment window**. The remaining unchecked lines are release execution or scheduled-backup follow-up items; keep registrations closed and Scheduler paused until the deployment-window checks pass.
+At the prelaunch checkpoint, owner-risk blockers were resolved and the recommendation was **CONDITIONAL GO for a controlled deployment window**. The production closure below supersedes that state; the scheduled-backup restore remains the only unchecked operational follow-up.
+
+## Production Launch Closure — July 15, 2026
+
+Final decision: **GO**. Production rules, the premium application revision, App Check valid-client behavior, role isolation, controlled registration/capacity, private exports, all 15 provider templates, Scheduler authentication/idempotency, enabled automatic scheduling, and Google Cloud monitoring were verified against the explicit production identifiers.
+
+The controlled production fixture used no real church or sensitive registrant data. Its Auth user, church, representative, event/public-event, registration configuration/version/counter/registration/token/confirmation/idempotency/rate-limit/export/job records, flyer, and private exports were deleted and verified absent. Retention-safe audit, email, and operational evidence remain under the approved TTL policies.
+
+The old uptime content matcher became false when the premium homepage copy replaced the prior phrase. Canonical HTTPS remained HTTP 200. Monitoring was corrected to use status-based availability and fresh Google checker points pass. This incident reinforces the existing rule that monitoring changes are part of the release diff and that stale alerts/content matchers trigger rollback review.
+
+Accepted residual risks remain unchanged: 9 moderate advisories through 2026-08-14, owner-supplied Narrator evidence, unavailable native Safari hardware, and the bounded local-launch export/telemetry limitations. The first scheduled Firestore managed-backup artifact has not appeared; restoring it in isolation remains the only open recovery follow-up. Protected export/import, PITR clone, and Storage soft-delete recovery evidence already passed.

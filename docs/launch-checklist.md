@@ -379,20 +379,20 @@ Blocking approvals/configuration:
 - [x] Launch owner explicitly waived SMTP credential rotation; do not reproduce the credential in source, docs, or reports.
 - [x] Approved noreply credential is bound through production Secret Manager; all 15 templates were received and the reserved-domain failure probe returned sanitized SMTP 550.
 - [ ] Restore the first scheduled managed-backup artifact after it appears. This is a follow-up, not a substitute for the already completed current export/import recovery.
-- [ ] Production Firebase project/database/bucket, App Hosting backend, secrets, canonical DNS/TLS, SMTP DNS, Scheduler, indexes, and rules receive deployment-window verification.
+- [x] Production Firebase project/database/bucket, App Hosting backend, secrets, canonical DNS/TLS, SMTP DNS, Scheduler, indexes, and rules received deployment-window verification.
 
 ## Concise Post-Deployment Smoke Checklist
 
 Use only controlled records and stop on any isolation, privacy, counter, or environment mismatch.
 
-- [ ] Homepage, directory count/filter, church page, and legacy redirect work on canonical HTTPS.
-- [ ] Events listing, published/cancelled detail, flyer/fallback, and private/unlisted exclusions work.
-- [ ] Controlled representative signs in, creates one draft, uploads a flyer, publishes/cleans up, and cannot cross church scope.
-- [ ] One controlled registration produces correct capacity/counter, confirmation page, management link, and received email.
-- [ ] Registration dashboard/detail/check-in and private PDF/XLSX work; links expire.
-- [ ] Platform admin opens events, moderation, categories, and operations; ordinary representative is denied.
-- [ ] Unauthorized Scheduler request is denied; one authorized invocation and repeat produce one outcome.
-- [ ] Monitoring receives controlled success/failure signals without registration answers, children/medical data, addresses, tokens, or secrets.
+- [x] Homepage, directory count/filter, church page, and legacy redirect work on canonical HTTPS.
+- [x] Production listing/publication/flyer/private-draft probes and identical-revision staged cancelled/fallback/unlisted probes pass.
+- [x] Controlled representative signs in, creates one draft, uploads a flyer, publishes/cleans up, and remains outside platform-admin scope.
+- [x] One controlled registration produces correct capacity/counter, confirmation page, management link, and received email.
+- [x] Registration dashboard/detail/check-in and private PDF/XLSX work; expiration controls passed on the identical staged revision.
+- [x] Platform admin opens events, moderation, categories, and operations; ordinary representative is denied.
+- [x] Unauthorized Scheduler request is denied; authorized repeat and first automatic invocation produce no duplicate work.
+- [x] Monitoring receives safe controlled signals without registration answers, children/medical data, addresses, tokens, or secrets.
 
 Rollback immediately for cross-church/private-data exposure, oversubscription/counter drift, duplicate email/job delivery, configuration mismatch, sustained registration failure, broken existing church workflows, or an unmonitorable release. Follow `docs/community-ministry-hub-rollback.md`.
 
@@ -411,7 +411,7 @@ Rollback immediately for cross-church/private-data exposure, oversubscription/co
 - [x] Authorized reserved `.invalid` recipient probe was rejected at SMTP with sanitized 550; no third party was contacted.
 - [x] Launch owner accepted all 9 remaining moderate dependency advisory nodes with controls and target date; 0 high/critical advisories remain.
 - [x] Launch owner reported the hosted-staging Narrator listening matrix as passed; this is owner-supplied manual evidence.
-- [ ] Approved controls are reproduced and verified against production identifiers during the deployment window.
+- [x] Approved controls were reproduced and verified against production identifiers during the deployment window.
 
 ### Production infrastructure preflight — July 14, 2026
 
@@ -444,9 +444,9 @@ Current decision: **CONDITIONAL GO for the controlled production deployment wind
 - [x] Cloud Scheduler API is enabled in production. Paused job `community-hub-registration-jobs-production` targets `POST /api/jobs/registration` every 15 minutes in `America/Chicago` with 3 retries. Unauthorized requests return 401; two authorized empty runs returned 200 with zero duplicate work. Keep the job paused until launch approval.
 - [x] The current Firestore export is stored in protected bucket `gs://findyourchurch-24562-firestore-backups` with uniform bucket-level access, public-access prevention, and 7-day soft delete.
 - [x] The launch owner approved the retention decisions, advisory acceptance, backup execution, and native screen-reader pass. SMTP credential rotation remains explicitly waived.
-- [ ] Obtain final merge/release approval, deploy and verify committed Firestore/Storage rules against the explicit production identifiers, run the controlled post-deployment checklist, then explicitly approve Scheduler enablement and opening registrations.
+- [x] Final release approval was supplied; committed Firestore/Storage rules, controlled post-deployment checks, and Scheduler enablement passed against explicit production identifiers. `main` was not merged.
 
-Focused closure recertification passed TypeScript, validation/report/Scheduler/platform/staging/email/performance suites, lint, the 40-page production build, Firestore/Storage/Auth rules emulation, registration emulation, live staging Storage, hosted staging smoke, hosted Scheduler authentication, and diff checks. Audit: 346 production dependencies; 9 moderate, 0 high, 0 critical. Production Rules API readback returned HTTP 403 for the current CLI identity, so production rule deployment/readback remains an explicit launch-window operator step and is not silently marked complete.
+Focused closure recertification passed TypeScript, validation/report/Scheduler/platform/staging/email/performance suites, lint, the 40-page production build, Firestore/Storage/Auth rules emulation, registration emulation, live staging Storage, hosted staging smoke, hosted Scheduler authentication, and diff checks. Audit: 346 production dependencies; 9 moderate, 0 high, 0 critical. At that checkpoint the CLI identity received HTTP 403 from the production Rules API; the authorized premium release window later completed explicit production rules deployment and controlled access verification.
 
 ## Premium release window — July 14-15, 2026
 
@@ -456,10 +456,29 @@ Focused closure recertification passed TypeScript, validation/report/Scheduler/p
 - [x] 84 combined axe scans report no critical or serious violation; seven viewports, authenticated phone layouts, keyboard/focus, and 200 percent reflow pass.
 - [x] Full local, build, emulator, live staging Storage, hosted smoke, admin-ops, Scheduler, SMTP, performance, SEO, and audit gates rechecked.
 - [x] Production identifiers, PITR/delete protection, 27 ready indexes, two schedules, Storage soft delete, canonical HTTPS, `www` redirect, and paused Scheduler rechecked read-only.
-- [ ] Deploy/read back committed production Firestore and Storage rules with explicit identifiers and rerun privacy/isolation probes.
-- [ ] Deploy the approved premium application revision to the explicit production backend.
-- [ ] Complete controlled production public, representative, administrator, email, export, App Check, Scheduler, and monitoring smoke tests.
-- [ ] Enable the production Scheduler only after all preceding smoke checks pass.
-- [ ] Observe the launch window and retain rollback readiness.
+- [x] Deploy/read back committed production Firestore and Storage rules with explicit identifiers and rerun privacy/isolation probes.
+- [x] Deploy the approved premium application revision to the explicit production backend.
+- [x] Complete controlled production public, representative, administrator, email, export, App Check, Scheduler, and monitoring smoke tests.
+- [x] Enable the production Scheduler only after all preceding smoke checks pass.
+- [x] Begin the staffed launch observation window and retain rollback readiness.
 
-Current gate: **GO for the controlled deployment window; not yet declared live until the unchecked production steps pass.**
+Current gate: **GO / live with active observation.** The first scheduled managed-backup restore remains an operational follow-up.
+
+## Premium Production Launch Record — July 15, 2026
+
+- [x] Explicit production identifiers confirmed before rules, application, Scheduler, monitoring, and cleanup writes.
+- [x] Firestore/Storage rules and 27 composite indexes deployed; all indexes are `READY`.
+- [x] Four TTL policies restored to `ACTIVE` after the first index reconciliation exposed their missing repository overrides; the overrides are now committed.
+- [x] Premium App Hosting revision `findyourchurch-palacios-build-2026-07-15-001` serves the canonical domain.
+- [x] Canonical public/policy/login routes, robots, sitemap, and path-preserving `www` HTTPS 308 passed; no staging identity appeared.
+- [x] Controlled representative/admin role smoke passed; ordinary representative remained denied from admin.
+- [x] Controlled draft privacy, flyer upload, publication, RSVP activation, registration/capacity, dashboard/detail, check-in, PDF, and XLSX passed.
+- [x] All disposable Auth, Firestore, and live Storage fixtures were deleted and verified absent.
+- [x] All 15 branded production templates were accepted and received; SPF/DKIM/DMARC, support Reply-To, Return-Path, unmonitored notice, production links, no staging links, and branded PDF/XLSX passed.
+- [x] Live controlled registration confirmation and administrator notification were received at the approved mailbox.
+- [x] App Check valid browser traffic passed; unattested/headless Authentication was rejected.
+- [x] Scheduler missing/invalid authentication, environment guard, two authorized repeats, safe logs, enablement, and first automatic run passed.
+- [x] Thirteen alert policies, three channels, Cloud Logging/Error Reporting, and fresh status-based uptime points passed after removing a stale pre-redesign content matcher.
+- [x] PITR/delete protection, daily/weekly schedules, protected export/import recovery, and Storage seven-day soft delete remain active.
+- [ ] Restore the first scheduled managed-backup artifact in an isolated database when it appears and retain the evidence.
+- [x] `main` was not modified and the premium production branch was not pushed by this task.

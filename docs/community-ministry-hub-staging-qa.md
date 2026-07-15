@@ -398,6 +398,10 @@ This section supersedes earlier visual/browser checkpoints for the premium relea
 
 Recommendation after this evidence: **ready for the controlled production deployment window**, subject to explicit production identifier verification, rules/application deployment, controlled live smoke tests, monitoring observation, and keeping Scheduler paused until those checks pass.
 
+### Production outcome — July 15, 2026
+
+The controlled production window completed after this staging record. Premium App Hosting revision `findyourchurch-palacios-build-2026-07-15-001`, explicit Firestore/Storage rules and indexes, valid-client App Check, controlled representative/admin/registration/export workflows, all 15 branded provider messages, Scheduler authentication/idempotency/enablement, and Google Cloud monitoring passed. The disposable production fixtures were removed and verified absent. The decision is **GO / live with active observation**. The first scheduled managed-backup artifact restore remains an operational follow-up; protected export/import, PITR clone, and Storage recovery evidence already passed.
+
 ### Blocker-closure recertification result
 
 - TypeScript, event/directory/registration/report/Scheduler/platform/staging validation, Firestore/Storage emulator security, registration emulator, live Storage, hosted Scheduler, hosted smoke, App Check, performance/SEO, lint, and the staging-configured production build passed.

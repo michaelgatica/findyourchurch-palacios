@@ -809,14 +809,14 @@ The remaining launch steps are operational rather than architectural:
 
 The July 14, 2026 hosted staging evidence is complete for core functionality, isolation, Storage, Scheduler, accessibility automation, available browsers, responsive layouts, realistic-load exports, performance, SEO, rollback compatibility, and existing-site regressions. The authoritative final browser run completed 209 tests with 0 failures and 1 intentional evidence-capture skip across Chromium, Firefox, and Playwright WebKit; an earlier installed-Edge pass is also recorded.
 
-The July 14 blocker-closure pass certified staging SMTP delivery, App Check monitor-mode token exchange, Google Cloud alert delivery, operational-record TTL, Firestore backup schedules, and Storage soft-delete recovery. A later production preflight reproduced monitoring, App Check monitor configuration, Firestore PITR/schedules, and Storage recovery against verified identifiers. Production now has 27 ready composite indexes, four active operational TTL policies, and Secret Manager-backed non-SMTP credentials; the previously broken public index-dependent routes render again. Firebase Admin 14 passed the full local compatibility suite and reduced the production audit from 11 to 9 moderate nodes, with zero high or critical findings. The production decision remains **NO-GO** until a native screen-reader test is completed, the 9 remaining moderate dependency advisory nodes are explicitly accepted or remediated, a working noreply credential is privately bound, the first managed backup/restore evidence exists, App Check enforcement is active, and authenticated production smoke tests pass. The launch owner waived SMTP credential rotation; that waiver does not permit committing or exposing the credential. See:
+The July 14 blocker-closure pass certified staging SMTP delivery, App Check monitor-mode token exchange, Google Cloud alert delivery, operational-record TTL, Firestore backup schedules, and Storage soft-delete recovery. A later production preflight reproduced monitoring, App Check, Firestore PITR/schedules, Storage recovery, SMTP, dependency-risk acceptance, and native Narrator evidence against verified identifiers. The historical NO-GO below is superseded by the July 15 production release record. The launch owner waived SMTP credential rotation; that waiver does not permit committing or exposing the credential. See:
 
 - `docs/community-ministry-hub-launch-readiness.md` for final traceability and the decision.
 - `docs/community-ministry-hub-security-acceptance.md` for risk owners and acceptance gates.
 - `docs/community-ministry-hub-production-deployment.md` for the exact deployment order and rollback gates.
 - `docs/community-ministry-hub-rollback.md` for the completed staging exercise and recovery procedure.
 
-No production deployment, `main` merge, or remote push is implied by the certification documents.
+The July 15 production deployment did not merge `main` or push this premium release branch.
 
 ## Premium experience release candidate
 
@@ -830,3 +830,20 @@ Community Hub communications use the same identity:
 - every email and report states that the service is provided free of charge by El Roi Digital Ministries and links to `https://elroidigital.org/donate.html` for optional support.
 
 The donation destination was verified as the live El Roi Digital Ministries giving page. The release candidate passed the full local validation/build suite, Firebase registration/Firestore/Storage/Auth emulators, live staging Storage, hosted Scheduler/admin-ops smoke, and current hosted browser coverage in Chromium, Microsoft Edge, Firefox, and Playwright WebKit.
+
+## Premium production release — July 15, 2026
+
+The premium release is live at `https://findyourchurchpalacios.org` on App Hosting revision `findyourchurch-palacios-build-2026-07-15-001`. The deployment used explicit production identifiers for project `findyourchurch-24562`, database `findyourchurchpal`, bucket `findyourchurch-24562.firebasestorage.app`, and backend `findyourchurch-palacios`.
+
+Launch verification completed:
+
+- canonical public routes, policy/login routes, robots, and sitemap return HTTP 200; `www` preserves paths through HTTPS 308;
+- Firestore and Storage rules are deployed, all 27 composite indexes are `READY`, all four retention TTL policies are `ACTIVE`, PITR/delete protection and two managed-backup schedules are enabled, and Storage has seven-day soft delete;
+- an attested production browser passed App Check–protected representative access while an unattested client was rejected;
+- a disposable representative created a private draft, uploaded a flyer, published the event, accepted one controlled registration, opened the registration dashboard/detail, completed a reversible check-in, and downloaded branded PDF/XLSX reports;
+- all disposable Auth, Firestore, and live Storage records were removed and verified absent after the smoke test;
+- all 15 production email templates reached the approved Gmail mailbox with SPF, DKIM, and DMARC passes; PDF/XLSX attachments opened and contained the ministry/donation branding; the live registration confirmation and administrator notification also arrived;
+- Cloud Scheduler authentication, environment guard, repeat safety, and logs passed; the job is enabled on its 15-minute schedule and its first automatic production run completed with zero failures;
+- all 13 alert policies and three email channels are enabled. The uptime check was changed to a status-only canonical HTTPS check after the premium copy made its old content matcher stale; fresh Google checker points pass.
+
+The current launch decision is **GO**, with staffed observation and rollback triggers still active. The first scheduled Firestore managed-backup artifact has not appeared yet; restore it in isolation when it becomes available. The protected export/import recovery exercise, PITR recovery exercise, and Storage recovery exercise already passed and remain the interim recovery evidence.
