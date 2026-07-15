@@ -282,6 +282,11 @@ You may now sign in to the church representative portal to help keep the listing
 Portal:
 [Portal URL]
 
+As a helpful next step, you may invite one trusted authorized representative to serve as an editor. They can help keep the church listing and events current, while you remain the primary owner.
+
+Church team:
+[Church Team URL]
+
 Thank you for helping make local church information easier to find and trust.
 
 Find Your Church Palacios is a ministry project created by El Roi Digital Ministries to help churches be searchable, visible, and easier to connect with. El Roi Digital Ministries exists to equip churches, ministries, and community programs with digital tools that support communication, outreach, and ministry effectiveness.

@@ -44,6 +44,10 @@ export async function getRepresentativeTeamData(churchId: string) {
   };
 }
 
+export async function hasCurrentChurchEditor(churchId: string) {
+  return Boolean(await getActiveEditorForChurch(churchId));
+}
+
 export async function inviteChurchEditor(input: {
   churchId: string;
   actorUserId: string;

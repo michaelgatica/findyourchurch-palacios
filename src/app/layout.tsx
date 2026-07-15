@@ -88,7 +88,7 @@ export default function RootLayout({
   const donationsEnabled = areDonationsEnabled();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${displayFont.variable} ${headingFont.variable} ${bodyFont.variable}`}>
         {donationsEnabled ? (
           <Script

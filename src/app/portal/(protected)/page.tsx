@@ -3,6 +3,7 @@ import Link from "next/link";
 import { formatDate, formatDateTime } from "@/lib/formatting";
 import { getPublicChurchMessageThread } from "@/lib/services/church-messaging-service";
 import { getRepresentativePortalContext } from "@/lib/services/representative-access-service";
+import { hasCurrentChurchEditor } from "@/lib/services/representative-team-service";
 import { getRepresentativeUpdateActivity } from "@/lib/services/church-update-service";
 
 interface PortalDashboardPageProps {
@@ -19,13 +20,16 @@ export default async function PortalDashboardPage({ searchParams }: PortalDashbo
     return null;
   }
 
-  const [messages, updateActivity] = await Promise.all([
+  const [messages, updateActivity, hasCurrentEditor] = await Promise.all([
     getPublicChurchMessageThread(context.church.id),
     getRepresentativeUpdateActivity(context.church.id),
+    hasCurrentChurchEditor(context.church.id),
   ]);
   const recentAdminMessages = messages
     .filter((message) => message.senderType === "admin")
     .slice(0, 3);
+  const shouldInviteEditor =
+    context.representative.permissionRole === "primary_owner" && !hasCurrentEditor;
 
   return (
     <div className="admin-content">
@@ -35,6 +39,23 @@ export default async function PortalDashboardPage({ searchParams }: PortalDashbo
             ? "Your church listing has been updated."
             : "Portal action completed successfully."}
         </div>
+      ) : null}
+
+      {shouldInviteEditor ? (
+        <section className="panel panel--gold-tint" aria-labelledby="representative-onboarding-title">
+          <p className="eyebrow eyebrow--gold">A strong next step</p>
+          <h2 id="representative-onboarding-title">Invite a trusted second representative</h2>
+          <p className="supporting-text">
+            Add one authorized church editor who can help keep your listing and events current when
+            you are unavailable. You remain the primary owner, and only you can invite an editor or
+            request an ownership transfer.
+          </p>
+          <div className="button-row">
+            <Link href="/portal/team" className="button button--primary">
+              Invite an authorized representative
+            </Link>
+          </div>
+        </section>
       ) : null}
 
       <div className="admin-summary-grid">

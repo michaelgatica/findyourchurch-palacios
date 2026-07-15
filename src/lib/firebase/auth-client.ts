@@ -17,6 +17,7 @@ import {
   haveFirebaseClientEmulatorsConnected,
   markFirebaseClientEmulatorsConnected,
   shouldConnectFirebaseClientToEmulators,
+  waitForFirebaseAppCheckToken,
 } from "@/lib/firebase/client";
 
 let persistenceConfigured = false;
@@ -49,6 +50,7 @@ export function getFirebaseClientAuth() {
 }
 
 export async function signInWithFirebaseEmail(email: string, password: string) {
+  await waitForFirebaseAppCheckToken();
   const auth = getFirebaseClientAuth();
 
   if (!auth) {
@@ -59,6 +61,7 @@ export async function signInWithFirebaseEmail(email: string, password: string) {
 }
 
 export async function createFirebaseUserAccount(email: string, password: string) {
+  await waitForFirebaseAppCheckToken();
   const auth = getFirebaseClientAuth();
 
   if (!auth) {
