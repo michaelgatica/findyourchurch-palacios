@@ -53,8 +53,10 @@ function collectPageFailures(page: Page) {
 async function signIn(page: Page, area: "portal" | "admin", email: string) {
   await openProductionPage(page, `/${area}/login`);
   await page.locator('input[name="email"]').fill(email);
-  await page.locator('input[name="password"]').fill(password!);
+  const passwordInput = page.locator('input[name="password"]');
+  await passwordInput.fill(password!);
   await page.getByRole("button", { name: area === "admin" ? "Sign in to admin" : "Sign in to portal" }).click();
+  await passwordInput.fill("").catch(() => undefined);
   await expect(page).toHaveURL(new RegExp(`/${area}(?:$|\\?)`), { timeout: 45_000 });
 }
 
@@ -64,9 +66,15 @@ async function createPortalAccount(page: Page, email: string, name: string) {
   await page.locator('input[name="name"]').fill(name);
   await page.locator('input[name="phone"]').fill("361-555-0147");
   await page.locator('input[name="email"]').fill(email);
-  await page.locator('input[name="password"]').fill(password!);
-  await page.locator('input[name="passwordConfirmation"]').fill(password!);
+  const passwordInput = page.locator('input[name="password"]');
+  const confirmationInput = page.locator('input[name="passwordConfirmation"]');
+  await passwordInput.fill(password!);
+  await confirmationInput.fill(password!);
   await page.getByRole("button", { name: "Create account and continue" }).click();
+  await Promise.all([
+    passwordInput.fill("").catch(() => undefined),
+    confirmationInput.fill("").catch(() => undefined),
+  ]);
   await expect(page).toHaveURL(/\/portal(?:$|\?)/, { timeout: 45_000 });
 }
 
@@ -187,9 +195,15 @@ async function createClaim(page: Page) {
   await page.locator('[name="authName"]').fill("Faith Harbor Test Owner");
   await page.locator('[name="authPhone"]').fill("361-555-0188");
   await page.locator('[name="authEmail"]').fill(acceptanceAccounts.primaryRepresentative);
-  await page.locator('[name="authPassword"]').fill(password!);
-  await page.locator('[name="authPasswordConfirmation"]').fill(password!);
+  const passwordInput = page.locator('[name="authPassword"]');
+  const confirmationInput = page.locator('[name="authPasswordConfirmation"]');
+  await passwordInput.fill(password!);
+  await confirmationInput.fill(password!);
   await page.getByRole("button", { name: "Create account and continue" }).click();
+  await Promise.all([
+    passwordInput.fill("").catch(() => undefined),
+    confirmationInput.fill("").catch(() => undefined),
+  ]);
   await expect(page.getByRole("heading", { name: new RegExp(`Tell us who should manage ${churchName}`) })).toBeVisible({ timeout: 45_000 });
   await page.locator('[name="requesterPhone"]').fill("361-555-0188");
   await page.locator('[name="requesterRoleTitle"]').selectOption("Authorized Representative");

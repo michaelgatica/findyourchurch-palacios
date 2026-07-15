@@ -33,8 +33,8 @@ export default defineConfig({
     colorScheme: "light",
     locale: "en-US",
     timezoneId: "America/Chicago",
-    screenshot: "only-on-failure",
-    trace: "retain-on-failure",
+    screenshot: "off",
+    trace: "off",
     video: "off",
   },
   projects: [
