@@ -410,6 +410,7 @@ test.describe.serial("real production acceptance workflow", () => {
     administratorContext = await createAcceptanceContext(browser);
     const adminPage = await administratorContext.newPage();
     await signIn(adminPage, "admin", acceptanceAccounts.administrator);
+    await expect(adminPage.getByRole("heading", { level: 1 })).toHaveCount(1);
     await expect(adminPage.getByRole("navigation", { name: "Admin" })).toBeVisible();
     await capture(adminPage, "03-admin-dashboard-desktop.png", { width: 1366, height: 900 });
     await capture(adminPage, "04-admin-dashboard-mobile.png", { width: 375, height: 812 });

@@ -38,6 +38,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="admin-content">
+      <h1 className="sr-only">Find Your Church administrator dashboard</h1>
       <div className="admin-summary-grid">
         <div className="panel admin-stat-card">
           <p className="eyebrow eyebrow--gold">Pending submissions</p>

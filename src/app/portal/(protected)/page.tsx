@@ -33,6 +33,7 @@ export default async function PortalDashboardPage({ searchParams }: PortalDashbo
 
   return (
     <div className="admin-content">
+      <h1 className="sr-only">Representative dashboard for {context.church.name}</h1>
       {resolvedSearchParams.success ? (
         <div className="form-alert form-alert--success">
           {resolvedSearchParams.success === "listing-updated"
