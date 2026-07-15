@@ -12,6 +12,7 @@ import {
 } from "./helpers";
 
 const webkitAccessControlErrors = [/ due to access control checks\.$/];
+const webkitMutationNavigationErrors = [...webkitAccessControlErrors, /^Load failed$/];
 
 test.describe("public browser workflows", () => {
   test("directory, calendar filtering, details, flyers, custom fields, and cancellation work", async ({ page }, testInfo) => {
@@ -101,7 +102,7 @@ test.describe("church representative browser workflows", () => {
       testInfo.project.name === "firefox"
         ? [/^Connection closed\.$/, /^Minified React error #419;/]
         : testInfo.project.name === "webkit"
-          ? webkitAccessControlErrors
+          ? webkitMutationNavigationErrors
           : [],
     );
     await authenticateContext(context, stagingAccounts.churchA);
@@ -240,7 +241,7 @@ test.describe("platform administrator browser workflows", () => {
     test.setTimeout(120_000);
     const assertNoPageErrors = collectPageErrors(
       page,
-      testInfo.project.name === "webkit" ? webkitAccessControlErrors : [],
+      testInfo.project.name === "webkit" ? webkitMutationNavigationErrors : [],
     );
     await authenticateContext(context, stagingAccounts.platformAdmin);
 

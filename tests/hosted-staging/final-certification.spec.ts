@@ -26,7 +26,10 @@ test.describe("existing website hosted staging regression", () => {
 
     await openHostedPage(page, "/churches");
     await expect(page.getByText("3 churches found", { exact: true })).toBeVisible();
-    await page.getByLabel("Search by keyword").fill("Staging Test Church 2");
+    await expect(page.locator(".directory-map__canvas")).toBeVisible();
+    const keywordSearch = page.getByLabel("Search by keyword");
+    await keywordSearch.pressSequentially("Staging Test Church 2", { delay: 10 });
+    await expect(keywordSearch).toHaveValue("Staging Test Church 2");
     await expect(page.getByText("1 church found", { exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { level: 3, name: "Staging Test Church 2" })).toBeVisible();
     await page.getByRole("button", { name: "Clear filters" }).click();
