@@ -658,7 +658,7 @@ test.describe.serial("real production acceptance workflow", () => {
       has: adminPage.getByText(churchName, { exact: true }),
     });
     await churchCard.getByRole("link", { name: /representative/i }).click();
-    const editorCard = adminPage.locator(".admin-card-list__item", {
+    const editorCard = adminPage.locator(".timeline-item", {
       has: adminPage.getByText(acceptanceAccounts.editor, { exact: true }),
     });
     await editorCard.getByRole("button", { name: /suspend/i }).click();
