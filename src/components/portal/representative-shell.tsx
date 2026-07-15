@@ -35,7 +35,7 @@ export function RepresentativeShell(props: {
         <div className="portal-shell__header">
           <div>
             <p className="eyebrow eyebrow--gold">Church Representative Portal</p>
-            <h1>{props.church.name}</h1>
+            <p className="portal-shell__title">{props.church.name}</p>
             <p className="supporting-text">
               Signed in as {props.representativeName} (
               {props.representative.permissionRole.replace(/_/g, " ")}). Use this portal to keep

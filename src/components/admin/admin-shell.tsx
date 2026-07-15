@@ -63,7 +63,7 @@ export function AdminShell({ adminName, adminEmail, children }: AdminShellProps)
         <div className="admin-shell__header">
           <div>
             <p className="eyebrow eyebrow--gold">Internal Admin Portal</p>
-            <h1>Find Your Church Admin</h1>
+            <p className="admin-shell__title">Find Your Church Admin</p>
             <p className="supporting-text">
               Signed in as {adminName}
               {adminEmail ? ` (${adminEmail})` : ""}.

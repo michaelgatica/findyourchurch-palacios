@@ -504,6 +504,7 @@ test.describe.serial("real production acceptance workflow", () => {
 
     const portalPage = await primaryContext.newPage();
     await openProductionPage(portalPage, "/portal");
+    await expect(portalPage.getByRole("heading", { level: 1 })).toHaveCount(1);
     await expect(portalPage.getByText(churchName, { exact: true }).first()).toBeVisible();
     await expect(portalPage.getByRole("link", { name: "Team", exact: true })).toBeVisible();
     await capture(portalPage, "09-primary-portal-desktop.png", { width: 1366, height: 900 });
@@ -606,10 +607,11 @@ test.describe.serial("real production acceptance workflow", () => {
 
     await openProductionPage(primaryPage, `/portal/events/${eventId}/exports`);
     const emailForm = primaryPage.locator("form.registration-export-form").nth(1);
-    await emailForm.getByLabel("Recipients").fill(acceptanceAccounts.registrant);
+    await emailForm.getByLabel("Recipients").fill(acceptanceAccounts.primaryRepresentative);
     await emailForm.getByLabel("Excel workbook").check();
     await emailForm.getByLabel("Short message").fill(`Controlled branded report email for acceptance session ${session}.`);
     await emailForm.getByRole("button", { name: "Email report" }).click();
+    await expect(primaryPage).toHaveURL(/success=Report(?:\+|%20)email(?:\+|%20)sent/, { timeout: 60_000 });
     await expect(primaryPage.getByRole("status")).toContainText(/sent|email/i, { timeout: 60_000 });
     await primaryPage.close();
   });
@@ -630,7 +632,9 @@ test.describe.serial("real production acceptance workflow", () => {
 
     for (const route of ["/admin/churches", "/admin/claims", "/admin/submissions", "/admin/event-reports", "/admin/event-categories", "/admin/ops"]) {
       await openProductionPage(adminPage, route);
-      await expect(adminPage.getByRole("heading", { level: 1 })).toBeVisible();
+      const pageHeading = adminPage.getByRole("heading", { level: 1 });
+      await expect(pageHeading).toHaveCount(1);
+      await expect(pageHeading).toBeVisible();
     }
     await capture(adminPage, "18-operations-admin-desktop.png", { width: 1366, height: 900 });
     await capture(adminPage, "19-operations-admin-mobile.png", { width: 375, height: 812 });
