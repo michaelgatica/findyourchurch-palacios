@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 
-import { registrationPresets } from "@/lib/data/registration-presets";
+import {
+  getDefaultRegistrationPresetId,
+  registrationPresets,
+} from "@/lib/data/registration-presets";
 import {
   createRegistrationChallenge,
   createRegistrationSearchPrefixes,
@@ -64,6 +67,10 @@ function expectThrows(callback: () => unknown, pattern: RegExp) {
 
 async function run() {
   process.env.REGISTRATION_TOKEN_SECRET = "test-only-registration-secret";
+
+  assert.equal(getDefaultRegistrationPresetId("simple_rsvp"), "simple_rsvp");
+  assert.equal(getDefaultRegistrationPresetId("internal_custom"), null);
+  assert.equal(getDefaultRegistrationPresetId("none"), null);
 
   const optionValues = [
     { id: "option-one", label: "One", value: "one" },

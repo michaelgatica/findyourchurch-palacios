@@ -3,6 +3,7 @@ import type {
   RegistrationFormSection,
   SensitiveDataClassification,
 } from "@/lib/types/registrations";
+import type { EventRegistrationMode } from "@/lib/types/events";
 
 interface PresetDefinition {
   id: string;
@@ -231,4 +232,8 @@ export const registrationPresets: PresetDefinition[] = [
 
 export function getRegistrationPreset(presetId: string) {
   return registrationPresets.find((preset) => preset.id === presetId) ?? null;
+}
+
+export function getDefaultRegistrationPresetId(mode: EventRegistrationMode) {
+  return mode === "simple_rsvp" ? "simple_rsvp" : null;
 }

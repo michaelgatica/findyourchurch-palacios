@@ -354,12 +354,16 @@ async function submitRsvp(browser: Browser, name: string) {
   const context = await createAcceptanceContext(browser);
   const page = await context.newPage();
   await openProductionPage(page, `${eventPublicPath}/register`);
-  await page.getByLabel(/^Contact name/).fill(name);
-  await page.getByLabel(/^Number attending/).fill("1");
-  await page.getByLabel(/^Email/).fill(acceptanceAccounts.registrant);
-  await page.getByLabel(/^Phone/).fill("361-555-0166");
-  await page.getByLabel(/^Notes/).fill(`Fictitious registration for acceptance session ${session}`);
-  await page.getByRole("button", { name: "Submit registration" }).click();
+  await expect(page).toHaveURL(new RegExp(`${eventPublicPath}/register`));
+  await expect(page.getByRole("heading", { level: 1, name: eventTitle })).toBeVisible();
+  const form = page.locator("form.registration-public-form");
+  await expect(form).toBeVisible();
+  await form.getByLabel(/^Contact name/).fill(name);
+  await form.getByLabel(/^Number attending/).fill("1");
+  await form.getByLabel(/^Email/).fill(acceptanceAccounts.registrant);
+  await form.getByLabel(/^Phone/).fill("361-555-0166");
+  await form.getByLabel(/^Notes/).fill(`Fictitious registration for acceptance session ${session}`);
+  await form.getByRole("button", { name: "Submit registration" }).click();
   await expect(page.getByRole("heading", { name: /registration is complete|waitlist/i })).toBeVisible({ timeout: 60_000 });
   const manageHref = await page.getByRole("link", { name: "Manage registration" }).getAttribute("href");
   expect(manageHref).toBeTruthy();
@@ -479,7 +483,22 @@ test.describe.serial("real production acceptance workflow", () => {
     await adminPage.getByLabel("Public message").fill(`Your fictitious claim is ready for approval for ${session}.`);
     await adminPage.getByRole("button", { name: "Send message" }).click();
     await adminPage.getByRole("button", { name: "Approve claim" }).click();
-    await expect(adminPage.getByRole("heading", { name: "Review complete" })).toBeVisible({ timeout: 60_000 });
+    await expect
+      .poll(
+        async () => {
+          const currentClaims = await queryFirestoreDocuments(
+            request,
+            "churchClaimRequests",
+            "requesterEmail",
+            acceptanceAccounts.primaryRepresentative,
+          );
+          return currentClaims.some((claim) => firestoreString(claim, "status") === "approved");
+        },
+        { timeout: 60_000 },
+      )
+      .toBe(true);
+    await adminPage.reload({ waitUntil: "domcontentloaded" });
+    await expect(adminPage.getByText("approved", { exact: true }).first()).toBeVisible();
     await capture(adminPage, "08-approved-claim-admin.png", { width: 1366, height: 900 });
     await adminPage.close();
 

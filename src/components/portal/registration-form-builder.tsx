@@ -4,7 +4,11 @@ import { useState } from "react";
 
 import { RegistrationFieldsEditor } from "@/components/registration/registration-fields-editor";
 import { saveRegistrationSetupAction } from "@/lib/actions/registrations";
-import { registrationPresets } from "@/lib/data/registration-presets";
+import {
+  getDefaultRegistrationPresetId,
+  getRegistrationPreset,
+  registrationPresets,
+} from "@/lib/data/registration-presets";
 import {
   registrationFieldTypes,
   sensitiveDataClassifications,
@@ -102,10 +106,20 @@ export function RegistrationFormBuilder(props: {
   initialFormTitle?: string | null;
   initialPresetId?: string | null;
 }) {
+  const defaultPresetId = props.initialSections?.length
+    ? null
+    : getDefaultRegistrationPresetId(props.configuration.mode);
+  const resolvedInitialPresetId = props.initialPresetId ?? defaultPresetId ?? "";
   const [mode, setMode] = useState(props.configuration.mode);
-  const [presetId, setPresetId] = useState(props.initialPresetId ?? "");
+  const [presetId, setPresetId] = useState(resolvedInitialPresetId);
   const [sections, setSections] = useState<RegistrationFormSection[]>(
-    () => props.initialSections?.length ? clonePresetSections(props.initialSections) : blankSections(),
+    () => {
+      if (props.initialSections?.length) return clonePresetSections(props.initialSections);
+      const preset = resolvedInitialPresetId
+        ? getRegistrationPreset(resolvedInitialPresetId)
+        : null;
+      return preset ? clonePresetSections(preset.sections) : blankSections();
+    },
   );
   const [previewVisible, setPreviewVisible] = useState(false);
   const sensitiveFieldCount = sections
