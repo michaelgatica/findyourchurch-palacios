@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -109,6 +110,30 @@ export default async function EventPage({ params }: EventPageProps) {
                 {event.churchName}
               </Link>
             </p>
+
+            {event.flyerImage ? (
+              <figure className="event-detail__flyer">
+                <Image
+                  src={event.flyerImage.src}
+                  alt={event.flyerImage.alt}
+                  width={event.flyerImage.width ?? 1200}
+                  height={event.flyerImage.height ?? 800}
+                  sizes="(min-width: 1024px) 62vw, 100vw"
+                  className="event-detail__flyer-image"
+                />
+                <figcaption>Event flyer provided by {event.churchName}</figcaption>
+              </figure>
+            ) : (
+              <div
+                className="event-detail__flyer event-detail__flyer--fallback"
+                role="img"
+                aria-label={`No flyer has been provided for ${event.title}`}
+              >
+                <span className="eyebrow eyebrow--gold">Community event</span>
+                <strong>{event.title}</strong>
+                <span>{event.primaryType}</span>
+              </div>
+            )}
 
             <div className="event-detail__summary">
               <p>{event.description}</p>
