@@ -279,3 +279,11 @@ Release state: **GO / live with active observation**.
 - Release hygiene: temporary Auth, Firestore, and live Storage fixtures were deleted and verified absent. `main` was not modified and this branch was not pushed.
 
 Rollback remains mandatory on isolation/privacy failure, counter inconsistency or oversubscription, missing required email, duplicate jobs, valid-client App Check rejection, sustained 5xx/unavailability, broken existing church workflows, or unavailable monitoring.
+
+## Production Acceptance Follow-up — July 15, 2026
+
+- App Hosting `build-2026-07-15-008` is `READY`, its rollout is `SUCCEEDED`, and it serves application commit `bdf4849b9afff92bf89605f7d84944db8cda52c7` on the verified `findyourchurch-palacios` backend in project `findyourchurch-24562`.
+- Guarded sessions `20260715120811` and `20260715121238` each passed 8 of 8 real production workflow stages. Both exact cleanup verifications passed and both temporary App Check tokens were revoked.
+- Current branch head `3c54cb718b3887d5430ca4def5c8d7b53fb9933f` is pushed and contains only the final test-locator correction after the deployed application commit. `main` was not modified.
+- SMTP acceptance and owner-confirmed delivery to the four role-alias inboxes pass. The optional two-hop forwarding chain through `michaelgatica@elroidigital.org` to Gmail does not yet deliver a unique marker; correct and retest those external forwarders separately from the application release.
+- No production acceptance church, user, representative, event, registration, token, export, scheduled job, flyer, or private export remains.
