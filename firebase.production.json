@@ -1,0 +1,20 @@
+{
+  "apphosting": [
+    {
+      "backendId": "findyourchurch-palacios",
+      "rootDir": ".",
+      "ignore": [
+        "node_modules",
+        ".git",
+        ".next",
+        ".env",
+        ".env.*",
+        "!.env.example",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "playwright-report",
+        "test-results"
+      ]
+    }
+  ]
+}
