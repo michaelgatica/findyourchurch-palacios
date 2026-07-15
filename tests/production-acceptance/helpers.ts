@@ -56,10 +56,29 @@ export async function openProductionPage(page: Page, path: string) {
 }
 
 export async function assertNoHorizontalOverflow(page: Page, label: string) {
-  const overflow = await page.evaluate(() =>
-    Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth),
-  );
-  expect(overflow, `${label} horizontally overflows by ${overflow}px.`).toBeLessThanOrEqual(2);
+  const result = await page.evaluate(() => {
+    const viewportWidth = document.documentElement.clientWidth;
+    const overflow = Math.max(0, document.documentElement.scrollWidth - viewportWidth);
+    const offenders = [...document.querySelectorAll<HTMLElement>("body *")]
+      .map((element) => {
+        const bounds = element.getBoundingClientRect();
+        return {
+          tag: element.tagName.toLowerCase(),
+          className: typeof element.className === "string" ? element.className : "",
+          name: element.getAttribute("name") ?? "",
+          left: Math.round(bounds.left),
+          right: Math.round(bounds.right),
+          width: Math.round(bounds.width),
+        };
+      })
+      .filter((element) => element.right > viewportWidth + 2 || element.left < -2)
+      .slice(0, 8);
+    return { overflow, offenders };
+  });
+  expect(
+    result.overflow,
+    `${label} horizontally overflows by ${result.overflow}px. Offenders: ${JSON.stringify(result.offenders)}`,
+  ).toBeLessThanOrEqual(2);
 }
 
 export async function lookupAuthUsers(request: APIRequestContext, emails: readonly string[]) {

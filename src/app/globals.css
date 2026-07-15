@@ -833,6 +833,7 @@ select:focus-visible {
 .event-detail-sidebar {
   display: grid;
   gap: 1rem;
+  min-width: 0;
 }
 
 .events-filter-panel__header {
@@ -854,6 +855,8 @@ select:focus-visible {
 .event-detail__flyer {
   display: grid;
   gap: 0.65rem;
+  min-width: 0;
+  max-width: 100%;
   margin: 0;
   overflow: hidden;
   border: 1px solid rgba(11, 74, 36, 0.12);
@@ -863,7 +866,9 @@ select:focus-visible {
 }
 
 .event-detail__flyer-image {
+  display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
   max-height: 720px;
   object-fit: contain;
