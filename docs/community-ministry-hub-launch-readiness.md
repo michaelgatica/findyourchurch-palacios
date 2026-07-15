@@ -826,3 +826,10 @@ Decision: **GO / live with active observation**. App Hosting build `build-2026-0
 - Final regression results: TypeScript, lint, event validation, directory routing, registration validation, report generation, Scheduler behavior/security, platform launch readiness, staging guards, performance/SEO, Firestore rules, Storage rules, registration emulator, build, and `git diff --check` passed. The production audit reports 9 moderate, 0 high, and 0 critical advisories under the existing owner acceptance and August 14, 2026 remediation target.
 
 Continue active observation. Repair and retest the external forwarding chain so Michael receives consolidated copies in Gmail; application delivery to the destination alias inboxes is already owner-confirmed.
+
+### Forwarding correction recheck — July 15, 2026
+
+- Guarded production session `20260715130231` passed all 8 workflow stages in 2.4 minutes. Its temporary App Check token was revoked and the exact cleanup verifier confirmed that no fixture remained.
+- A new uniquely marked SMTP message was accepted with zero rejections for each of the four approved role aliases. Gmail did not contain that exact marker after multiple delivery windows.
+- A separate uniquely marked message sent directly to `michaelgatica@elroidigital.org` arrived in Gmail. The same production session's pending-listing and pending-claim messages addressed to `support@elroidigital.org` also arrived.
+- Result: application sending and the `elroidigital.org` to Gmail forwarding hop pass. The remaining failure is isolated to the first forwarding hop from the four Jellyfish-hosted role aliases to `michaelgatica@elroidigital.org`.
