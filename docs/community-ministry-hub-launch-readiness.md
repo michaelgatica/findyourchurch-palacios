@@ -771,6 +771,23 @@ The current recommendation is **CONDITIONAL GO for a controlled production deplo
 - Scheduler: `cloudscheduler.googleapis.com` is enabled in project `findyourchurch-24562`. Job `community-hub-registration-jobs-production` is paused, runs `*/15 * * * *` in `America/Chicago`, targets the canonical production registration-jobs endpoint, and has 3 provider retries. Unauthorized access returned 401; two authorized empty runs returned 200 with no duplicate work. Do not enable it before launch approval.
 - Cost: Google Cloud Scheduler includes 3 jobs per billing account per month at no charge; additional jobs are USD 0.10/job/month. Paused jobs count, and downstream App Hosting, Firestore, Storage, and email usage is billed separately. See [Cloud Scheduler pricing](https://cloud.google.com/scheduler/pricing).
 
+## Premium production launch candidate — July 14-15, 2026
+
+Decision: **GO for the controlled production deployment window**. This is not permission to skip rollback gates: keep the production Scheduler paused and do not open registration automation until the new revision passes public, representative, administrator, email, App Check, and Scheduler smoke checks.
+
+Release evidence:
+
+- Premium public, directory, events, representative, and admin styling is live in staging on revision `community-hub-staging-build-2026-07-14-023` with the established green/gold brand preserved.
+- Branded email, PDF, and XLSX output includes the free-service statement, optional El Roi Digital Ministries support message, canonical `https://elroidigital.org/donate.html` link, support Reply-To, and exact unmonitored-mailbox notice.
+- Chromium, installed Edge, and Firefox: 194 passed, 0 failed, 1 intentional evidence skip. WebKit: 69 matrix passes plus five consecutive passes of the sole hydration-timing regression after synchronization; all functional cases now have passing evidence.
+- 84 combined hosted axe scans have no critical or serious violation. Seven viewports, authenticated phone layouts, keyboard/focus behaviors, and 200 percent reflow pass.
+- TypeScript, event/directory/registration/report/Scheduler/platform/staging/SEO suites, lint, 40-page staging production build, registration emulator, Firestore rules, Storage rules, combined Auth/security emulation, live staging Storage, hosted smoke, admin operations, and Scheduler security pass.
+- Production preflight reverified project `findyourchurch-24562` / number `443706380375`, database `findyourchurchpal` in `nam5`, PITR and delete protection, 27 `READY` indexes, two backup schedules, seven-day Storage soft delete, canonical 200 responses, path-preserving `www` 308, and paused Scheduler.
+- Audit remains the owner-accepted 9 moderate, 0 high, 0 critical production advisory nodes with the documented August 14, 2026 remediation target.
+- The protected current export/import recovery proof remains the accepted backup gate. Restoring the first scheduled managed-backup artifact after it appears remains an operational follow-up.
+
+Rollback immediately on environment mismatch, cross-church/private-data exposure, App Check rejection of valid clients, existing-site regression, capacity/counter inconsistency, missing email confirmation, duplicate Scheduler/email behavior, broken exports, or unavailable monitoring.
+
 Remaining conditions are release actions rather than unresolved owner-risk decisions: approve and merge the reviewed branch, deploy and verify committed Firestore/Storage rules against explicit production identifiers, run controlled public/representative/admin/registration/email/Scheduler smoke, confirm monitoring, then explicitly enable the paused job and open registrations. Roll back immediately on an isolation failure, counter drift/oversubscription, configuration mismatch, required-email failure, or loss of monitoring.
 
 Focused recertification after the closure changes passed TypeScript; event validation; directory routing; registration validation, reports, Scheduler, and Scheduler security; platform launch readiness; staging guards; 15-template email rendering/attachment/redaction; performance/SEO; lint; the 40-page production build; Firestore/Storage/Auth emulator rules; registration emulator capacity/idempotency/waitlist/pagination/retention; live staging Storage; hosted staging public smoke; hosted Scheduler auth; and `git diff --check`. The audit recheck reports 346 production dependencies and exactly 9 moderate, 0 high, and 0 critical advisory nodes. The emulator launcher initially lacked Java on `PATH`; the installed Android Studio OpenJDK 21 runtime was added to that command's process environment and both emulator suites then passed.

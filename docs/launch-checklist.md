@@ -447,3 +447,19 @@ Current decision: **CONDITIONAL GO for the controlled production deployment wind
 - [ ] Obtain final merge/release approval, deploy and verify committed Firestore/Storage rules against the explicit production identifiers, run the controlled post-deployment checklist, then explicitly approve Scheduler enablement and opening registrations.
 
 Focused closure recertification passed TypeScript, validation/report/Scheduler/platform/staging/email/performance suites, lint, the 40-page production build, Firestore/Storage/Auth rules emulation, registration emulation, live staging Storage, hosted staging smoke, hosted Scheduler authentication, and diff checks. Audit: 346 production dependencies; 9 moderate, 0 high, 0 critical. Production Rules API readback returned HTTP 403 for the current CLI identity, so production rule deployment/readback remains an explicit launch-window operator step and is not silently marked complete.
+
+## Premium release window — July 14-15, 2026
+
+- [x] Premium green/gold public, directory, events, portal, and admin experience deployed to isolated staging.
+- [x] Branded email, PDF, and XLSX include the free-service statement, optional El Roi support message, canonical donation URL, support Reply-To, and unmonitored-mailbox notice.
+- [x] Chromium, installed Edge, Firefox, and Playwright WebKit have passing evidence for every required hosted workflow.
+- [x] 84 combined axe scans report no critical or serious violation; seven viewports, authenticated phone layouts, keyboard/focus, and 200 percent reflow pass.
+- [x] Full local, build, emulator, live staging Storage, hosted smoke, admin-ops, Scheduler, SMTP, performance, SEO, and audit gates rechecked.
+- [x] Production identifiers, PITR/delete protection, 27 ready indexes, two schedules, Storage soft delete, canonical HTTPS, `www` redirect, and paused Scheduler rechecked read-only.
+- [ ] Deploy/read back committed production Firestore and Storage rules with explicit identifiers and rerun privacy/isolation probes.
+- [ ] Deploy the approved premium application revision to the explicit production backend.
+- [ ] Complete controlled production public, representative, administrator, email, export, App Check, Scheduler, and monitoring smoke tests.
+- [ ] Enable the production Scheduler only after all preceding smoke checks pass.
+- [ ] Observe the launch window and retain rollback readiness.
+
+Current gate: **GO for the controlled deployment window; not yet declared live until the unchecked production steps pass.**

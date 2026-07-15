@@ -35,6 +35,18 @@ The scanned surfaces include the homepage, sign-in pages, directory, church prof
 | High | Firefox completed the multipart event save on the server but did not follow Next's intercepted server-action redirect, leaving the user on the editor. | Fixed with a same-origin authenticated native POST endpoint that reuses existing validation/services and returns a public-origin `303`. |
 | Medium | Cross-church and draft event denials use the generic heading “We couldn't find that church page.” Access fails closed, but the wording is not event-specific. | Remaining; content-only improvement with no data exposure. |
 | Medium | Firefox/Next occasionally emits exact `Connection closed.` RSC page errors or React error 419 (a Suspense boundary falls back to client rendering) after a successful representative navigation. The requested state change, focus path, subsequent navigation, and downloads still complete. | Remaining framework/hosting issue; narrowly allowlisted by exact message only in the representative workflow and documented for future Next/App Hosting validation. |
+
+## Premium release accessibility addendum — July 14-15, 2026
+
+- Premium styling preserves visible focus, skip navigation, semantic landmarks, heading structure, form labels, live status/error messaging, accessible menus, and mobile touch targets.
+- Chromium, installed Microsoft Edge, Firefox, and Playwright WebKit completed 84 combined axe scans across public, representative, and platform-administrator routes with no critical or serious violation.
+- Public layouts passed at 320, 375, 430, 768, 1024, 1366, and 1920 pixels. Authenticated portal/admin surfaces passed phone layout checks, and content reflow passed at 200 percent.
+- Keyboard tests passed skip-to-content activation, mobile navigation, menu arrow keys/Escape/focus return, first-invalid-field focus, attendee controls, form-builder controls, check-in, exports, and admin operations.
+- Playwright WebKit follows Safari's default preference that skips links in ordinary Tab traversal. The test explicitly focuses and activates the standard skip link to verify keyboard operability; native Safari users can enable full keyboard navigation in browser/system settings.
+- WebKit's exact `Load failed` event during an intentional post-server-action reload is treated as a navigation cancellation only in the two affected mutation tests. Each test separately verifies the POST, authoritative persisted state, refreshed label, restored fixture, and subsequent workflow.
+- Owner-supplied native Windows Narrator testing remains the manual native-screen-reader evidence recorded in the launch file; automation is not represented as a substitute for that test.
+
+Premium release accessibility result: **pass**, with no open critical or high finding.
 | Low | No low-severity issue remains from the tested routes. | None open. |
 
 All critical and high findings identified in this phase are resolved in the deployed staging revision.

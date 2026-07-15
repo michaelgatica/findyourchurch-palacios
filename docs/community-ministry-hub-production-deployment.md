@@ -242,3 +242,22 @@ Use only controlled test records. Do not use real registrant, child, medical, al
 - Accessibility/risk: the launch owner reported the Narrator matrix passed and accepted the 9 moderate dependency advisories with controls through August 14, 2026; 0 high/critical advisories remain.
 
 Cloud Scheduler pricing at this checkpoint is 3 jobs free per billing account per month and USD 0.10 per additional job per month; paused jobs count. Executions are not separately billed by Scheduler, but downstream service usage is. Confirm current pricing at [Google Cloud Scheduler pricing](https://cloud.google.com/scheduler/pricing) before material schedule expansion.
+
+## Premium release deployment payload — July 14-15, 2026
+
+The premium release changes application code and hosted assets only. It does not change `firestore.rules`, `storage.rules`, `firestore.indexes.json`, the production App Hosting environment contract, Scheduler job definition, SMTP credentials, TTL policies, or production data migrations.
+
+Deployment-window order for this release:
+
+1. Reconfirm production project `findyourchurch-24562`, project number `443706380375`, database `findyourchurchpal`, bucket `findyourchurch-24562.firebasestorage.app`, backend `findyourchurch-palacios`, and canonical host.
+2. Reconfirm the protected export/import recovery artifact, PITR/delete protection, two schedules, Storage soft delete, 27 ready indexes, monitoring channels/policies, App Check enforcement, Secret Manager references, and paused Scheduler.
+3. Deploy/read back the committed Firestore and Storage rules if operator permissions allow; stop if rules cannot be verified or if public/private probes fail.
+4. Deploy the premium application from the approved commit range to backend `findyourchurch-palacios` only.
+5. Verify canonical and `www` redirects, homepage, directory, church profiles, events, policies, login routes, robots, sitemap, and structured metadata.
+6. Run controlled representative and platform-administrator smoke with synthetic records only; remove/restore every fixture.
+7. Send one controlled production email to the approved test recipient and verify receipt, support Reply-To, unmonitored notice, production links, SPF/DKIM/DMARC, and branding. Do not contact churches or production lists.
+8. Verify one branded PDF and XLSX export privately, then validate expiration/cleanup.
+9. Invoke the paused Scheduler endpoint once with valid authentication, repeat for idempotency, and inspect safe operational logs.
+10. Verify App Check valid traffic and monitoring. Only then enable the production Scheduler and begin the staffed observation window.
+
+The branded communications must state that the service is provided free of charge by El Roi Digital Ministries and direct optional support to `https://elroidigital.org/donate.html`. Every noreply message must state that the mailbox is unmonitored and direct replies or questions to `support@findyourchurchpalacios.org`.

@@ -381,6 +381,23 @@ This record supersedes the historical SMTP/monitoring/backup statements above wh
 
 Staging blocker-closure recommendation: **NO-GO for production today** due to native screen-reader evidence, unaccepted dependency advisories, private production SMTP binding/bounce verification, first managed-backup/restore proof, App Check enforcement, required indexes, and passing production smoke tests. SMTP rotation is an owner-waived item, not a remaining gate.
 
+## Premium experience staging validation — July 14-15, 2026
+
+This section supersedes earlier visual/browser checkpoints for the premium release candidate while retaining their historical evidence.
+
+- Staging remained isolated to project `findyourchurch-staging-2026`, database `findyourchurchpal`, bucket `findyourchurch-staging-2026.firebasestorage.app`, backend `community-hub-staging`, and the hosted staging URL.
+- App Hosting revision `community-hub-staging-build-2026-07-14-023` serves the premium public, portal, admin, email, PDF, and XLSX release candidate. Production was not touched by this staging rollout.
+- The design retains the established green/gold palette and recognizable logo while adding the Palacios community hero, premium cards and typography, clearer route hierarchy, and consistent responsive portal/admin surfaces.
+- Current Chromium, installed Microsoft Edge, and Firefox validation executed 195 cases: 194 passed, 0 failed, and 1 non-secret screenshot-evidence case was intentionally skipped.
+- The WebKit matrix executed 72 cases: 69 passed, 1 directory hydration-timing assertion failed, and 2 gated evidence/provider cases skipped. After waiting for the interactive directory component, that exact regression passed five consecutive WebKit stress repeats. The other five original WebKit discrepancies also passed their focused rerun.
+- Across the four engines, 84 hosted axe route scans completed with no critical or serious violation. Seven target viewport widths, authenticated 320px layouts, keyboard/focus flows, and 200 percent reflow passed.
+- The exact WebKit `Load failed` cancellation emitted only during deliberate post-mutation reloads is narrowly allowlisted in the two mutation tests; persisted state, rendered state after reload, authorization, downloads, and all other page errors remain asserted.
+- Live staged SMTP sent and the approved mailbox received seven branded messages: registration confirmation, waitlist, reminder, church-administrator notification, PDF, XLSX, and scheduled digest. SPF, DKIM, DMARC, TLS, support Reply-To, staging links, attachments, the unmonitored notice, and the El Roi free-service/donation message were verified.
+- A 500-registration export fixture generated six branded PDF variants and a four-sheet branded XLSX workbook. The workbook retained formula-injection protection and the reports retained privacy and expiration controls.
+- Live staging Storage, admin operations, Scheduler authentication, App Check token exchange, hosted smoke, performance/SEO, and all available Firebase emulator suites passed in the final release-gate run.
+
+Recommendation after this evidence: **ready for the controlled production deployment window**, subject to explicit production identifier verification, rules/application deployment, controlled live smoke tests, monitoring observation, and keeping Scheduler paused until those checks pass.
+
 ### Blocker-closure recertification result
 
 - TypeScript, event/directory/registration/report/Scheduler/platform/staging validation, Firestore/Storage emulator security, registration emulator, live Storage, hosted Scheduler, hosted smoke, App Check, performance/SEO, lint, and the staging-configured production build passed.

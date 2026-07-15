@@ -817,3 +817,16 @@ The July 14 blocker-closure pass certified staging SMTP delivery, App Check moni
 - `docs/community-ministry-hub-rollback.md` for the completed staging exercise and recovery procedure.
 
 No production deployment, `main` merge, or remote push is implied by the certification documents.
+
+## Premium experience release candidate
+
+The July 14-15, 2026 release candidate preserves the established green-and-gold identity while upgrading the public site, directory, events, representative portal, and platform administration to a consistent premium design system. It adds an editorial Palacios community hero, clearer navigation and calls to action, responsive content surfaces, and accessible focus/reflow behavior without changing existing church data or workflow contracts.
+
+Community Hub communications use the same identity:
+
+- transactional email has a branded masthead, readable action panels, support Reply-To guidance, and an explicit unmonitored-mailbox notice;
+- PDF rosters, sign-in sheets, and check-in sheets carry branded headers, event context, privacy guidance, page numbering, and a ministry-support footer;
+- XLSX exports include a branded Event Summary sheet, styled tables, totals, privacy guidance, safe formula handling, and ministry-support information;
+- every email and report states that the service is provided free of charge by El Roi Digital Ministries and links to `https://elroidigital.org/donate.html` for optional support.
+
+The donation destination was verified as the live El Roi Digital Ministries giving page. The release candidate passed the full local validation/build suite, Firebase registration/Firestore/Storage/Auth emulators, live staging Storage, hosted Scheduler/admin-ops smoke, and current hosted browser coverage in Chromium, Microsoft Edge, Firefox, and Playwright WebKit.
