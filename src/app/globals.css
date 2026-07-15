@@ -836,6 +836,18 @@ select:focus-visible {
   min-width: 0;
 }
 
+.event-detail,
+.event-detail-sidebar {
+  grid-template-columns: minmax(0, 1fr);
+  overflow-wrap: anywhere;
+}
+
+.event-detail > *,
+.event-detail-sidebar > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .events-filter-panel__header {
   display: grid;
   gap: 0.5rem;
