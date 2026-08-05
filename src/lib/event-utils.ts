@@ -5,7 +5,8 @@ import type { EventFilters, EventRecord } from "@/lib/types/events";
 export const DEFAULT_EVENT_TIMEZONE = "America/Chicago";
 
 export function formatEventDateRange(event: EventRecord) {
-  const targetTimeZone = event.timeZone || DEFAULT_EVENT_TIMEZONE;
+  const targetTimeZone =
+    (event as { timeZone?: string }).timeZone || DEFAULT_EVENT_TIMEZONE;
 
   const dateFormatter = new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
@@ -233,7 +234,6 @@ export function centralInputToISO(localInputString: string): string {
 
   const localIso = `${datePart}T${timePart}:00`;
 
-  // Determine if the target date falls under Central Daylight Time (-05:00) or Central Standard Time (-06:00)
   const testDate = new Date(`${localIso}-05:00`);
   const isCDT = testDate
     .toLocaleString("en-US", { timeZone: DEFAULT_EVENT_TIMEZONE, timeZoneName: "short" })
