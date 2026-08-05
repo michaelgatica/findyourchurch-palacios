@@ -219,7 +219,27 @@ export function toCentralDateTimeInput(dateInput: Date | string): string {
  */
 export function centralInputToISO(localInputString: string): string {
   if (!localInputString) return "";
+
+  if (
+    localInputString.includes("Z") ||
+    localInputString.includes("+") ||
+    (localInputString.includes("-") && localInputString.length > 19)
+  ) {
+    return new Date(localInputString).toISOString();
+  }
+
   const [datePart, timePart] = localInputString.split("T");
   if (!datePart || !timePart) return new Date(localInputString).toISOString();
-  return new Date(`${datePart}T${timePart}:00`).toISOString();
+
+  const localIso = `${datePart}T${timePart}:00`;
+
+  // Determine if the target date falls under Central Daylight Time (-05:00) or Central Standard Time (-06:00)
+  const testDate = new Date(`${localIso}-05:00`);
+  const isCDT = testDate
+    .toLocaleString("en-US", { timeZone: DEFAULT_EVENT_TIMEZONE, timeZoneName: "short" })
+    .includes("CDT");
+
+  const offset = isCDT ? "-05:00" : "-06:00";
+
+  return new Date(`${localIso}${offset}`).toISOString();
 }
