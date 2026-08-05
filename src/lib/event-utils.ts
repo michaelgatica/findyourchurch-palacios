@@ -2,14 +2,18 @@ import { buildAbsoluteUrl } from "@/lib/config/site";
 import { formatAddress } from "@/lib/church-utils";
 import type { EventFilters, EventRecord } from "@/lib/types/events";
 
+export const DEFAULT_EVENT_TIMEZONE = "America/Chicago";
+
 export function formatEventDateRange(event: EventRecord) {
+  const targetTimeZone = event.timeZone || DEFAULT_EVENT_TIMEZONE;
+
   const dateFormatter = new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
-    timeZone: event.timeZone,
+    timeZone: targetTimeZone,
   });
   const timeFormatter = new Intl.DateTimeFormat("en-US", {
     timeStyle: "short",
-    timeZone: event.timeZone,
+    timeZone: targetTimeZone,
   });
   const startsAt = new Date(event.startsAt);
   const endsAt = event.endsAt ? new Date(event.endsAt) : null;
@@ -178,4 +182,44 @@ export function getEventRegistrationStatusLabel(event: EventRecord) {
     : event.registration.mode === "internal_custom"
       ? "Registration open"
       : "External registration";
+}
+
+/**
+ * Converts ISO UTC date strings to 'YYYY-MM-DDTHH:mm' in Central Time for <input type="datetime-local">.
+ */
+export function toCentralDateTimeInput(dateInput: Date | string): string {
+  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+  if (isNaN(date.getTime())) return "";
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: DEFAULT_EVENT_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+  const getPart = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+
+  const year = getPart("year");
+  const month = getPart("month");
+  const day = getPart("day");
+  let hour = getPart("hour");
+  if (hour === "24") hour = "00";
+  const minute = getPart("minute");
+
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+}
+
+/**
+ * Converts 'YYYY-MM-DDTHH:mm' strings entered in Central Time to ISO UTC strings for saving.
+ */
+export function centralInputToISO(localInputString: string): string {
+  if (!localInputString) return "";
+  const [datePart, timePart] = localInputString.split("T");
+  if (!datePart || !timePart) return new Date(localInputString).toISOString();
+  return new Date(`${datePart}T${timePart}:00`).toISOString();
 }
