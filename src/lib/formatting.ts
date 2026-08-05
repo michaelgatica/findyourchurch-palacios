@@ -1,32 +1,42 @@
-const centralTimeZone = "America/Chicago";
+export const CENTRAL_TIMEZONE = 'America/Chicago';
 
-export function formatDateTime(value?: string | null) {
-  if (!value) {
-    return "Not yet available";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: centralTimeZone,
-  }).format(new Date(value));
+/**
+ * Formats time in Central Time (e.g., "6:00 PM")
+ */
+export function formatEventTime(dateInput: Date | string): string {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: CENTRAL_TIMEZONE,
+  });
 }
 
-export function formatDate(value?: string | null) {
-  if (!value) {
-    return "Not yet available";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeZone: centralTimeZone,
-  }).format(new Date(value));
+/**
+ * Formats date in Central Time (e.g., "Tue, Sep 10, 2030")
+ */
+export function formatEventDate(dateInput: Date | string): string {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: CENTRAL_TIMEZONE,
+  });
 }
 
-export function formatListValue(values: string[]) {
-  return values.length > 0 ? values.join(", ") : "Not listed";
-}
-
-export function formatBooleanLabel(value: boolean) {
-  return value ? "Yes" : "No";
+/**
+ * Formats full Date & Time in Central Time (e.g., "Sep 10, 2030, 6:00 PM CT")
+ */
+export function formatEventDateTime(dateInput: Date | string): string {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  return (
+    date.toLocaleString('en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: CENTRAL_TIMEZONE,
+    }) + ' CT'
+  );
 }
