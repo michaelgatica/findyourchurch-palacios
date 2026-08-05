@@ -32,6 +32,8 @@ function formatLocationMode(value: EventRecord["locationMode"]) {
 }
 
 export function EventCard({ event, compact = false }: { event: EventRecord; compact?: boolean }) {
+  const dateRange = formatEventDateRange(event);
+
   return (
     <article className={`event-card${compact ? " event-card--compact" : ""}`}>
       <div className="event-card__media" aria-hidden={!event.flyerImage}>
@@ -60,7 +62,10 @@ export function EventCard({ event, compact = false }: { event: EventRecord; comp
           <Link href={buildEventPath(event)}>{event.title}</Link>
         </h3>
 
-        <p className="event-card__date">{formatEventDateRange(event)}</p>
+        <p className="event-card__date">
+          {dateRange ? `${dateRange} CT` : "TBD"}
+        </p>
+
         <p className="supporting-text">
           Hosted by{" "}
           <Link href={buildChurchProfilePath(event.churchSlug)} className="text-link">
