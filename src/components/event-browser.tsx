@@ -56,7 +56,7 @@ export function EventBrowser({ events }: EventBrowserProps) {
           <p className="eyebrow eyebrow--gold">Find Events</p>
           <h2>Search the community calendar</h2>
           <span className="directory-results__count">
-            {filteredEvents.length} {filteredEvents.length === 1 ? "event" : "events"}
+            {filteredEvents.length} {filteredEvents.length === 1 ? "event" : "events"} &bull; Central Time (CT)
           </span>
         </div>
 
