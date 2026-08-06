@@ -61,6 +61,3 @@ jobs:
           FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
           FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
 
-git add src/lib/formatting.ts src/lib/event-utils.ts src/components/event-card.tsx src/components/event-browser.tsx
-git commit -m "Fix event timezone formatting and formatting exports"
-git push
