@@ -10,7 +10,16 @@ import type { ChurchRecord } from "@/lib/types/directory";
 import type { EventRecord } from "@/lib/types/events";
 
 function toDateInputValue(value?: string | null) {
-  return value ? value.slice(0, 10) : "";
+  if (!value) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "America/Chicago",
+  }).format(new Date(value));
 }
 
 function toTimeInputValue(value?: string | null) {
@@ -51,7 +60,13 @@ function toDateTimeInputValue(value?: string | null) {
 function getDefaultStartDate() {
   const date = new Date();
   date.setDate(date.getDate() + 7);
-  return date.toISOString().slice(0, 10);
+
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "America/Chicago",
+  }).format(date);
 }
 
 function isSelected(value: string, values?: string[]) {
