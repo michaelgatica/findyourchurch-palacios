@@ -272,9 +272,54 @@ function splitCommaSeparated(value: string) {
     .filter(Boolean);
 }
 
-function combineDateTime(dateValue: string, timeValue: string, allDay: boolean) {
+function zonedWallTimeToUtcIso(dateValue: string, timeValue: string, timeZone: string): string {
+  const [year, month, day] = dateValue.split("-").map(Number);
+  const [hour, minute] = timeValue.split(":").map(Number);
+  const naiveUtcGuess = Date.UTC(year, month - 1, day, hour, minute, 0);
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  const getOffsetMs = (utcMillis: number) => {
+    const parts = formatter.formatToParts(new Date(utcMillis));
+    const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    const asIfUtc = Date.UTC(
+      Number(map.year),
+      Number(map.month) - 1,
+      Number(map.day),
+      Number(map.hour),
+      Number(map.minute),
+      Number(map.second),
+    );
+    return asIfUtc - utcMillis;
+  };
+
+  const offset = getOffsetMs(naiveUtcGuess);
+  let utcMillis = naiveUtcGuess - offset;
+  const recheckedOffset = getOffsetMs(utcMillis);
+  if (recheckedOffset !== offset) {
+    utcMillis = naiveUtcGuess - recheckedOffset;
+  }
+
+  return new Date(utcMillis).toISOString();
+}
+
+function combineDateTime(dateValue: string, timeValue: string, allDay: boolean, timeZone: string) {
   const normalizedTime = allDay ? "00:00" : timeValue || "00:00";
-  return new Date(`${dateValue}T${normalizedTime}:00`).toISOString();
+  return zonedWallTimeToUtcIso(dateValue, normalizedTime, timeZone);
+}
+
+function combineDateTimeLocalString(value: string, timeZone: string) {
+  const [datePart, timePart] = value.split("T");
+  return zonedWallTimeToUtcIso(datePart, timePart || "00:00", timeZone);
 }
 
 function getFileExtension(fileName: string) {
@@ -397,9 +442,9 @@ export async function validateEventFormData(formData: FormData): Promise<Validat
     throw new Error("Enter the custom event type.");
   }
 
-  const startsAt = combineDateTime(values.startDate, values.startTime, values.allDay);
+  const startsAt = combineDateTime(values.startDate, values.startTime, values.allDay, values.timeZone);
   const endsAt = values.endDate
-    ? combineDateTime(values.endDate, values.endTime, values.allDay)
+    ? combineDateTime(values.endDate, values.endTime, values.allDay, values.timeZone)
     : null;
 
   if (endsAt && new Date(endsAt).getTime() < new Date(startsAt).getTime()) {
@@ -479,10 +524,10 @@ export async function validateEventFormData(formData: FormData): Promise<Validat
     visibility: values.visibility,
     registrationMode: values.registrationMode,
     registrationOpensAt: values.registrationOpensAt
-      ? new Date(values.registrationOpensAt).toISOString()
+      ? combineDateTimeLocalString(values.registrationOpensAt, values.timeZone)
       : null,
     registrationClosesAt: values.registrationClosesAt
-      ? new Date(values.registrationClosesAt).toISOString()
+      ? combineDateTimeLocalString(values.registrationClosesAt, values.timeZone)
       : null,
     externalRegistrationUrl,
     externalRegistrationLabel: normalizeOptionalString(values.externalRegistrationLabel) ?? null,
