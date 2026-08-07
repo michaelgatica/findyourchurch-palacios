@@ -508,6 +508,9 @@ test.describe.serial("real production acceptance workflow", () => {
     await verifyAccessibility(publicPage, "published acceptance church profile");
     await capture(publicPage, "06-church-profile-desktop.png", { width: 1366, height: 900 });
     await capture(publicPage, "07-church-profile-mobile.png", { width: 375, height: 812 });
+    await openProductionPage(publicPage, "/churches");
+    await publicPage.getByLabel("Keyword").fill(churchName);
+    await expect(publicPage.getByRole("img", { name: `${churchName} logo` })).toBeVisible();
     await profileContext.close();
   });
 
