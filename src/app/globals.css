@@ -2235,6 +2235,12 @@ input[type="checkbox"] {
 .admin-media-card__image--square {
   max-width: 160px;
   aspect-ratio: 1 / 1;
+  object-fit: contain;
+  padding: 0.45rem;
+  border-color: rgba(237, 198, 91, 0.42);
+  background:
+    linear-gradient(145deg, rgba(11, 74, 36, 0.98), rgba(6, 56, 28, 0.92)),
+    var(--deep-green);
 }
 
 .timeline-item {
@@ -2699,6 +2705,12 @@ input[type="checkbox"] {
 .admin-update-media__image--logo {
   width: 112px;
   aspect-ratio: 1 / 1;
+  object-fit: contain;
+  padding: 0.35rem;
+  border-color: rgba(237, 198, 91, 0.42);
+  background:
+    linear-gradient(145deg, rgba(11, 74, 36, 0.98), rgba(6, 56, 28, 0.92)),
+    var(--deep-green);
 }
 
 .upload-selection-summary {
