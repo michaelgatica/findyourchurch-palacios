@@ -114,6 +114,13 @@ export function buildEventCalendarFile(event: EventRecord) {
 }
 
 export function buildEventStructuredData(event: EventRecord) {
+  const eventUrl = buildAbsoluteUrl(buildEventPath(event));
+  const offerDescription = event.costStatus === "free"
+    ? "Free event"
+    : event.costStatus === "donation_requested"
+      ? "Free event; donations are welcome"
+      : event.costDetails || "See event details for registration or admission information";
+
   return {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -132,6 +139,22 @@ export function buildEventStructuredData(event: EventRecord) {
           ? "https://schema.org/MixedEventAttendanceMode"
           : "https://schema.org/OfflineEventAttendanceMode",
     image: event.flyerImage?.src ? [buildAbsoluteUrl(event.flyerImage.src)] : undefined,
+    performer: {
+      "@type": "PerformingGroup",
+      name: event.hostMinistry || event.churchName,
+    },
+    offers: {
+      "@type": "Offer",
+      url: eventUrl,
+      price: event.costStatus === "fee_required" ? undefined : 0,
+      priceCurrency: "USD",
+      description: offerDescription,
+      validFrom: event.publishedAt ?? event.createdAt,
+      availability:
+        event.status === "cancelled"
+          ? "https://schema.org/SoldOut"
+          : "https://schema.org/InStock",
+    },
     location: event.address
       ? {
           "@type": "Place",
@@ -151,7 +174,7 @@ export function buildEventStructuredData(event: EventRecord) {
       name: event.churchName,
       url: buildAbsoluteUrl(event.churchRoutePath ?? `/churches/${event.churchSlug}`),
     },
-    url: buildAbsoluteUrl(buildEventPath(event)),
+    url: eventUrl,
     isAccessibleForFree: event.costStatus !== "fee_required",
   };
 }

@@ -313,6 +313,8 @@ test("metadata, robots, sitemap, structured data, sharing, and calendars stay st
   const structuredData = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent() ?? "{}") as Record<string, unknown>;
   expect(structuredData["@type"]).toBe("Event");
   expect(structuredData.url).toBe(`${stagingBaseUrl}/events/staging-published-family-night`);
+  expect(structuredData.performer).toMatchObject({ "@type": "PerformingGroup" });
+  expect(structuredData.offers).toMatchObject({ "@type": "Offer", priceCurrency: "USD" });
   expect(String((structuredData.image as string[])[0])).not.toContain(`${stagingBaseUrl}/https://`);
   await openHostedPage(page, "/events/staging-cancelled-outreach");
   const cancelledData = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent() ?? "{}") as Record<string, unknown>;

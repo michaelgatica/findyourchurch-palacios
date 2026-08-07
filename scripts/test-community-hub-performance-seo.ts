@@ -85,6 +85,19 @@ const structuredData = buildEventStructuredData(event);
 assert.deepEqual(structuredData.image, ["https://storage.googleapis.test/flyer.png"]);
 assert.equal(structuredData.eventStatus, "https://schema.org/EventCancelled");
 assert.equal(structuredData.url, `${getSiteUrl()}/events/${event.slug}`);
+assert.deepEqual(structuredData.performer, {
+  "@type": "PerformingGroup",
+  name: event.churchName,
+});
+assert.deepEqual(structuredData.offers, {
+  "@type": "Offer",
+  url: `${getSiteUrl()}/events/${event.slug}`,
+  price: 0,
+  priceCurrency: "USD",
+  description: "Free event",
+  validFrom: event.publishedAt,
+  availability: "https://schema.org/SoldOut",
+});
 
 const googleCalendarUrl = new URL(buildGoogleCalendarUrl(event));
 assert.equal(googleCalendarUrl.hostname, "calendar.google.com");
