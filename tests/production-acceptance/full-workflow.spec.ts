@@ -475,6 +475,7 @@ test.describe.serial("real production acceptance workflow", () => {
     const publicPage = await profileContext.newPage();
     await openProductionPage(publicPage, churchProfilePath);
     await expect(publicPage.getByRole("heading", { level: 1, name: churchName })).toBeVisible();
+    await expect(publicPage.getByRole("img", { name: `${churchName} logo` })).toBeVisible();
     await expect(publicPage.getByText("Spanish service", { exact: true }).first()).toBeVisible();
     await verifyAccessibility(publicPage, "published acceptance church profile");
     await capture(publicPage, "06-church-profile-desktop.png", { width: 1366, height: 900 });
