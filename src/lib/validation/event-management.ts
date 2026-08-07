@@ -12,6 +12,11 @@ import type {
   EventStatus,
   EventVisibility,
 } from "@/lib/types/events";
+import {
+  defaultEventTimeZone,
+  zonedDateTimeLocalToUtcIso,
+  zonedWallTimeToUtcIso,
+} from "@/lib/date-time";
 import { validateExternalRegistrationUrl } from "@/lib/validation/external-registration-url";
 
 const eventStatusSet = new Set<EventStatus>([
@@ -272,9 +277,14 @@ function splitCommaSeparated(value: string) {
     .filter(Boolean);
 }
 
-function combineDateTime(dateValue: string, timeValue: string, allDay: boolean) {
+function combineDateTime(
+  dateValue: string,
+  timeValue: string,
+  allDay: boolean,
+  timeZone: string,
+) {
   const normalizedTime = allDay ? "00:00" : timeValue || "00:00";
-  return new Date(`${dateValue}T${normalizedTime}:00`).toISOString();
+  return zonedWallTimeToUtcIso(dateValue, normalizedTime, timeZone);
 }
 
 function getFileExtension(fileName: string) {
@@ -352,7 +362,7 @@ export async function validateEventFormData(formData: FormData): Promise<Validat
     endDate: getString(formData, "endDate"),
     endTime: getString(formData, "endTime"),
     allDay: getBoolean(formData, "allDay"),
-    timeZone: getString(formData, "timeZone") || "America/Chicago",
+    timeZone: getString(formData, "timeZone") || defaultEventTimeZone,
     recurrenceMode: "single",
     locationMode: getString(formData, "locationMode") || "in_person",
     venueName: getString(formData, "venueName"),
@@ -397,9 +407,14 @@ export async function validateEventFormData(formData: FormData): Promise<Validat
     throw new Error("Enter the custom event type.");
   }
 
-  const startsAt = combineDateTime(values.startDate, values.startTime, values.allDay);
+  const startsAt = combineDateTime(
+    values.startDate,
+    values.startTime,
+    values.allDay,
+    values.timeZone,
+  );
   const endsAt = values.endDate
-    ? combineDateTime(values.endDate, values.endTime, values.allDay)
+    ? combineDateTime(values.endDate, values.endTime, values.allDay, values.timeZone)
     : null;
 
   if (endsAt && new Date(endsAt).getTime() < new Date(startsAt).getTime()) {
@@ -479,10 +494,10 @@ export async function validateEventFormData(formData: FormData): Promise<Validat
     visibility: values.visibility,
     registrationMode: values.registrationMode,
     registrationOpensAt: values.registrationOpensAt
-      ? new Date(values.registrationOpensAt).toISOString()
+      ? zonedDateTimeLocalToUtcIso(values.registrationOpensAt, values.timeZone)
       : null,
     registrationClosesAt: values.registrationClosesAt
-      ? new Date(values.registrationClosesAt).toISOString()
+      ? zonedDateTimeLocalToUtcIso(values.registrationClosesAt, values.timeZone)
       : null,
     externalRegistrationUrl,
     externalRegistrationLabel: normalizeOptionalString(values.externalRegistrationLabel) ?? null,

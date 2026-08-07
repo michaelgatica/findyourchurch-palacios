@@ -77,6 +77,50 @@ async function main() {
   assert(validEvent.primaryType === "Prayer Meeting or Prayer Vigil", "Primary event type should normalize.");
   assert(validEvent.registrationMode === "none", "Registration mode should parse.");
   assert(validEvent.address?.city === "Palacios", "Address should parse for in-person events.");
+  assert(
+    validEvent.startsAt === "2027-03-15T23:30:00.000Z",
+    "Central Daylight Time should convert the wall-clock start to UTC.",
+  );
+  assert(
+    validEvent.endsAt === "2027-03-16T01:00:00.000Z",
+    "Central Daylight Time should convert the wall-clock end to UTC.",
+  );
+
+  const winterEvent = await validateEventFormData(
+    createBaseEventFormData({
+      startDate: "2027-01-15",
+      startTime: "18:30",
+      endDate: "2027-01-15",
+      endTime: "20:00",
+    }),
+  );
+  assert(
+    winterEvent.startsAt === "2027-01-16T00:30:00.000Z",
+    "Central Standard Time should convert the wall-clock start to UTC.",
+  );
+
+  const registrationEvent = await validateEventFormData(
+    createBaseEventFormData({
+      registrationOpensAt: "2027-03-15T09:00",
+      registrationClosesAt: "2027-03-15T17:00",
+    }),
+  );
+  assert(
+    registrationEvent.registrationOpensAt === "2027-03-15T14:00:00.000Z",
+    "Registration opening should use the selected Central wall-clock time.",
+  );
+  assert(
+    registrationEvent.registrationClosesAt === "2027-03-15T22:00:00.000Z",
+    "Registration closing should use the selected Central wall-clock time.",
+  );
+
+  await expectValidationError(
+    createBaseEventFormData({
+      startDate: "2027-03-14",
+      startTime: "02:30",
+    }),
+    "does not exist",
+  );
 
   await expectValidationError(
     createBaseEventFormData({
@@ -149,6 +193,9 @@ async function main() {
           "online events require HTTPS online URL",
           "invalid flyer file types are rejected",
           "oversized flyers are rejected",
+          "Central wall-clock times convert correctly in daylight and standard time",
+          "registration wall-clock times convert correctly",
+          "nonexistent daylight-saving wall-clock times are rejected",
         ],
       },
       null,

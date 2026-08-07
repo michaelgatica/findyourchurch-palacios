@@ -5,53 +5,31 @@ import {
   audienceAndMinistryOptions,
   primaryEventTypeOptions,
 } from "@/lib/data/event-taxonomy";
+import {
+  defaultEventTimeZone,
+  formatDateInputValueDaysFromNow,
+  formatZonedDateInputValue,
+  formatZonedDateTimeInputValue,
+  formatZonedTimeInputValue,
+} from "@/lib/date-time";
 import { buildGoogleCalendarUrl } from "@/lib/event-utils";
 import type { ChurchRecord } from "@/lib/types/directory";
 import type { EventRecord } from "@/lib/types/events";
 
 function toDateInputValue(value?: string | null) {
-  return value ? value.slice(0, 10) : "";
+  return formatZonedDateInputValue(value, defaultEventTimeZone);
 }
 
 function toTimeInputValue(value?: string | null) {
-  if (!value) {
-    return "";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "America/Chicago",
-  })
-    .format(new Date(value))
-    .replace("24:", "00:");
+  return formatZonedTimeInputValue(value, defaultEventTimeZone);
 }
 
 function toDateTimeInputValue(value?: string | null) {
-  if (!value) {
-    return "";
-  }
-
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "America/Chicago",
-  }).formatToParts(new Date(value));
-  const part = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((valuePart) => valuePart.type === type)?.value ?? "";
-
-  return `${part("year")}-${part("month")}-${part("day")}T${part("hour").replace("24", "00")}:${part("minute")}`;
+  return formatZonedDateTimeInputValue(value, defaultEventTimeZone);
 }
 
 function getDefaultStartDate() {
-  const date = new Date();
-  date.setDate(date.getDate() + 7);
-  return date.toISOString().slice(0, 10);
+  return formatDateInputValueDaysFromNow(7, defaultEventTimeZone);
 }
 
 function isSelected(value: string, values?: string[]) {
