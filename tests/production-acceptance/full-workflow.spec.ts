@@ -493,11 +493,38 @@ test.describe.serial("real production acceptance workflow", () => {
     const publishedChurch = churches[0];
     const publishedSlug = firestoreString(publishedChurch, "slug");
     expect(publishedSlug, "The published church did not contain a public slug.").toBeTruthy();
+    const customShareSlug = firestoreString(publishedChurch, "customShareSlug");
+    const publicSlugCandidates = Array.from(
+      new Set([customShareSlug, publishedSlug].filter((value): value is string => Boolean(value))),
+    );
     churchProfilePath = "";
-    for (const candidatePath of [`/tx/palacios/${publishedSlug}`, `/churches/${publishedSlug}`]) {
-      await publicPage.goto(candidatePath, { waitUntil: "domcontentloaded" });
-      if (await publicPage.getByRole("heading", { level: 1, name: churchName }).count()) {
-        churchProfilePath = candidatePath;
+    for (const candidateSlug of publicSlugCandidates) {
+      for (const candidatePath of [
+        `/${candidateSlug}`,
+        `/tx/palacios/${candidateSlug}`,
+        `/churches/${candidateSlug}`,
+      ]) {
+        try {
+          await publicPage.goto(candidatePath, { waitUntil: "commit" });
+          await publicPage.waitForLoadState("domcontentloaded").catch(() => undefined);
+        } catch (error) {
+          if (!String(error).includes("ERR_ABORTED")) {
+            throw error;
+          }
+          await publicPage.waitForLoadState("domcontentloaded").catch(() => undefined);
+        }
+        const profileHeading = publicPage.getByRole("heading", { level: 1, name: churchName });
+        if (
+          await profileHeading
+            .waitFor({ state: "visible", timeout: 5_000 })
+            .then(() => true)
+            .catch(() => false)
+        ) {
+          churchProfilePath = new URL(publicPage.url()).pathname;
+          break;
+        }
+      }
+      if (churchProfilePath) {
         break;
       }
     }
