@@ -1,4 +1,6 @@
 import { imageSize } from "image-size";
+
+import { getChurchLogoDimensionError } from "@/lib/validation/church-logo";
 import { z } from "zod";
 
 import { denominationOptions, worshipStyleOptions } from "@/lib/data/options";
@@ -386,6 +388,14 @@ async function validateImageFile(
 
   try {
     const dimensions = imageSize(buffer);
+
+    if (fieldKey === "churchLogo") {
+      const logoDimensionError = getChurchLogoDimensionError(dimensions.width, dimensions.height);
+
+      if (logoDimensionError) {
+        return { upload: undefined, error: logoDimensionError };
+      }
+    }
 
     if (maximumWidth && (dimensions.width ?? 0) > maximumWidth) {
       return {

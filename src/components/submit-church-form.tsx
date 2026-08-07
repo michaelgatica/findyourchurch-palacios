@@ -528,7 +528,8 @@ export function SubmitChurchForm() {
             <span className="field__label">Church logo upload</span>
             <input name="churchLogo" type="file" accept=".png,.jpg,.jpeg,.webp" />
             <span className="field__hint">
-              PNG, JPG, or WebP. Square logos are preferred. Maximum 8 MB.
+              PNG, JPG, or WebP. Use a square logo, ideally 512x512. Allowed range: 256x256 to
+              2048x2048. Maximum 8 MB.
             </span>
             <FieldError message={formState.errors.churchLogo} />
           </label>

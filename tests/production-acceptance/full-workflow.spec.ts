@@ -23,6 +23,7 @@ import {
   promoteUserToTemporaryAdministrator,
   queryFirestoreDocuments,
 } from "./helpers";
+import { zonedWallTimeToUtcIso } from "../../src/lib/date-time";
 
 const session = process.env.PRODUCTION_ACCEPTANCE_SESSION?.trim();
 const password = process.env.PRODUCTION_QA_PASSWORD?.trim();
@@ -51,6 +52,7 @@ let editorContext: BrowserContext | null = null;
 let churchProfilePath = "";
 let eventId = "";
 let eventPublicPath = "";
+let eventStartDate = "";
 
 async function createAcceptanceContext(browser: Browser) {
   const context = await browser.newContext({ baseURL: productionBaseUrl });
@@ -270,6 +272,7 @@ async function fillAndSaveEvent(page: Page) {
   await openProductionPage(page, "/portal/events/new");
   const future = new Date(Date.now() + 9 * 86_400_000);
   const date = future.toISOString().slice(0, 10);
+  eventStartDate = date;
   await page.locator('[name="title"]').fill(eventTitle);
   await page.locator('[name="hostMinistry"]').fill("Acceptance Outreach Ministry");
   await page.locator('[name="summary"]').fill("A fictitious public event used for a controlled production acceptance test.");
@@ -314,6 +317,17 @@ async function fillAndSaveEvent(page: Page) {
   const publicHref = await page.getByRole("link", { name: "Open public event page" }).getAttribute("href");
   expect(publicHref).toBeTruthy();
   eventPublicPath = publicHref!;
+}
+
+async function expectStoredEventWallTime(request: APIRequestContext) {
+  const documents = await queryFirestoreDocuments(request, "events", "id", eventId);
+  expect(documents, "The controlled event was not found in Firestore.").toHaveLength(1);
+  expect(firestoreString(documents[0], "startsAt")).toBe(
+    zonedWallTimeToUtcIso(eventStartDate, "18:00", "America/Chicago"),
+  );
+  expect(firestoreString(documents[0], "endsAt")).toBe(
+    zonedWallTimeToUtcIso(eventStartDate, "20:30", "America/Chicago"),
+  );
 }
 
 async function activateRegistration(page: Page) {
@@ -539,9 +553,10 @@ test.describe.serial("real production acceptance workflow", () => {
     await editorPage.close();
   });
 
-  test("event creation, flyer, custom registration configuration, and editor update", async () => {
+  test("event creation, flyer, custom registration configuration, and editor update", async ({ request }) => {
     const primaryPage = await primaryContext!.newPage();
     await fillAndSaveEvent(primaryPage);
+    await expectStoredEventWallTime(request);
     await activateRegistration(primaryPage);
     await openProductionPage(primaryPage, `/portal/events/${eventId}/edit`);
     await primaryPage.getByRole("button", { name: "Publish event" }).click();
@@ -561,6 +576,7 @@ test.describe.serial("real production acceptance workflow", () => {
     await editorPage.getByRole("button", { name: "Save changes" }).click();
     await expect(editorPage).toHaveURL(/success=event-saved/, { timeout: 60_000 });
     await expect(editorPage.locator('[name="additionalInstructions"]')).toHaveValue(/authorized fictitious editor/);
+    await expectStoredEventWallTime(request);
     await editorPage.close();
   });
 

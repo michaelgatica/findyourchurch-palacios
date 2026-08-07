@@ -33,6 +33,7 @@
     "test:phase4-workflows": "tsx scripts/test-phase4-workflows.ts",
     "test:directory-routing": "tsx scripts/test-directory-routing.ts",
     "test:event-validation": "tsx scripts/test-event-validation.ts",
+    "test:church-logo": "tsx scripts/test-church-logo-validation.ts",
     "repair:event-timezones": "tsx scripts/repair-event-timezones.ts",
     "test:registration-validation": "tsx scripts/test-registration-validation.ts",
     "test:registration-reports": "tsx scripts/test-registration-reports-email.ts",

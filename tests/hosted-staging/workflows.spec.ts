@@ -297,7 +297,16 @@ test("capture non-secret public and portal responsive evidence", async ({ browse
   await page.screenshot({ path: path.join(evidenceRoot, "events-1366-chromium.png"), fullPage: true });
 
   await authenticateContext(context, stagingAccounts.churchA);
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await openHostedPage(page, "/portal");
+  await expect(page.getByRole("navigation", { name: "Church portal navigation" })).toBeVisible();
+  await expect(page.locator('.portal-nav__link[aria-current="page"]')).toContainText("Dashboard");
+  await page.screenshot({ path: path.join(evidenceRoot, "portal-dashboard-1366-chromium.png"), fullPage: true });
+
   await page.setViewportSize({ width: 375, height: 812 });
+  await openHostedPage(page, "/portal");
+  await page.screenshot({ path: path.join(evidenceRoot, "portal-dashboard-375-chromium.png"), fullPage: true });
+
   await openHostedPage(page, "/portal/events/staging-qa-event-published/check-in");
   await page.screenshot({ path: path.join(evidenceRoot, "check-in-375-chromium.png"), fullPage: true });
 });
