@@ -317,3 +317,11 @@ Rollback remains mandatory on isolation/privacy failure, counter inconsistency o
 - No production acceptance church, user, representative, event, registration, token, export, scheduled job, flyer, or private export remains.
 
 Forwarding recheck session `20260715130231` passed the application workflow 8 of 8 and exact cleanup. Direct delivery to `michaelgatica@elroidigital.org` reached Gmail, as did the session's administrator notifications through `support@elroidigital.org`. Four uniquely marked messages accepted for the role aliases did not reach Gmail. Do not attribute this to the application or the El Roi-to-Gmail hop; verify each role alias's Jellyfish/Namecheap forwarder target and activation.
+
+## August 7, 2026 recertification follow-up
+
+The report-email acceptance gap is closed at the application level. Guarded session `20260807115427` passed all 8 serial stages against `https://findyourchurchpalacios.org`, including report-email success, and `cleanup:production-acceptance:guarded 20260807115427` verified exact fixture removal. The previous timeout remains historical evidence only.
+
+The Search Console email received by `michaelgatica@gmail.com` identified missing `performer` and `offers` fields in Event structured data. Commit `83bc820` corrected the JSON-LD; local and staging live assertions pass, and production revision `findyourchurch-palacios-build-2026-08-07-004` is healthy. Google validation is still pending a Search Console recrawl and must be requested by an account with property access.
+
+GitHub notifications for old failed `Validate build` and `deploy.yml` runs refer to historical/deleted runs. The current repository evidence is healthy: `Validate build` run `31067259443` and `Annual Listing Verification` run `31118597052` both completed successfully on `main`. No production deployment is triggered by either workflow in this follow-up.

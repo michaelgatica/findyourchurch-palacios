@@ -444,3 +444,10 @@ Current recommendation: **CONDITIONAL GO for a controlled production deployment 
 - The full production acceptance session `20260807052306` passed 8 of 8 workflow stages and its exact cleanup verifier passed. Raw Firestore checks confirmed Central wall-clock timestamps after event creation and editing, and the uploaded logo appeared in the profile and directory assertions.
 - Supplementary session `20260807052709` passed stages 1–5 but timed out while waiting for the report-email success redirect. Cleanup passed. This is recorded as an email follow-up, not a full acceptance pass.
 - The guarded `repair:event-timezones` tool remains dry-run-first; no staging or production event repair was applied during this follow-up.
+
+## Report-email and Search Console follow-up — August 7, 2026
+
+- The supplementary production acceptance timeout at the report-email redirect was retried after the route-resolution harness correction. Session `20260807115427` passed all 8 of 8 stages, including report email and private report attachments; exact cleanup passed independently.
+- Gmail Search Console notice `19fdb0d944778087` listed missing Event JSON-LD `performer` and `offers`. Commit `83bc820` added both fields. Static tests and live staging structured-data assertions passed. The sitemap assertion in the broader staging performance script still depends on a retained historical fixture and should not be interpreted as Google validation.
+- Search Console property access was unavailable to the current Gmail account during this check. The owner must open the verified property, inspect a live event URL, and request validation after Google recrawls the production revision. No Search Console validation is claimed yet.
+- GitHub email failures for `findyourchurch-palacios` are historical notices. Current `Validate build` and `Annual Listing Verification` runs are successful; no active repository CI blocker was found.
