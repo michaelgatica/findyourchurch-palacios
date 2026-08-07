@@ -490,8 +490,11 @@ test.describe.serial("real production acceptance workflow", () => {
     expect(churches).toHaveLength(1);
     const profileContext = await createAcceptanceContext(browser);
     const publicPage = await profileContext.newPage();
+    const publishedChurch = churches[0];
+    const publishedSlug = firestoreString(publishedChurch, "slug");
+    expect(publishedSlug, "The published church did not contain a public slug.").toBeTruthy();
     churchProfilePath = "";
-    for (const candidatePath of [`/tx/palacios/${churchSlug}`, `/churches/${churchSlug}`]) {
+    for (const candidatePath of [`/tx/palacios/${publishedSlug}`, `/churches/${publishedSlug}`]) {
       await publicPage.goto(candidatePath, { waitUntil: "domcontentloaded" });
       if (await publicPage.getByRole("heading", { level: 1, name: churchName }).count()) {
         churchProfilePath = candidatePath;
