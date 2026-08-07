@@ -6,6 +6,8 @@ This document is the implementation/runbook for the current Community Ministry H
 
 Launch-readiness, platform administration, production verification, rollback, monitoring, and the current go/no-go recommendation are tracked in `docs/community-ministry-hub-launch-readiness.md`.
 
+The future AI-assisted listing-review design is documented in `docs/community-ministry-hub-ai-review-plan.md`. It is a design-only backlog item: initial church access remains Michael’s human decision, current update approvals remain unchanged, and no AI service currently has administrator or publish authority.
+
 Staging and production certification runbooks:
 
 - `docs/community-ministry-hub-staging-qa.md`
