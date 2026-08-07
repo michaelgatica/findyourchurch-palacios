@@ -123,6 +123,7 @@ export async function ChurchProfileView({ church }: { church: ChurchRecord }) {
                 width={112}
                 height={112}
                 className="profile-hero__logo-image"
+                unoptimized
               />
             ) : (
               <div className="profile-hero__logo-fallback" aria-hidden="true">

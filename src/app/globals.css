@@ -1117,9 +1117,12 @@ select:focus-visible {
 
 .church-card__logo-image,
 .profile-hero__logo-image {
-  object-fit: cover;
-  border: 1px solid rgba(11, 74, 36, 0.12);
-  background: #fff;
+  object-fit: contain;
+  padding: 0.45rem;
+  border: 1px solid rgba(237, 198, 91, 0.42);
+  background:
+    linear-gradient(145deg, rgba(11, 74, 36, 0.98), rgba(6, 56, 28, 0.92)),
+    var(--deep-green);
 }
 
 .church-card__logo-fallback,

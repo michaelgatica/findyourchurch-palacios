@@ -33,6 +33,7 @@ export function ChurchCard({
             width={72}
             height={72}
             className="church-card__logo-image"
+            unoptimized
           />
         ) : (
           <div className="church-card__logo-fallback" aria-hidden="true">

@@ -10,6 +10,7 @@ import {
   getStateById,
   states,
 } from "@/lib/data/locations";
+import { getFirebaseStorageBucketName } from "@/lib/firebase/config";
 import { normalizeServiceTimeInput } from "@/lib/service-time-options";
 import type {
   ChurchDocument,
@@ -51,6 +52,24 @@ export const firestoreCollectionNames = {
   operationalEvents: "operationalEvents",
   operationalLocks: "operationalLocks",
 } as const;
+
+function normalizeChurchLogoUrl(value?: string | null) {
+  const normalizedValue = value?.trim();
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(normalizedValue)) {
+    return normalizedValue;
+  }
+
+  const bucketName = getFirebaseStorageBucketName();
+
+  return bucketName
+    ? `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(normalizedValue)}?alt=media`
+    : normalizedValue;
+}
 
 export function createSlug(value: string) {
   return value
@@ -151,7 +170,12 @@ export function mapChurchDocumentToChurchRecord(churchDocument: ChurchDocument):
     countyId: cityRegion?.countyId ?? null,
     stateId: stateRegion?.id ?? null,
     name: churchDocument.name,
-    logoSrc: churchDocument.logoUrl ?? null,
+    // Older imports used logoSrc while current writes use logoUrl. Normalize
+    // both forms so an approved upload reaches the public card and profile.
+    logoSrc: normalizeChurchLogoUrl(
+      churchDocument.logoUrl ??
+        (churchDocument as ChurchDocument & { logoSrc?: string | null }).logoSrc,
+    ),
     photos:
       churchDocument.photoGallery && churchDocument.photoGallery.length > 0
         ? churchDocument.photoGallery

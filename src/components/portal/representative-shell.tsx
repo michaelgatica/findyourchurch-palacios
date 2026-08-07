@@ -1,19 +1,7 @@
-import Link from "next/link";
-
 import { AdminSignOutButton } from "@/components/admin/admin-signout-button";
+import { RepresentativeNav } from "@/components/portal/representative-nav";
 import { getNonProductionEnvironmentLabel } from "@/lib/app-environment";
 import type { ChurchRecord, ChurchRepresentativeRecord } from "@/lib/types/directory";
-
-const navigationItems = [
-  { href: "/portal", label: "Dashboard" },
-  { href: "/portal/church", label: "Church" },
-  { href: "/portal/church/edit", label: "Edit Listing" },
-  { href: "/portal/events", label: "Events" },
-  { href: "/portal/messages", label: "Messages" },
-  { href: "/portal/team", label: "Team" },
-  { href: "/portal/transfer-ownership", label: "Transfer Ownership" },
-  { href: "/portal/updates", label: "Updates" },
-] as const;
 
 export function RepresentativeShell(props: {
   church: ChurchRecord;
@@ -46,17 +34,10 @@ export function RepresentativeShell(props: {
           <AdminSignOutButton className="button button--ghost" redirectTo="/portal/login" />
         </div>
 
-        <nav className="portal-nav" aria-label="Representative">
-          {navigationItems.map((navigationItem) => (
-            <Link
-              key={navigationItem.href}
-              href={navigationItem.href}
-              className="portal-nav__link"
-            >
-              {navigationItem.label}
-            </Link>
-          ))}
-        </nav>
+        <RepresentativeNav
+          churchName={props.church.name}
+          permissionRole={props.representative.permissionRole}
+        />
 
         {props.children}
       </div>

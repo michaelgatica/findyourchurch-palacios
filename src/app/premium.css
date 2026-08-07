@@ -685,6 +685,196 @@ select {
     linear-gradient(180deg, var(--forest-950), var(--deep-green));
 }
 
+/* The representative rail is a navigation surface, not a button list. */
+.portal-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.35rem 0.95rem 1rem;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(237, 198, 91, 0.12), transparent 34%),
+    linear-gradient(180deg, #032b16 0%, #06381c 62%, #052e18 100%);
+}
+
+.portal-nav::before {
+  display: none;
+}
+
+.portal-nav__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.25rem 0.35rem 0;
+}
+
+.portal-nav__mark {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  place-items: center;
+  border: 1px solid rgba(237, 198, 91, 0.55);
+  border-radius: 0.7rem;
+  background: rgba(237, 198, 91, 0.13);
+  color: var(--soft-gold);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+}
+
+.portal-nav__brand,
+.portal-nav__workspace,
+.portal-nav__church-label,
+.portal-nav__role,
+.portal-nav__group-label,
+.portal-nav__footer p,
+.portal-nav__footer span {
+  margin: 0;
+}
+
+.portal-nav__brand {
+  color: #fff;
+  font-family: var(--font-heading), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.portal-nav__workspace {
+  margin-top: 0.15rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.72rem;
+}
+
+.portal-nav__church-card {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.85rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.portal-nav__church-label,
+.portal-nav__group-label {
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-heading), sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.portal-nav__church-card strong {
+  color: #fff;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.portal-nav__role {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--soft-gold);
+  font-size: 0.73rem;
+  text-transform: capitalize;
+}
+
+.portal-nav__status-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #73cf93;
+  box-shadow: 0 0 0 3px rgba(115, 207, 147, 0.15);
+}
+
+.portal-nav__links {
+  display: grid;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+.portal-nav__group {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.portal-nav__group-label {
+  padding: 0 0.65rem 0.25rem;
+}
+
+.portal-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.65rem 0.65rem;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.15;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.portal-nav__link:hover,
+.portal-nav__link:focus-visible {
+  border-color: rgba(237, 198, 91, 0.2);
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  transform: translateX(2px);
+}
+
+.portal-nav__link[aria-current="page"] {
+  border-color: rgba(237, 198, 91, 0.32);
+  background: linear-gradient(90deg, rgba(217, 162, 27, 0.95), rgba(237, 198, 91, 0.82));
+  color: var(--forest-950);
+  box-shadow: 0 7px 16px rgba(0, 0, 0, 0.12);
+}
+
+.portal-nav__icon {
+  flex: 0 0 auto;
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.portal-nav__footer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: auto;
+  padding: 0.8rem 0.65rem 0.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.portal-nav__footer-mark {
+  color: var(--soft-gold);
+  font-size: 0.9rem;
+}
+
+.portal-nav__footer p {
+  display: grid;
+  gap: 0.25rem;
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.portal-nav__footer strong {
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 0.72rem;
+}
+
 .portal-nav::before,
 .admin-nav::before {
   display: block;
@@ -924,6 +1114,36 @@ select {
     display: flex;
     overflow-x: auto;
     padding: 0.75rem;
+  }
+
+  .portal-nav {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .portal-nav__identity,
+  .portal-nav__church-card,
+  .portal-nav__group-label,
+  .portal-nav__footer {
+    display: none;
+  }
+
+  .portal-nav__links {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.45rem;
+  }
+
+  .portal-nav__group {
+    display: contents;
+  }
+
+  .portal-nav__link {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding-inline: 0.75rem;
   }
 
   .portal-nav::before,
