@@ -299,7 +299,7 @@ test("capture non-secret public and portal responsive evidence", async ({ browse
   await authenticateContext(context, stagingAccounts.churchA);
   await page.setViewportSize({ width: 1366, height: 900 });
   await openHostedPage(page, "/portal");
-  await expect(page.getByRole("navigation", { name: "Church portal navigation" })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Church portal navigation" })).toBeVisible();
   await expect(page.locator('.portal-nav__link[aria-current="page"]')).toContainText("Dashboard");
   await page.screenshot({ path: path.join(evidenceRoot, "portal-dashboard-1366-chromium.png"), fullPage: true });
 
