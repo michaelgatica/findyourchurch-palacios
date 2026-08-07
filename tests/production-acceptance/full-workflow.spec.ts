@@ -130,7 +130,12 @@ async function openAdminCard(page: Page, path: string, heading: string) {
     has: page.getByRole("heading", { name: heading, exact: true }),
   });
   await expect(card).toBeVisible();
-  await card.getByRole("link").last().click();
+  const reviewLink = card.getByRole("link").last();
+  const reviewHref = await reviewLink.getAttribute("href");
+  expect(reviewHref, `A review link was not available for ${heading}.`).toMatch(
+    /\/admin\/(?:submissions|claims)\/[^/?]+/,
+  );
+  await page.goto(reviewHref!, { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/admin\/(?:submissions|claims)\/[^/?]+/, { timeout: 45_000 });
 }
 
