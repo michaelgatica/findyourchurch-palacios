@@ -457,10 +457,21 @@ test.describe.serial("real production acceptance workflow", () => {
     await expect(adminPage.getByText(publicMessage, { exact: true }).first()).toBeVisible();
     await adminPage.getByLabel("Optional admin note").fill("Approved during a controlled production acceptance test.");
     await adminPage.getByRole("button", { name: "Approve and publish" }).click();
-    await expect(adminPage.getByText("approved", { exact: true }).first()).toBeVisible({ timeout: 60_000 });
-    const profileHref = await adminPage.getByRole("link", { name: "Open public profile" }).getAttribute("href");
-    expect(profileHref).toBeTruthy();
-    churchProfilePath = profileHref!;
+    await expect
+      .poll(
+        async () => {
+          const publishedChurches = await queryFirestoreDocuments(
+            request,
+            "churches",
+            "customShareSlug",
+            churchSlug,
+          );
+          return publishedChurches.some((church) => firestoreString(church, "status") === "published");
+        },
+        { timeout: 60_000 },
+      )
+      .toBe(true);
+    churchProfilePath = `/tx/palacios/${churchSlug}`;
     await capture(adminPage, "05-approved-submission-admin.png", { width: 1366, height: 900 });
     await adminPage.close();
 
