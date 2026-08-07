@@ -131,6 +131,7 @@ async function openAdminCard(page: Page, path: string, heading: string) {
   });
   await expect(card).toBeVisible();
   await card.getByRole("link").last().click();
+  await expect(page).toHaveURL(/\/admin\/(?:submissions|claims)\/[^/?]+/, { timeout: 45_000 });
 }
 
 async function expectStoredSubmissionMessage(
