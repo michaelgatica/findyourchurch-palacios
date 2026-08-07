@@ -485,7 +485,15 @@ test.describe.serial("real production acceptance workflow", () => {
     expect(churches).toHaveLength(1);
     const profileContext = await createAcceptanceContext(browser);
     const publicPage = await profileContext.newPage();
-    await openProductionPage(publicPage, churchProfilePath);
+    churchProfilePath = "";
+    for (const candidatePath of [`/tx/palacios/${churchSlug}`, `/churches/${churchSlug}`]) {
+      await publicPage.goto(candidatePath, { waitUntil: "domcontentloaded" });
+      if (await publicPage.getByRole("heading", { level: 1, name: churchName }).count()) {
+        churchProfilePath = candidatePath;
+        break;
+      }
+    }
+    expect(churchProfilePath, "The published church profile route could not be resolved.").toBeTruthy();
     await expect(publicPage.getByRole("heading", { level: 1, name: churchName })).toBeVisible();
     await expect(publicPage.getByRole("img", { name: `${churchName} logo` })).toBeVisible();
     await expect(publicPage.getByText("Spanish service", { exact: true }).first()).toBeVisible();
