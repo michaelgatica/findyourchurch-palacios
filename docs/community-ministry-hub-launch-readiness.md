@@ -827,6 +827,12 @@ Decision: **GO / live with active observation**. App Hosting build `build-2026-0
 
 Continue active observation. Repair and retest the external forwarding chain so Michael receives consolidated copies in Gmail; application delivery to the destination alias inboxes is already owner-confirmed.
 
+## August 7, 2026 timezone and logo release follow-up
+
+The production rollout `findyourchurch-palacios-build-2026-08-07-002` includes the Central-time event-editor conversion and premium representative portal/sidebar. The guarded production acceptance session `20260807052306` passed raw Firestore timestamp checks after event creation and editing, including daylight-saving behavior; the write path performs no second date conversion after validation. A supplementary retry later timed out at the report-email redirect and is retained as an incomplete email follow-up.
+
+Logo uploads are now constrained to PNG/JPG/WebP, 8 MB maximum, 256–2048 pixels per side, and a square aspect ratio within 5%. Directory/profile renderers use a fixed green/gold square frame with `object-fit: contain`, and current/legacy logo fields are normalized before display. The one-time repair utility is `scripts/repair-event-timezones.ts`; it is dry-run-only by default and requires the reviewed cutoff plus `--apply --confirm=REPAIR-CENTRAL-EVENT-TIMES` for an explicitly approved write. No repair has been applied.
+
 ### Forwarding correction recheck — July 15, 2026
 
 - Guarded production session `20260715130231` passed all 8 workflow stages in 2.4 minutes. Its temporary App Check token was revoked and the exact cleanup verifier confirmed that no fixture remained.

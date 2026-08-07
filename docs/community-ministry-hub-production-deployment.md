@@ -165,6 +165,34 @@ Before production:
 
 Every noreply message must contain: “This mailbox is not monitored. Please send replies or questions to support@findyourchurchpalacios.org.” The application now applies that requirement centrally to both text and HTML and fails configuration validation when the noreply Reply-To differs.
 
+## Event timezone remediation and logo consistency — August 7, 2026
+
+The production App Hosting revision `findyourchurch-palacios-build-2026-08-07-002` serves the Central-time event-editor fix and the premium representative portal/sidebar. Event wall-clock inputs are converted with the IANA zone `America/Chicago` before validation is persisted, including registration-open and registration-close values. The write path was audited through `saveEventEditorSubmission` → `createManagedEvent`/`updateManagedEvent` → the Firestore repository: after validation, `startsAt`, `endsAt`, and registration timestamps are copied without another date conversion.
+
+The guarded production acceptance session `20260807052306` passed raw Firestore timestamp assertions after both event creation and event editing, including the Central daylight-saving conversion. A later supplementary session reached the report-email stage but timed out waiting for the success redirect; it was cleaned up and must not be treated as a complete email recertification.
+
+Church logos are validated before upload for both public submissions and representative edits: PNG/JPG/WebP, 8 MB or less, 256–2048 pixels per side, and a 1:1 aspect ratio within 5%. The public directory and profile render logos inside a fixed green/gold square frame with `object-fit: contain`; legacy `logoSrc` and current `logoUrl` values are normalized to the same display path.
+
+### One-time pre-fix event repair
+
+Use `scripts/repair-event-timezones.ts` only after reviewing a dry run. It is guarded to the approved Firebase projects, defaults to read-only, requires an explicit confirmation phrase for writes, and refuses broad writes without a creation-time cutoff. It records an idempotency marker per repaired event and updates the existing `publicEvents` projection without touching registrations.
+
+```powershell
+$env:FIREBASE_PROJECT_ID = "findyourchurch-staging-2026"
+$env:FIREBASE_DATABASE_ID = "findyourchurchpal"
+npx tsx scripts/repair-event-timezones.ts --before-created-at=2026-08-07T00:00:00.000Z --limit=500
+```
+
+Review every candidate and confirm the cutoff represents the last known bad release. Test the same command against staging first. Only then, with a separately recorded production approval and an exact cutoff, use:
+
+```powershell
+$env:FIREBASE_PROJECT_ID = "findyourchurch-24562"
+$env:FIREBASE_DATABASE_ID = "findyourchurchpal"
+npx tsx scripts/repair-event-timezones.ts --before-created-at=<reviewed-cutoff> --limit=500 --apply --confirm=REPAIR-CENTRAL-EVENT-TIMES
+```
+
+No production repair has been applied by this rollout. Do not repair records already saved with the corrected conversion, and preserve the dry-run output with the release record.
+
 ## Approved Backup And Storage Recovery Configuration
 
 Staging evidence supports this production recommendation, but these commands are preparation only. Replace the placeholder with the separately verified production project and stop if it does not equal the approved deployment-window project:

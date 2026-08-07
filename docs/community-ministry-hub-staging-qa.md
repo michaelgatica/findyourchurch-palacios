@@ -435,3 +435,12 @@ That production gate statement is superseded by the owner closure record below. 
 - Production Cloud Scheduler API is enabled and `community-hub-registration-jobs-production` is configured but paused. Unauthorized access returned 401 and two authorized empty runs returned 200 with no duplicate work. Keep the job paused until launch approval.
 
 Current recommendation: **CONDITIONAL GO for a controlled production deployment window**. This does not authorize a merge, deployment, Scheduler enablement, or opening registrations; those require the production checklist and explicit release approval.
+
+## Timezone and portal/logo follow-up — August 7, 2026
+
+- Staging App Hosting revision `community-hub-staging-build-2026-08-07-002` served the Central-time event-editor fix, premium representative sidebar, and logo frame/normalization changes.
+- Hosted responsive evidence passed in Chromium for the representative portal at 1366px and 375px. The desktop view uses the grouped green sidebar; the phone view uses a compact horizontal touch navigation with no page overflow.
+- `npm run test:church-logo` passed. Logo validation rejects unsupported types, undersized/oversized files, unreadable dimensions, and non-square images outside the 5% ratio tolerance.
+- The full production acceptance session `20260807052306` passed 8 of 8 workflow stages and its exact cleanup verifier passed. Raw Firestore checks confirmed Central wall-clock timestamps after event creation and editing, and the uploaded logo appeared in the profile and directory assertions.
+- Supplementary session `20260807052709` passed stages 1–5 but timed out while waiting for the report-email success redirect. Cleanup passed. This is recorded as an email follow-up, not a full acceptance pass.
+- The guarded `repair:event-timezones` tool remains dry-run-first; no staging or production event repair was applied during this follow-up.
