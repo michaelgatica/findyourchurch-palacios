@@ -245,8 +245,18 @@ async function fillChurchSubmission(page: Page) {
 
 async function createClaim(page: Page) {
   await openProductionPage(page, `${churchProfilePath}/claim`);
-  await page.getByRole("button", { name: "Create an account" }).click();
-  await page.locator('[name="authName"]').fill("Faith Harbor Test Owner");
+  const createAccountButton = page
+    .locator(".claim-auth-switches")
+    .getByRole("button", { name: "Create an account", exact: true });
+  const authName = page.locator('[name="authName"]');
+  await expect(createAccountButton).toBeVisible();
+  await expect(async () => {
+    if (!(await authName.isVisible())) {
+      await createAccountButton.click();
+    }
+    expect(await authName.isVisible()).toBe(true);
+  }).toPass({ timeout: 15_000 });
+  await authName.fill("Faith Harbor Test Owner");
   await page.locator('[name="authPhone"]').fill("361-555-0188");
   await page.locator('[name="authEmail"]').fill(acceptanceAccounts.primaryRepresentative);
   const passwordInput = page.locator('[name="authPassword"]');
@@ -374,6 +384,7 @@ async function submitRsvp(browser: Browser, name: string) {
   const context = await createAcceptanceContext(browser);
   const page = await context.newPage();
   await openProductionPage(page, `${eventPublicPath}/register`);
+  const challengeReceivedAt = Date.now();
   await expect(page).toHaveURL(new RegExp(`${eventPublicPath}/register`));
   await expect(page.getByRole("heading", { level: 1, name: eventTitle })).toBeVisible();
   const form = page.locator("form.registration-public-form");
@@ -383,6 +394,13 @@ async function submitRsvp(browser: Browser, name: string) {
   await form.getByLabel(/^Email/).fill(acceptanceAccounts.registrant);
   await form.getByLabel(/^Phone/).fill("361-555-0166");
   await form.getByLabel(/^Notes/).fill(`Fictitious registration for acceptance session ${session}`);
+  expect(
+    (await form.locator('input[name="challenge"]').inputValue()).split(".")[0],
+    "The registration challenge timestamp must be present.",
+  ).toMatch(/^\d+$/);
+  await expect
+    .poll(() => Date.now() - challengeReceivedAt, { timeout: 2_000 })
+    .toBeGreaterThanOrEqual(900);
   await form.getByRole("button", { name: "Submit registration" }).click();
   await expect(page.getByRole("heading", { name: /registration is complete|waitlist/i })).toBeVisible({ timeout: 60_000 });
   const manageHref = await page.getByRole("link", { name: "Manage registration" }).getAttribute("href");
@@ -584,6 +602,99 @@ test.describe.serial("real production acceptance workflow", () => {
     await capture(portalPage, "09-primary-portal-desktop.png", { width: 1366, height: 900 });
     await capture(portalPage, "10-primary-portal-mobile.png", { width: 375, height: 812 });
     await portalPage.close();
+  });
+
+  test("AI review auto-clears safe listing text and holds unsafe text", async ({ request }) => {
+    const churches = await queryFirestoreDocuments(
+      request,
+      "churches",
+      "customShareSlug",
+      churchSlug,
+    );
+    expect(churches).toHaveLength(1);
+    const churchId = firestoreDocumentId(churches[0]);
+    const safeDescription = `A welcoming fictitious church used only for controlled production acceptance session ${session}.`;
+    const representativePage = await primaryContext!.newPage();
+
+    await openProductionPage(representativePage, "/portal/church/edit");
+    await representativePage.locator('[name="churchDescription"]').fill(safeDescription);
+    await representativePage.getByRole("button", { name: "Save church listing changes" }).click();
+    await expect(representativePage).toHaveURL(/\/portal\/updates\?success=updates-submitted/, {
+      timeout: 60_000,
+    });
+
+    let safeUpdateRequestId = "";
+    await expect
+      .poll(
+        async () => {
+          const [currentChurches, updateRequests] = await Promise.all([
+            queryFirestoreDocuments(request, "churches", "customShareSlug", churchSlug),
+            queryFirestoreDocuments(request, "churchUpdateRequests", "churchId", churchId),
+          ]);
+          const approvedRequest = updateRequests.find(
+            (updateRequest) => firestoreString(updateRequest, "status") === "approved",
+          );
+          safeUpdateRequestId = approvedRequest ? firestoreDocumentId(approvedRequest) : "";
+          if (!safeUpdateRequestId || firestoreString(currentChurches[0], "description") !== safeDescription) {
+            return false;
+          }
+          const reviews = await queryFirestoreDocuments(
+            request,
+            "churchUpdateAiReviews",
+            "updateRequestId",
+            safeUpdateRequestId,
+          );
+          return reviews.some(
+            (review) =>
+              firestoreString(review, "status") === "clear" &&
+              firestoreString(review, "mode") === "auto_clear",
+          );
+        },
+        { timeout: 60_000 },
+      )
+      .toBe(true);
+
+    const unsafeDescription =
+      "Controlled moderation test only: I am going to kill you and your family. This is fictitious test data and not real church content.";
+    await openProductionPage(representativePage, "/portal/church/edit");
+    await representativePage.locator('[name="churchDescription"]').fill(unsafeDescription);
+    await representativePage.getByRole("button", { name: "Save church listing changes" }).click();
+    await expect(representativePage).toHaveURL(/\/portal\/updates\?success=updates-submitted/, {
+      timeout: 60_000,
+    });
+
+    await expect
+      .poll(
+        async () => {
+          const [currentChurches, updateRequests] = await Promise.all([
+            queryFirestoreDocuments(request, "churches", "customShareSlug", churchSlug),
+            queryFirestoreDocuments(request, "churchUpdateRequests", "churchId", churchId),
+          ]);
+          const heldRequest = updateRequests.find(
+            (updateRequest) =>
+              firestoreString(updateRequest, "status") === "pending_review" &&
+              firestoreDocumentId(updateRequest) !== safeUpdateRequestId,
+          );
+          if (!heldRequest || firestoreString(currentChurches[0], "description") !== safeDescription) {
+            return false;
+          }
+          const reviews = await queryFirestoreDocuments(
+            request,
+            "churchUpdateAiReviews",
+            "updateRequestId",
+            firestoreDocumentId(heldRequest),
+          );
+          return reviews.some(
+            (review) =>
+              firestoreString(review, "status") === "needs_human" &&
+              firestoreString(review, "mode") === "auto_clear",
+          );
+        },
+        { timeout: 60_000 },
+      )
+      .toBe(true);
+
+    await representativePage.close();
   });
 
   test("primary owner invites an editor and the editor receives intended access", async ({ browser }) => {

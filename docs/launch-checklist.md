@@ -464,6 +464,19 @@ Focused closure recertification passed TypeScript, validation/report/Scheduler/p
 
 Current gate: **GO / live with active observation.** The first scheduled managed-backup restore remains an operational follow-up.
 
+## August 8 AI Review Release
+
+- [x] Production backup, PITR, delete protection, Storage soft delete, project/database/bucket/backend, and rollback revision reverified.
+- [x] Firestore rules deployed explicitly to `findyourchurch-24562`; indexes were not reconciled or changed.
+- [x] App Hosting revision `findyourchurch-palacios-build-2026-08-08-001` serves commit `db64d5c321f7de26a6c391b1c9b7745b539349aa` at 100 percent traffic.
+- [x] Safe controlled listing text auto-cleared and published; unsafe controlled text remained pending for human review and did not reach the public listing.
+- [x] Guarded production acceptance session `20260808143854` passed 9 of 9 stages and exact cleanup; the temporary App Check token was revoked.
+- [x] Next.js 16.3/Firebase 12.17.1/bounded Sharp validation build and deterministic suites passed; audit is 7 moderate, 0 high, 0 critical under the existing owner acceptance.
+- [x] Canonical public, portal-login, admin-login, robots, and sitemap routes return HTTP 200 with no observed browser console errors.
+- [x] Branch pushed; `main` was not merged or modified.
+
+Current gate: **GO / live with active observation.**
+
 ## Premium Production Launch Record — July 15, 2026
 
 - [x] Explicit production identifiers confirmed before rules, application, Scheduler, monitoring, and cleanup writes.

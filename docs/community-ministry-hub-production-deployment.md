@@ -325,3 +325,16 @@ The report-email acceptance gap is closed at the application level. Guarded sess
 The Search Console email received by `michaelgatica@gmail.com` identified missing `performer` and `offers` fields in Event structured data. Commit `83bc820` corrected the JSON-LD; local and staging live assertions pass, and production revision `findyourchurch-palacios-build-2026-08-07-004` is healthy. Google validation is still pending a Search Console recrawl and must be requested by an account with property access.
 
 GitHub notifications for old failed `Validate build` and `deploy.yml` runs refer to historical/deleted runs. The current repository evidence is healthy: `Validate build` run `31067259443` and `Annual Listing Verification` run `31118597052` both completed successfully on `main`. No production deployment is triggered by either workflow in this follow-up.
+
+## AI listing-review production release — August 8, 2026
+
+- Release branch `codex/ai-listing-review` was pushed through commit `db64d5c321f7de26a6c391b1c9b7745b539349aa`; `main` was not merged or modified.
+- Production identifiers were reverified as project `findyourchurch-24562`, project number `443706380375`, database `findyourchurchpal`, bucket `findyourchurch-24562.firebasestorage.app`, backend `findyourchurch-palacios`, and canonical host `https://findyourchurchpalacios.org` before every production write.
+- Firestore PITR/delete protection, ready managed backups, daily/weekly schedules, seven-day Storage soft delete, and the prior application revision were confirmed before rollout. Firestore rules were deployed without index reconciliation.
+- Production App Hosting rollout `build-2026-08-08-001` succeeded and serves the reviewed commit at 100 percent traffic. The production-only OpenAI credential remains a versioned Secret Manager binding; no key value is present in source, documentation, test output, or App Hosting plaintext configuration.
+- AI listing review runs in `auto_clear`: a controlled safe update was moderated clear and auto-approved, while a controlled unsafe update was classified `needs_human`, remained pending, and did not alter the public listing.
+- The release also moves to supported Next.js 16.3, Firebase 12.17.1, and bounded Sharp image metadata validation. The production audit is 7 moderate, 0 high, and 0 critical; the remaining nodes are within the launch owner's time-bounded ExcelJS/Firebase Admin/Google Cloud acceptance.
+- Guarded production acceptance session `20260808143854` passed 9 of 9 stages: public baseline, church submission/admin publication, claim approval, AI safe/unsafe review, second representative, Central-time event create/edit, flyer, registration/waitlist/check-in, PDF/XLSX, report-email send path, administrator operations, accessibility, and supported cleanup controls.
+- Exact fixture cleanup passed after the run, and its temporary App Check debug token was revoked. Canonical homepage, directory, events, portal/admin login, robots, and sitemap returned HTTP 200 with no browser console errors.
+
+Release state: **GO / live with active observation**. Roll back to `findyourchurch-palacios-build-2026-08-07-004` for security isolation failure, incorrect automatic approval of unsafe content, valid-client App Check rejection, sustained 5xx/unavailability, registration counter drift, or broken existing church workflows.

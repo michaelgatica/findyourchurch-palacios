@@ -247,6 +247,7 @@ export async function cleanupProductionAcceptanceFixture(
   await collectByField(request, documents, "churchClaimRequests", "churchId", churchIds);
   await collectByField(request, documents, "churchRepresentatives", "churchId", churchIds);
   await collectByField(request, documents, "churchUpdateRequests", "churchId", churchIds);
+  await collectByField(request, documents, "churchUpdateAiReviews", "churchId", churchIds);
   await collectByField(request, documents, "ownershipTransferRequests", "churchId", churchIds);
   await collectByField(request, documents, "messages", "churchId", churchIds);
   await collectByField(request, documents, "events", "churchId", churchIds);
