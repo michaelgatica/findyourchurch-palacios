@@ -1,18 +1,19 @@
 # Future AI-assisted church listing review plan
 
-Status: phase-0 implementation complete, disabled by default. This document does not change the current listing, claim, representative, or administrator workflow.
+Status: shadow/recommendation implementation complete with a disabled, bounded `auto_clear` path. No environment currently enables automatic approval.
 
 ## Current implementation boundary
 
-The application now has an optional, server-only advisory reviewer for a **submitted representative listing update**. It is deliberately inactive until `AI_LISTING_REVIEW_MODE` is set to `shadow` or `recommend` and `OPENAI_MODERATION_API_KEY` is supplied through an approved Secret Manager binding.
+The application now has an optional, server-only reviewer for a **submitted representative listing update**. It is deliberately inactive until `AI_LISTING_REVIEW_MODE` is set to an enabled mode and `OPENAI_MODERATION_API_KEY` is supplied through an approved Secret Manager binding.
 
 - `off` (the default): no provider request and no workflow change.
 - `shadow`: record a structured recommendation for comparison only; do not send an AI-specific email.
 - `recommend`: record the recommendation and email Michael when the result needs human attention.
+- `auto_clear`: after a measured pilot, allow the trusted application server to approve only a moderation-clear, low-risk update for a church whose existing `autoPublishUpdates` setting was explicitly enabled by an administrator.
 
 The reviewer sends only changed public listing text and new church-owned image bytes. It excludes addresses, phone numbers, representative/account details, registration data, private exports, and reusable Firebase Storage download URLs. It stores only a status, category labels, model name, timestamps, and a safe error code—not raw content, a provider transcript, category scores, or the API key. The record is stored in the separate, admin-only `churchUpdateAiReviews` collection, never on the representative-readable update-request document.
 
-Every result remains advisory. A `clear` recommendation still leaves the update in `pending_review`; `needs_human`, an unavailable image, missing configuration, malformed response, timeout, or provider failure all preserve the existing human review path. A transaction claim prevents duplicate background callbacks from sending the same queued update to the provider twice.
+In `shadow` and `recommend`, every result remains advisory and a `clear` result stays `pending_review`. In `auto_clear`, the trusted server may approve only when both the church-level administrator setting and deterministic low-risk-field checks pass. Name, share-link, logo/photo, location/address, phone/email, website/social, and giving-link changes remain human-reviewed even when moderation is clear. `needs_human`, an unavailable image, missing configuration, malformed response, timeout, or provider failure always preserve the human review path. A transaction claim prevents duplicate background callbacks from sending the same queued update to the provider twice.
 
 ## Product decision
 
@@ -23,7 +24,7 @@ The existing workflow remains the safety fallback:
 1. A church submits an initial listing or claim.
 2. Michael reviews and approves access.
 3. A representative submits a listing update.
-4. The update remains pending until the existing authorized administrator action approves it.
+4. The update remains pending until the existing authorized administrator action approves it, except after an accepted pilot when the trusted server auto-clears an explicitly eligible low-risk update.
 
 AI review is intended to reduce routine update reviews after a staged pilot. It is not a replacement for ownership verification, legal judgment, doctrinal judgment, or the existing security boundaries.
 
@@ -39,17 +40,19 @@ AI review is intended to reduce routine update reviews after a staged pilot. It 
    - `block`: a deterministic or high-confidence violation;
    - `error`: provider timeout, quota failure, malformed response, or unavailable key.
 6. Keep the update pending for `needs_human`, `block`, and `error`. Notify Michael for `needs_human` and `error`; show the representative a neutral “awaiting review” message rather than the model’s internal reasoning.
-7. Only after a measured pilot and explicit owner approval may `clear` recommendations be eligible for automatic approval. The current implementation does not contain an auto-approval mode. The existing administrator approve/reject action remains the final authority and emergency override.
+7. Only after a measured pilot and explicit owner approval may `auto_clear` be enabled. The mode exists but is disabled everywhere by default. The existing administrator approve/reject action remains the final authority and emergency override.
 
 ## Least-privilege authorization
 
-The future reviewer should run as a dedicated server-side workload identity or service account with access limited to:
+The reviewer runs inside the trusted server environment with access limited by the application to:
 
 - reading the specific pending update and public image references;
 - writing an AI-review result and safe audit/operational metadata;
 - enqueueing or retrying its own bounded review job.
 
 It must not write `status=published`, modify claims, create representatives, change user roles, read registrations, access private exports, or modify unrelated churches. The existing server action must re-check the human administrator’s authorization at approval time.
+
+Here, “it” means the moderation provider and its API key: they cannot write Firestore. The optional bounded approval is a separate trusted application operation that records a system audit entry; the provider never receives superadmin credentials or direct publish authority.
 
 Do not expose the reviewer endpoint to the browser. Do not let a church representative submit an AI result, choose the result, or bypass the pending state.
 
@@ -86,7 +89,7 @@ OpenAI documents that API usage can produce abuse-monitoring logs retained for u
 
 ### Phase 2 — narrowly bounded auto-clear
 
-- Only explicitly approved, low-risk listing updates may auto-clear.
+- Only churches with the administrator-controlled `autoPublishUpdates` setting and low-risk listing fields may auto-clear.
 - Initial claims, ownership changes, representative invitations, logos, and any ambiguous result remain human-reviewed.
 - Any provider error, policy change, missing image, or uncertain classification fails closed to human review.
 

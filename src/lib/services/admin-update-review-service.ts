@@ -1,4 +1,3 @@
-import { buildChurchProfilePath } from "@/lib/config/site";
 import { safeRevalidatePath } from "@/lib/revalidation";
 import { createAuditLogInFirebase, listAuditLogsForEntity } from "@/lib/repositories/firebase-audit-log-repository";
 import { getChurchByIdFromFirebase } from "@/lib/repositories/firebase-church-repository";
@@ -15,11 +14,8 @@ import {
   updateChurchUpdateRequestInFirebase,
 } from "@/lib/repositories/firebase-update-request-repository";
 import { getUserById } from "@/lib/repositories/firebase-user-repository";
+import { approvePendingChurchUpdate } from "@/lib/services/church-update-approval-service";
 import {
-  buildApprovedChurchRecordFromDraft,
-} from "@/lib/services/church-update-service";
-import {
-  sendRepresentativeUpdateApprovedNotification,
   sendRepresentativeUpdateChangesRequestedNotification,
   sendRepresentativeUpdateDeniedNotification,
   sendRepresentativeUpdateMessageNotification,
@@ -183,62 +179,11 @@ export async function approveUpdateRequest(input: {
   updateRequestId: string;
   adminUserId: string;
 }) {
-  const updateRequest = await getChurchUpdateRequestById(input.updateRequestId);
-
-  if (!updateRequest) {
-    throw new Error("The church update request could not be found.");
-  }
-
-  const church = await getChurchByIdFromFirebase(updateRequest.churchId);
-  const submittedByUser = await getUserById(updateRequest.submittedByUserId);
-
-  if (!church || !submittedByUser?.email) {
-    throw new Error("The church update request is missing linked review data.");
-  }
-
-  const updatedChurch = await buildApprovedChurchRecordFromDraft({
-    church,
-    proposedChanges: updateRequest.proposedChanges,
+  await approvePendingChurchUpdate({
+    updateRequestId: input.updateRequestId,
+    reviewerId: input.adminUserId,
+    reviewerType: "admin",
   });
-  const approvedAt = new Date().toISOString();
-
-  await updateChurchUpdateRequestInFirebase(updateRequest.id, {
-    status: "approved",
-    approvedAt,
-    reviewedBy: input.adminUserId,
-    adminMessage: undefined,
-    autoPublished: false,
-  });
-  await createAuditLogInFirebase({
-    entityType: "churchUpdateRequest",
-    entityId: updateRequest.id,
-    action: "admin_approved_update",
-    actorId: input.adminUserId,
-    actorType: "admin",
-    before: updateRequest,
-    after: {
-      status: "approved",
-      approvedAt,
-    },
-    note: "Representative listing updates were approved.",
-  });
-  await sendRepresentativeUpdateApprovedNotification({
-    church: updatedChurch,
-    updateRequest: {
-      ...updateRequest,
-      status: "approved",
-      approvedAt,
-    },
-    representativeEmail: submittedByUser.email,
-  });
-
-  safeRevalidatePath("/admin");
-  safeRevalidatePath("/admin/updates");
-  safeRevalidatePath(`/admin/updates/${updateRequest.id}`);
-  safeRevalidatePath("/portal");
-  safeRevalidatePath("/portal/updates");
-  safeRevalidatePath("/churches");
-  safeRevalidatePath(buildChurchProfilePath(updatedChurch));
 }
 
 export async function denyUpdateRequest(input: {

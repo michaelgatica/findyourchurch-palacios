@@ -212,6 +212,12 @@ function AiListingReviewPanel(props: {
       {review.reviewedAt ? (
         <p className="supporting-text">Reviewed {formatDateTime(review.reviewedAt)}.</p>
       ) : null}
+      {review.autoApprovedAt ? (
+        <p className="supporting-text">
+          Automatically approved {formatDateTime(review.autoApprovedAt)} by the trusted server
+          workflow.
+        </p>
+      ) : null}
       <p className="supporting-text">
         This recommendation cannot approve, deny, publish, change ownership, or grant access.
         No raw listing text or model reasoning is retained here.

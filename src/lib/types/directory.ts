@@ -89,13 +89,14 @@ export type ChurchUpdateAiReviewStatus =
 
 export interface ChurchUpdateAiReview {
   status: ChurchUpdateAiReviewStatus;
-  mode: "shadow" | "recommend";
+  mode: "shadow" | "recommend" | "auto_clear";
   model?: string;
   categories?: string[];
   reviewedAt?: string;
   requestedAt?: string;
   notificationSentAt?: string;
   errorCode?: "configuration" | "provider" | "invalid_response";
+  autoApprovedAt?: string;
 }
 
 /**

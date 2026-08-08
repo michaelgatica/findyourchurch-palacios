@@ -2,7 +2,6 @@ import { buildChurchProfilePath } from "@/lib/config/site";
 import {
   createTag,
   mapDraftToChurchDocument,
-  mapChurchDocumentToChurchRecord,
 } from "@/lib/firebase/firestore";
 import { normalizeServiceTimeInput } from "@/lib/service-time-options";
 import { uploadChurchAssetsToFirebaseStorage } from "@/lib/firebase/storage";
@@ -29,7 +28,10 @@ import {
   sendRepresentativeUpdateAutoPublishedNotification,
   sendRepresentativeUpdateSubmittedNotification,
 } from "@/lib/services/notification-service";
-import { scheduleChurchUpdateAiReview } from "@/lib/services/church-update-ai-review-service";
+import {
+  getAiListingReviewConfiguration,
+  scheduleChurchUpdateAiReview,
+} from "@/lib/services/church-update-ai-review-service";
 
 function createUploadedPhotoRecords(
   churchName: string,
@@ -156,7 +158,9 @@ export async function submitRepresentativeChurchUpdate(input: {
   });
   const now = new Date().toISOString();
 
-  if (currentChurch.autoPublishUpdates) {
+  const aiReviewMode = getAiListingReviewConfiguration().mode;
+
+  if (currentChurch.autoPublishUpdates && aiReviewMode !== "auto_clear") {
     const churchDocument = await getChurchDocumentByIdFromFirebase(input.currentChurch.id);
 
     if (!churchDocument) {
@@ -365,43 +369,4 @@ export function mergeChurchRecordWithDraft(
     updatedAt: church.updatedAt,
     publishedAt: church.publishedAt,
   };
-}
-
-export async function buildApprovedChurchRecordFromDraft(input: {
-  church: ChurchRecord;
-  proposedChanges: ChurchListingDraft;
-  updatedAt?: string;
-}) {
-  const churchDocument = await getChurchDocumentByIdFromFirebase(input.church.id);
-
-  if (!churchDocument) {
-    throw new Error("The church listing could not be found.");
-  }
-
-  const updatedAt = input.updatedAt ?? new Date().toISOString();
-  const updatedDocument = mapDraftToChurchDocument(
-    input.church.id,
-    input.church.slug,
-    input.proposedChanges,
-    "published",
-    churchDocument.createdAt,
-    updatedAt,
-  );
-
-  updatedDocument.primaryRepresentativeId =
-    churchDocument.primaryRepresentativeId ?? null;
-  updatedDocument.autoPublishUpdates = churchDocument.autoPublishUpdates ?? false;
-  updatedDocument.publishedAt = churchDocument.publishedAt ?? updatedAt;
-  updatedDocument.lastVerifiedAt = updatedAt;
-  updatedDocument.listingVerificationStatus = "current";
-  updatedDocument.listingVerificationRequestedAt = null;
-  updatedDocument.listingVerificationGraceEndsAt = null;
-  updatedDocument.listingVerificationReminder7SentAt = null;
-  updatedDocument.listingVerificationReminder3SentAt = null;
-  updatedDocument.archivedAt = null;
-  updatedDocument.archivedReason = null;
-
-  await saveChurchDocumentToFirebase(updatedDocument);
-
-  return mapChurchDocumentToChurchRecord(updatedDocument);
 }

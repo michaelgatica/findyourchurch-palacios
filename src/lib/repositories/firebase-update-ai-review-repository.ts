@@ -17,6 +17,7 @@ function normalizeAiReviewRecord(record: ChurchUpdateAiReviewRecord) {
     requestedAt: toIsoString(record.requestedAt) ?? undefined,
     reviewedAt: toIsoString(record.reviewedAt) ?? undefined,
     notificationSentAt: toIsoString(record.notificationSentAt) ?? undefined,
+    autoApprovedAt: toIsoString(record.autoApprovedAt) ?? undefined,
   };
 }
 

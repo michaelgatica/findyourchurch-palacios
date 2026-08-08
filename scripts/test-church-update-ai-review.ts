@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import {
   buildChangedPublicListingText,
+  getAiAutoClearEligibility,
   getAiListingReviewConfiguration,
   parseModerationResponse,
 } from "../src/lib/services/church-update-ai-review-service";
@@ -80,6 +81,13 @@ function testConfiguration() {
     }),
     { mode: "shadow", apiKey: "test-key" },
   );
+  assert.deepEqual(
+    getAiListingReviewConfiguration({
+      AI_LISTING_REVIEW_MODE: "auto_clear",
+      OPENAI_MODERATION_API_KEY: "test-key",
+    }),
+    { mode: "auto_clear", apiKey: "test-key" },
+  );
 }
 
 function testDataMinimization() {
@@ -107,8 +115,41 @@ function testResponseParsing() {
   assert.equal(parseModerationResponse({ results: [] }), null);
 }
 
+function testAutoClearEligibility() {
+  const autoClearChurch: ChurchRecord = {
+    ...currentChurch,
+    autoPublishUpdates: true,
+  };
+  const lowRiskDraft: ChurchListingDraft = {
+    ...baseDraft,
+    description: "Updated public ministry description.",
+    statementOfFaith: "A concise public statement of faith.",
+  };
+
+  assert.deepEqual(getAiAutoClearEligibility(autoClearChurch, lowRiskDraft), {
+    eligible: true,
+    reasons: [],
+  });
+  assert.deepEqual(
+    getAiAutoClearEligibility(autoClearChurch, {
+      ...lowRiskDraft,
+      logoSrc: "https://example.test/new-logo.png",
+      phone: "361-555-0999",
+    }),
+    {
+      eligible: false,
+      reasons: ["logo_changed", "phone_changed"],
+    },
+  );
+  assert.deepEqual(getAiAutoClearEligibility(currentChurch, lowRiskDraft), {
+    eligible: false,
+    reasons: ["church_auto_clear_not_enabled"],
+  });
+}
+
 testConfiguration();
 testDataMinimization();
 testResponseParsing();
+testAutoClearEligibility();
 
 console.log("Church update AI review tests passed.");

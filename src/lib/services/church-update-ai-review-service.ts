@@ -10,6 +10,7 @@ import {
 import { getChurchUpdateRequestById } from "@/lib/repositories/firebase-update-request-repository";
 import { createAuditLogInFirebase } from "@/lib/repositories/firebase-audit-log-repository";
 import { sendAiListingReviewNeedsHumanNotification } from "@/lib/services/notification-service";
+import { approvePendingChurchUpdate } from "@/lib/services/church-update-approval-service";
 import type {
   ChurchListingDraft,
   ChurchRecord,
@@ -24,7 +25,7 @@ const maxTextCharacters = 12_000;
 const maxImagesPerReview = 6;
 const maxImageBytes = 5 * 1024 * 1024;
 
-export type AiListingReviewMode = "off" | "shadow" | "recommend";
+export type AiListingReviewMode = "off" | "shadow" | "recommend" | "auto_clear";
 
 export interface AiListingReviewConfiguration {
   mode: AiListingReviewMode;
@@ -179,6 +180,56 @@ function getChangedImageSources(currentChurch: ChurchRecord, proposedChanges: Ch
   return Array.from(new Set(imageSources)).slice(0, maxImagesPerReview);
 }
 
+function valuesMatch(left: unknown, right: unknown) {
+  return JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
+}
+
+/**
+ * Automatic approval is intentionally narrower than moderation. Identity,
+ * contact, location, link, and media changes always require a human even when
+ * the moderation result itself is clear.
+ */
+export function getAiAutoClearEligibility(
+  currentChurch: ChurchRecord,
+  proposedChanges: ChurchListingDraft,
+) {
+  const reasons: string[] = [];
+
+  if (!currentChurch.autoPublishUpdates) {
+    reasons.push("church_auto_clear_not_enabled");
+  }
+
+  const protectedChanges: Array<[string, unknown, unknown]> = [
+    ["church_name_changed", currentChurch.name, proposedChanges.name],
+    ["share_link_changed", currentChurch.customShareSlug, proposedChanges.customShareSlug],
+    ["logo_changed", currentChurch.logoSrc, proposedChanges.logoSrc],
+    ["photos_changed", currentChurch.photos, proposedChanges.photos],
+    ["location_changed", currentChurch.cityId, proposedChanges.cityId],
+    ["location_changed", currentChurch.countyId, proposedChanges.countyId],
+    ["location_changed", currentChurch.stateId, proposedChanges.stateId],
+    ["address_changed", currentChurch.address, proposedChanges.address],
+    ["mailing_address_changed", currentChurch.mailingAddress, proposedChanges.mailingAddress],
+    ["phone_changed", currentChurch.phone, proposedChanges.phone],
+    ["email_changed", currentChurch.email, proposedChanges.email],
+    ["website_changed", currentChurch.website, proposedChanges.website],
+    ["social_links_changed", currentChurch.socialLinks, proposedChanges.socialLinks],
+    ["giving_link_changed", currentChurch.onlineGivingUrl, proposedChanges.onlineGivingUrl],
+  ];
+
+  for (const [reason, currentValue, proposedValue] of protectedChanges) {
+    if (!valuesMatch(currentValue, proposedValue)) {
+      reasons.push(reason);
+    }
+  }
+
+  const uniqueReasons = Array.from(new Set(reasons));
+
+  return {
+    eligible: uniqueReasons.length === 0,
+    reasons: uniqueReasons,
+  };
+}
+
 function getChurchOwnedStoragePath(source: string, churchId: string) {
   try {
     const url = new URL(source);
@@ -261,10 +312,10 @@ export function getAiListingReviewConfiguration(
     return { mode: "off" };
   }
 
-  if (rawMode !== "shadow" && rawMode !== "recommend") {
+  if (rawMode !== "shadow" && rawMode !== "recommend" && rawMode !== "auto_clear") {
     return {
       mode: "off",
-      configurationError: "AI_LISTING_REVIEW_MODE must be off, shadow, or recommend.",
+      configurationError: "AI_LISTING_REVIEW_MODE must be off, shadow, recommend, or auto_clear.",
     };
   }
 
@@ -279,7 +330,11 @@ export function getAiListingReviewConfiguration(
 }
 
 function getConfiguredReviewMode(configuration: AiListingReviewConfiguration) {
-  return configuration.mode === "recommend" ? "recommend" : "shadow";
+  if (configuration.mode === "recommend" || configuration.mode === "auto_clear") {
+    return configuration.mode;
+  }
+
+  return "shadow";
 }
 
 export function parseModerationResponse(response: ModerationResponse) {
@@ -329,7 +384,7 @@ async function notifyMichaelWhenNeeded(input: {
   aiReview: ChurchUpdateAiReview;
 }) {
   if (
-    input.aiReview.mode !== "recommend" ||
+    input.aiReview.mode === "shadow" ||
     !["needs_human", "error"].includes(input.aiReview.status) ||
     input.existingReview.notificationSentAt
   ) {
@@ -504,6 +559,80 @@ export async function processQueuedChurchUpdateAiReview(
       reviewedAt: new Date().toISOString(),
       categories,
     };
+
+    if (aiReview.status === "clear" && reviewMode === "auto_clear") {
+      const eligibility = getAiAutoClearEligibility(church, updateRequest.proposedChanges);
+
+      if (church.autoPublishUpdates && !eligibility.eligible) {
+        const needsHumanReview: ChurchUpdateAiReview = {
+          ...aiReview,
+          status: "needs_human",
+          categories: eligibility.reasons.map((reason) => `auto_clear_ineligible:${reason}`),
+        };
+        const notifiedReview = await notifyMichaelWhenNeeded({
+          updateRequest,
+          existingReview: claimedRequest,
+          church,
+          aiReview: needsHumanReview,
+        });
+        await writeAiReviewResult({
+          updateRequestId,
+          aiReview: notifiedReview,
+          auditAction: "church_update_ai_review_needs_human",
+          note: "Moderation was clear, but protected listing fields require human approval.",
+        });
+        return notifiedReview;
+      }
+
+      if (eligibility.eligible) {
+        await writeAiReviewResult({
+          updateRequestId,
+          aiReview,
+          auditAction: "church_update_ai_review_clear",
+          note: "AI listing review was clear and the update met the bounded automatic-approval rules.",
+        });
+
+        try {
+          await approvePendingChurchUpdate({
+            updateRequestId,
+            reviewerId: "ai-listing-review",
+            reviewerType: "system",
+            automated: true,
+          });
+          const autoApprovedReview: ChurchUpdateAiReview = {
+            ...aiReview,
+            autoApprovedAt: new Date().toISOString(),
+          };
+          await writeAiReviewResult({
+            updateRequestId,
+            aiReview: autoApprovedReview,
+            auditAction: "church_update_ai_review_auto_approved",
+            note: "The trusted server workflow auto-approved the eligible clear update.",
+          });
+          return autoApprovedReview;
+        } catch {
+          const failedAutoApproval: ChurchUpdateAiReview = {
+            ...aiReview,
+            status: "needs_human",
+            categories: ["auto_clear_failed"],
+          };
+          const notifiedReview = await notifyMichaelWhenNeeded({
+            updateRequest,
+            existingReview: claimedRequest,
+            church,
+            aiReview: failedAutoApproval,
+          });
+          await writeAiReviewResult({
+            updateRequestId,
+            aiReview: notifiedReview,
+            auditAction: "church_update_ai_review_auto_approval_failed",
+            note: "Automatic approval did not complete; the update requires human verification.",
+          });
+          return notifiedReview;
+        }
+      }
+    }
+
     const notifiedReview = await notifyMichaelWhenNeeded({
       updateRequest,
       existingReview: claimedRequest,
