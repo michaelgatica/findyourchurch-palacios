@@ -3,6 +3,7 @@ import { safeRevalidatePath } from "@/lib/revalidation";
 import { createAuditLogInFirebase, listAuditLogsForEntity } from "@/lib/repositories/firebase-audit-log-repository";
 import { getChurchByIdFromFirebase } from "@/lib/repositories/firebase-church-repository";
 import { listEmailLogsForEntity } from "@/lib/repositories/firebase-email-log-repository";
+import { getChurchUpdateAiReviewByUpdateRequestId } from "@/lib/repositories/firebase-update-ai-review-repository";
 import {
   createMessageInFirebase,
   listMessagesForUpdateRequest,
@@ -66,7 +67,7 @@ export async function getAdminUpdateReviewData(updateRequestId: string) {
     return null;
   }
 
-  const [church, representative, submittedByUser, messages, auditLogs, emailLogs] =
+  const [church, representative, submittedByUser, messages, auditLogs, emailLogs, aiReview] =
     await Promise.all([
       getChurchByIdFromFirebase(updateRequest.churchId),
       getRepresentativeById(updateRequest.submittedByRepresentativeId),
@@ -74,6 +75,7 @@ export async function getAdminUpdateReviewData(updateRequestId: string) {
       listMessagesForUpdateRequest(updateRequestId),
       listAuditLogsForEntity("churchUpdateRequest", updateRequestId),
       listEmailLogsForEntity("churchUpdateRequest", updateRequestId),
+      getChurchUpdateAiReviewByUpdateRequestId(updateRequestId),
     ]);
 
   return {
@@ -84,6 +86,7 @@ export async function getAdminUpdateReviewData(updateRequestId: string) {
     messages: sortByCreatedAtDescending(messages),
     auditLogs: sortByCreatedAtDescending(auditLogs),
     emailLogs: sortByCreatedAtDescending(emailLogs),
+    aiReview,
   };
 }
 

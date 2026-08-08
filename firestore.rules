@@ -74,6 +74,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Advisory moderation data stays separate from representative-readable
+    // update requests so a submitter never receives internal classifications.
+    match /churchUpdateAiReviews/{reviewId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /ownershipTransferRequests/{transferRequestId} {
       allow read: if isAdmin() || isOwnerOfUserScopedRecord('requestedByUserId');
       allow write: if isAdmin();

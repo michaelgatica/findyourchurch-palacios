@@ -412,6 +412,40 @@ export async function sendRepresentativeUpdateSubmittedNotification(input: {
   });
 }
 
+/**
+ * AI review is advisory only. This deliberately uses a separate owner address
+ * instead of widening the normal admin-recipient group or notifying a church
+ * representative about model classifications.
+ */
+export async function sendAiListingReviewNeedsHumanNotification(input: {
+  church: Pick<ChurchRecord, "name">;
+  updateRequest: ChurchUpdateRequestRecord;
+  categories: string[];
+}) {
+  const ownerEmail =
+    process.env.AI_LISTING_REVIEW_NOTIFICATION_EMAIL?.trim() ||
+    "michaelgatica@elroidigital.org";
+
+  await sendTransactionalEmail({
+    to: ownerEmail,
+    subject: "AI-assisted church listing review needs your attention",
+    body: [
+      "A submitted church listing update remains pending human approval.",
+      "",
+      `Church name: ${input.church.name}`,
+      `Review signal: ${input.categories.length > 0 ? input.categories.join(", ") : "manual review requested"}`,
+      "",
+      `Open the existing manual review: ${createEmailLink("Review update", buildAbsoluteUrl(`/admin/updates/${input.updateRequest.id}`))}`,
+      "",
+      "The AI recommendation did not approve, deny, publish, or change church access. Please use the normal admin review actions after assessing the update.",
+      "",
+      ...getAdminOnlyMinistryNote(),
+    ].join("\n"),
+    relatedEntityType: "churchUpdateRequest",
+    relatedEntityId: input.updateRequest.id,
+  });
+}
+
 export async function sendRepresentativeUpdateAutoPublishedNotification(input: {
   church: ChurchRecord;
   representativeEmail: string;

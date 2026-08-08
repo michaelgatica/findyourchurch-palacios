@@ -75,6 +75,42 @@ export const churchUpdateRequestStatuses = [
 export type ChurchUpdateRequestStatus =
   (typeof churchUpdateRequestStatuses)[number];
 
+export const churchUpdateAiReviewStatuses = [
+  "queued",
+  "processing",
+  "clear",
+  "needs_human",
+  "error",
+  "not_configured",
+] as const;
+
+export type ChurchUpdateAiReviewStatus =
+  (typeof churchUpdateAiReviewStatuses)[number];
+
+export interface ChurchUpdateAiReview {
+  status: ChurchUpdateAiReviewStatus;
+  mode: "shadow" | "recommend";
+  model?: string;
+  categories?: string[];
+  reviewedAt?: string;
+  requestedAt?: string;
+  notificationSentAt?: string;
+  errorCode?: "configuration" | "provider" | "invalid_response";
+}
+
+/**
+ * Kept in the admin-only churchUpdateAiReviews collection. It must not be
+ * embedded in churchUpdateRequests because representatives may read their own
+ * request document through Firestore rules.
+ */
+export interface ChurchUpdateAiReviewRecord extends ChurchUpdateAiReview {
+  id: string;
+  updateRequestId: string;
+  churchId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const ownershipTransferRequestStatuses = [
   "pending_review",
   "approved",

@@ -29,6 +29,7 @@ import {
   sendRepresentativeUpdateAutoPublishedNotification,
   sendRepresentativeUpdateSubmittedNotification,
 } from "@/lib/services/notification-service";
+import { scheduleChurchUpdateAiReview } from "@/lib/services/church-update-ai-review-service";
 
 function createUploadedPhotoRecords(
   churchName: string,
@@ -297,6 +298,13 @@ export async function submitRepresentativeChurchUpdate(input: {
     representativeEmail: input.representativeEmail,
     updateRequest,
   });
+
+  try {
+    await scheduleChurchUpdateAiReview(updateRequest);
+  } catch {
+    // AI review is an optional recommendation. The already-persisted update
+    // stays in the existing human pending-review workflow if queuing fails.
+  }
 
   safeRevalidatePath("/portal");
   safeRevalidatePath("/portal/updates");

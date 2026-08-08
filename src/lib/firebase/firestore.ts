@@ -30,6 +30,7 @@ export const firestoreCollectionNames = {
   churchRepresentatives: "churchRepresentatives",
   churchClaimRequests: "churchClaimRequests",
   churchUpdateRequests: "churchUpdateRequests",
+  churchUpdateAiReviews: "churchUpdateAiReviews",
   ownershipTransferRequests: "ownershipTransferRequests",
   messages: "messages",
   auditLogs: "auditLogs",

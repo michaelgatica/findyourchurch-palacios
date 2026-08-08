@@ -12,7 +12,12 @@ import {
 } from "@/lib/actions/admin-review";
 import { formatDateTime } from "@/lib/formatting";
 import { getAdminUpdateReviewData } from "@/lib/services/admin-update-review-service";
-import type { ChurchListingDraft, ChurchPhoto, ChurchRecord } from "@/lib/types/directory";
+import type {
+  ChurchListingDraft,
+  ChurchPhoto,
+  ChurchRecord,
+  ChurchUpdateAiReview,
+} from "@/lib/types/directory";
 
 interface AdminUpdateReviewPageProps {
   params: Promise<{
@@ -176,6 +181,45 @@ function MediaGallery(props: {
   );
 }
 
+function AiListingReviewPanel(props: {
+  aiReview?: ChurchUpdateAiReview;
+}) {
+  const review = props.aiReview;
+
+  if (!review) {
+    return null;
+  }
+
+  const summary = {
+    queued: "Queued for an advisory review.",
+    processing: "An advisory review is in progress.",
+    clear: "No policy signal was detected. Human approval is still required.",
+    needs_human: "This update needs your human review before any action.",
+    error: "The advisory review could not finish. The normal human review remains available.",
+    not_configured: "AI review is not configured. The normal human review remains available.",
+  }[review.status];
+
+  return (
+    <div className="panel">
+      <p className="eyebrow eyebrow--gold">AI-assisted review</p>
+      <h2>Advisory only</h2>
+      <p>{summary}</p>
+      {review.categories && review.categories.length > 0 ? (
+        <p className="supporting-text">
+          <strong>Review signals:</strong> {review.categories.join(", ")}
+        </p>
+      ) : null}
+      {review.reviewedAt ? (
+        <p className="supporting-text">Reviewed {formatDateTime(review.reviewedAt)}.</p>
+      ) : null}
+      <p className="supporting-text">
+        This recommendation cannot approve, deny, publish, change ownership, or grant access.
+        No raw listing text or model reasoning is retained here.
+      </p>
+    </div>
+  );
+}
+
 function ListingUpdateComparison(props: {
   church: ChurchRecord;
   proposedChanges: ChurchListingDraft;
@@ -266,6 +310,8 @@ export default async function AdminUpdateReviewPage({ params }: AdminUpdateRevie
         church={reviewData.church}
         proposedChanges={reviewData.updateRequest.proposedChanges}
       />
+
+      <AiListingReviewPanel aiReview={reviewData.aiReview ?? undefined} />
 
       <div className="admin-review-grid">
         <MediaGallery

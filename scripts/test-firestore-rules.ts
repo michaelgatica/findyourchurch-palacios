@@ -74,6 +74,7 @@ export async function runFirestoreRuleTests() {
       "eventExports",
       "eventScheduledJobs",
       "operationalEvents",
+      "churchUpdateAiReviews",
     ]) {
       await assertFails(getDoc(doc(anonymous, `${privateCollection}/private-record`)));
       await assertFails(getDocs(collection(anonymous, privateCollection)));
@@ -153,6 +154,7 @@ export async function runFirestoreRuleTests() {
             "unlisted direct read works but enumeration is denied",
             "only previously published cancelled events can be read",
             "registration, form, token, export, job, and counter records are private",
+            "AI listing-review records are private to platform administrators",
             "public event reports cannot be forged directly through Firestore",
             "representatives cannot forge protected records or roles",
             "platform admin can read protected records but cannot forge server-maintained event data",
@@ -226,6 +228,7 @@ async function seedFirestore(testEnvironment: RulesTestEnvironment) {
       "eventExports",
       "eventScheduledJobs",
       "operationalEvents",
+      "churchUpdateAiReviews",
     ]) {
       await setDoc(doc(firestore, `${privateCollection}/private-record`), {
         churchId: "church-a",
