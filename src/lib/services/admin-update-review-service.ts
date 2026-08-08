@@ -15,6 +15,7 @@ import {
 } from "@/lib/repositories/firebase-update-request-repository";
 import { getUserById } from "@/lib/repositories/firebase-user-repository";
 import { approvePendingChurchUpdate } from "@/lib/services/church-update-approval-service";
+import { runNotificationBestEffort } from "@/lib/services/notification-delivery";
 import {
   sendRepresentativeUpdateChangesRequestedNotification,
   sendRepresentativeUpdateDeniedNotification,
@@ -165,12 +166,14 @@ export async function sendUpdatePublicMessage(input: {
     actorType: "admin",
     note: trimmedMessage,
   });
-  await sendRepresentativeUpdateMessageNotification({
-    church,
-    updateRequest,
-    representativeEmail: submittedByUser.email,
-    messageBody: trimmedMessage,
-  });
+  await runNotificationBestEffort(() =>
+    sendRepresentativeUpdateMessageNotification({
+      church,
+      updateRequest,
+      representativeEmail: submittedByUser.email,
+      messageBody: trimmedMessage,
+    }),
+  );
 
   safeRevalidatePath(`/admin/updates/${updateRequest.id}`);
 }
@@ -239,12 +242,14 @@ export async function denyUpdateRequest(input: {
     },
     note: trimmedMessage,
   });
-  await sendRepresentativeUpdateDeniedNotification({
-    church,
-    updateRequest,
-    representativeEmail: submittedByUser.email,
-    adminMessage: trimmedMessage,
-  });
+  await runNotificationBestEffort(() =>
+    sendRepresentativeUpdateDeniedNotification({
+      church,
+      updateRequest,
+      representativeEmail: submittedByUser.email,
+      adminMessage: trimmedMessage,
+    }),
+  );
 
   safeRevalidatePath("/admin");
   safeRevalidatePath("/admin/updates");
@@ -305,12 +310,14 @@ export async function requestUpdateChanges(input: {
     },
     note: trimmedMessage,
   });
-  await sendRepresentativeUpdateChangesRequestedNotification({
-    church,
-    updateRequest,
-    representativeEmail: submittedByUser.email,
-    adminMessage: trimmedMessage,
-  });
+  await runNotificationBestEffort(() =>
+    sendRepresentativeUpdateChangesRequestedNotification({
+      church,
+      updateRequest,
+      representativeEmail: submittedByUser.email,
+      adminMessage: trimmedMessage,
+    }),
+  );
 
   safeRevalidatePath("/admin");
   safeRevalidatePath("/admin/updates");

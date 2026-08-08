@@ -6,7 +6,7 @@ import {
   getAiListingReviewConfiguration,
   parseModerationResponse,
 } from "../src/lib/services/church-update-ai-review-service";
-import { runChurchUpdateNotificationBestEffort } from "../src/lib/services/church-update-service";
+import { runNotificationBestEffort } from "../src/lib/services/notification-delivery";
 import type { ChurchListingDraft, ChurchRecord } from "../src/lib/types/directory";
 
 const baseDraft: ChurchListingDraft = {
@@ -156,12 +156,12 @@ function testAutoClearEligibility() {
 
 async function testNonBlockingNotificationFailure() {
   assert.equal(
-    await runChurchUpdateNotificationBestEffort(async () => undefined),
+    await runNotificationBestEffort(async () => undefined),
     true,
     "successful listing notifications should report success",
   );
   assert.equal(
-    await runChurchUpdateNotificationBestEffort(async () => {
+    await runNotificationBestEffort(async () => {
       throw new Error("controlled notification failure");
     }),
     false,

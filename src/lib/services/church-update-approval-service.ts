@@ -16,6 +16,7 @@ import {
 } from "@/lib/repositories/firebase-update-request-repository";
 import { getUserById } from "@/lib/repositories/firebase-user-repository";
 import { sendRepresentativeUpdateApprovedNotification } from "@/lib/services/notification-service";
+import { runNotificationBestEffort } from "@/lib/services/notification-delivery";
 import type { ChurchListingDraft, ChurchRecord } from "@/lib/types/directory";
 
 export async function buildApprovedChurchRecordFromDraft(input: {
@@ -113,8 +114,8 @@ export async function approvePendingChurchUpdate(input: {
       ? "A trusted server workflow auto-approved an eligible update after a clear advisory review."
       : "Representative listing updates were approved.",
   });
-  try {
-    await sendRepresentativeUpdateApprovedNotification({
+  await runNotificationBestEffort(() =>
+    sendRepresentativeUpdateApprovedNotification({
       church: updatedChurch,
       updateRequest: {
         ...updateRequest,
@@ -123,12 +124,8 @@ export async function approvePendingChurchUpdate(input: {
         autoPublished: input.automated ?? false,
       },
       representativeEmail: submittedByUser.email,
-    });
-  } catch {
-    // Approval is already durable. The email service records its own safe
-    // failure event for retry/operations; never present an approved update as
-    // pending merely because its confirmation email failed.
-  }
+    }),
+  );
 
   safeRevalidatePath("/admin");
   safeRevalidatePath("/admin/updates");
