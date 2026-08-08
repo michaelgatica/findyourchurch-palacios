@@ -93,6 +93,21 @@ env:
     availability:
       - RUNTIME
 
+  - variable: AI_LISTING_REVIEW_MODE
+    value: shadow
+    availability:
+      - RUNTIME
+
+  - variable: OPENAI_MODERATION_API_KEY
+    secret: FYC_STAGING_OPENAI_MODERATION_API_KEY
+    availability:
+      - RUNTIME
+
+  - variable: AI_LISTING_REVIEW_NOTIFICATION_EMAIL
+    value: michaelgatica@elroidigital.org
+    availability:
+      - RUNTIME
+
   - variable: NEXT_PUBLIC_USE_FIREBASE_EMULATORS
     value: "false"
     availability:
