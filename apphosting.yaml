@@ -127,6 +127,21 @@ env:
     availability:
       - RUNTIME
 
+  - variable: AI_LISTING_REVIEW_MODE
+    value: auto_clear
+    availability:
+      - RUNTIME
+
+  - variable: OPENAI_MODERATION_API_KEY
+    secret: FYC_PROD_OPENAI_MODERATION_API_KEY
+    availability:
+      - RUNTIME
+
+  - variable: AI_LISTING_REVIEW_NOTIFICATION_EMAIL
+    value: michaelgatica@elroidigital.org
+    availability:
+      - RUNTIME
+
   - variable: RETENTION_JOB_ENABLED
     value: "true"
     availability:

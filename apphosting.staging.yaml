@@ -94,7 +94,7 @@ env:
       - RUNTIME
 
   - variable: AI_LISTING_REVIEW_MODE
-    value: shadow
+    value: auto_clear
     availability:
       - RUNTIME
 
