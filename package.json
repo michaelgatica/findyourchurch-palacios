@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "emulators": "firebase emulators:start",
     "seed:firebase": "tsx scripts/seed-firestore.ts",
     "import:palacios": "tsx scripts/import-palacios-churches.ts",
@@ -71,16 +71,17 @@
   "dependencies": {
     "dotenv": "^17.4.2",
     "exceljs": "^4.4.0",
-    "firebase": "^12.12.1",
+    "firebase": "^12.17.1",
     "firebase-admin": "^14.1.0",
-    "image-size": "^2.0.2",
     "leaflet": "^1.9.4",
-    "next": "^15.5.15",
+    "next": "^16.3.0",
     "nodemailer": "^9.0.3",
     "pdf-lib": "^1.17.1",
+    "postcss": "^8.5.26",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-leaflet": "^5.0.0",
+    "sharp": "^0.35.3",
     "zod": "^4.4.2"
   },
   "devDependencies": {
@@ -93,7 +94,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^15.5.15",
+    "eslint-config-next": "^16.3.0",
     "firebase-tools": "^15.16.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

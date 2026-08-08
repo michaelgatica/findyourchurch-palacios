@@ -1,4 +1,4 @@
-import { imageSize } from "image-size";
+import { readSupportedImageDimensions } from "@/lib/validation/image-dimensions";
 
 import { getChurchLogoDimensionError } from "@/lib/validation/church-logo";
 import { z } from "zod";
@@ -387,7 +387,7 @@ async function validateImageFile(
   const buffer = Buffer.from(await file.arrayBuffer());
 
   try {
-    const dimensions = imageSize(buffer);
+    const dimensions = await readSupportedImageDimensions(buffer);
 
     if (fieldKey === "churchLogo") {
       const logoDimensionError = getChurchLogoDimensionError(dimensions.width, dimensions.height);

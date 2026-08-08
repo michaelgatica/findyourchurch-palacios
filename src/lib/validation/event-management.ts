@@ -1,4 +1,4 @@
-import { imageSize } from "image-size";
+import { readSupportedImageDimensions } from "@/lib/validation/image-dimensions";
 import { z } from "zod";
 
 import {
@@ -314,7 +314,7 @@ async function validateFlyerUpload(formData: FormData): Promise<ValidatedEventFl
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const dimensions = imageSize(buffer);
+  const dimensions = await readSupportedImageDimensions(buffer);
   const width = dimensions.width ?? 0;
   const height = dimensions.height ?? 0;
 
