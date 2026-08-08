@@ -33,6 +33,20 @@ import {
   scheduleChurchUpdateAiReview,
 } from "@/lib/services/church-update-ai-review-service";
 
+export async function runChurchUpdateNotificationBestEffort(
+  sendNotification: () => Promise<void>,
+) {
+  try {
+    await sendNotification();
+    return true;
+  } catch {
+    // The listing write is authoritative. Email is a secondary delivery
+    // channel and must never make a persisted update appear to have failed or
+    // prevent the independent AI-review queue from running.
+    return false;
+  }
+}
+
 function createUploadedPhotoRecords(
   churchName: string,
   uploads: Awaited<ReturnType<typeof uploadChurchAssetsToFirebaseStorage>>,
@@ -213,11 +227,13 @@ export async function submitRepresentativeChurchUpdate(input: {
       after: updateRequest,
       note: "Representative changes were auto-published immediately.",
     });
-    await sendRepresentativeUpdateAutoPublishedNotification({
-      church: updatedChurch,
-      representativeEmail: input.representativeEmail,
-      updateRequest,
-    });
+    await runChurchUpdateNotificationBestEffort(() =>
+      sendRepresentativeUpdateAutoPublishedNotification({
+        church: updatedChurch,
+        representativeEmail: input.representativeEmail,
+        updateRequest,
+      }),
+    );
 
     safeRevalidatePath("/portal");
     safeRevalidatePath("/portal/church");
@@ -297,11 +313,13 @@ export async function submitRepresentativeChurchUpdate(input: {
       ? "Representative revised a changes-requested listing update."
       : "Representative listing changes were submitted for admin review.",
   });
-  await sendRepresentativeUpdateSubmittedNotification({
-    church: currentChurch,
-    representativeEmail: input.representativeEmail,
-    updateRequest,
-  });
+  await runChurchUpdateNotificationBestEffort(() =>
+    sendRepresentativeUpdateSubmittedNotification({
+      church: currentChurch,
+      representativeEmail: input.representativeEmail,
+      updateRequest,
+    }),
+  );
 
   try {
     await scheduleChurchUpdateAiReview(updateRequest);

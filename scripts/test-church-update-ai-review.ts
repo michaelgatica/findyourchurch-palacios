@@ -6,6 +6,7 @@ import {
   getAiListingReviewConfiguration,
   parseModerationResponse,
 } from "../src/lib/services/church-update-ai-review-service";
+import { runChurchUpdateNotificationBestEffort } from "../src/lib/services/church-update-service";
 import type { ChurchListingDraft, ChurchRecord } from "../src/lib/types/directory";
 
 const baseDraft: ChurchListingDraft = {
@@ -153,9 +154,32 @@ function testAutoClearEligibility() {
   });
 }
 
-testConfiguration();
-testPublicFieldCoverageAndPrivateDataBoundary();
-testResponseParsing();
-testAutoClearEligibility();
+async function testNonBlockingNotificationFailure() {
+  assert.equal(
+    await runChurchUpdateNotificationBestEffort(async () => undefined),
+    true,
+    "successful listing notifications should report success",
+  );
+  assert.equal(
+    await runChurchUpdateNotificationBestEffort(async () => {
+      throw new Error("controlled notification failure");
+    }),
+    false,
+    "listing notification failure must remain non-blocking",
+  );
+}
 
-console.log("Church update AI review tests passed.");
+async function main() {
+  testConfiguration();
+  testPublicFieldCoverageAndPrivateDataBoundary();
+  testResponseParsing();
+  testAutoClearEligibility();
+  await testNonBlockingNotificationFailure();
+
+  console.log("Church update AI review tests passed.");
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
