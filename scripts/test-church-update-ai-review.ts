@@ -64,6 +64,10 @@ const proposedChanges: ChurchListingDraft = {
   ...baseDraft,
   description: "A welcoming church family with practical support for our neighbors.",
   ministryTags: [{ id: "service", label: "Community Service", slug: "community-service" }],
+  address: {
+    ...baseDraft.address,
+    line1: "456 Updated Public Avenue",
+  },
   phone: "361-555-0999",
   email: "do-not-send@example.test",
 };
@@ -90,16 +94,18 @@ function testConfiguration() {
   );
 }
 
-function testDataMinimization() {
+function testPublicFieldCoverageAndPrivateDataBoundary() {
   const text = buildChangedPublicListingText(currentChurch, proposedChanges);
 
   assert.match(text, /practical support/);
   assert.match(text, /Community Service/);
-  assert.doesNotMatch(text, /361-555/);
+  assert.match(text, /361-555-0999/);
+  assert.match(text, /do-not-send@example\.test/);
+  assert.match(text, /456 Updated Public Avenue/);
+  assert.doesNotMatch(text, /361-555-0111/);
   assert.doesNotMatch(text, /private-contact/);
-  assert.doesNotMatch(text, /do-not-send/);
   assert.doesNotMatch(text, /Private Mailbox/);
-  assert.doesNotMatch(text, /123 Public Street/);
+  assert.doesNotMatch(text, /registration answer/i);
 }
 
 function testResponseParsing() {
@@ -137,18 +143,18 @@ function testAutoClearEligibility() {
       phone: "361-555-0999",
     }),
     {
-      eligible: false,
-      reasons: ["logo_changed", "phone_changed"],
+      eligible: true,
+      reasons: [],
     },
   );
   assert.deepEqual(getAiAutoClearEligibility(currentChurch, lowRiskDraft), {
-    eligible: false,
-    reasons: ["church_auto_clear_not_enabled"],
+    eligible: true,
+    reasons: [],
   });
 }
 
 testConfiguration();
-testDataMinimization();
+testPublicFieldCoverageAndPrivateDataBoundary();
 testResponseParsing();
 testAutoClearEligibility();
 

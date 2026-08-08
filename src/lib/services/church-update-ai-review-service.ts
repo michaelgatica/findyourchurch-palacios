@@ -64,6 +64,10 @@ function serializeList(values?: string[] | null) {
   return (values ?? []).map(normalize).filter(Boolean).join(" | ");
 }
 
+function serializePublicValue(value: unknown) {
+  return JSON.stringify(value ?? null);
+}
+
 function addChangedText(
   output: string[],
   label: string,
@@ -89,6 +93,12 @@ export function buildChangedPublicListingText(
   const output: string[] = [];
 
   addChangedText(output, "Church name", currentChurch.name, proposedChanges.name);
+  addChangedText(
+    output,
+    "Custom share link",
+    currentChurch.customShareSlug,
+    proposedChanges.customShareSlug,
+  );
   addChangedText(output, "Denomination", currentChurch.denomination, proposedChanges.denomination);
   addChangedText(
     output,
@@ -119,8 +129,8 @@ export function buildChangedPublicListingText(
   addChangedText(
     output,
     "Service times",
-    currentChurch.serviceTimes.map((serviceTime) => serviceTime.label).join(" | "),
-    proposedChanges.serviceTimes.map((serviceTime) => serviceTime.label).join(" | "),
+    serializePublicValue(currentChurch.serviceTimes),
+    serializePublicValue(proposedChanges.serviceTimes),
   );
   addChangedText(output, "Worship style", currentChurch.worshipStyle, proposedChanges.worshipStyle);
   addChangedText(
@@ -159,6 +169,49 @@ export function buildChangedPublicListingText(
     currentChurch.ministryTags.map((tag) => tag.label).join(" | "),
     proposedChanges.ministryTags.map((tag) => tag.label).join(" | "),
   );
+  addChangedText(
+    output,
+    "Public address",
+    serializePublicValue(currentChurch.address),
+    serializePublicValue(proposedChanges.address),
+  );
+  addChangedText(
+    output,
+    "Mailing address",
+    serializePublicValue(currentChurch.mailingAddress),
+    serializePublicValue(proposedChanges.mailingAddress),
+  );
+  addChangedText(output, "Public phone", currentChurch.phone, proposedChanges.phone);
+  addChangedText(output, "Public email", currentChurch.email, proposedChanges.email);
+  addChangedText(output, "Website", currentChurch.website, proposedChanges.website);
+  addChangedText(
+    output,
+    "Social links",
+    serializePublicValue(currentChurch.socialLinks),
+    serializePublicValue(proposedChanges.socialLinks),
+  );
+  addChangedText(
+    output,
+    "Online giving link",
+    currentChurch.onlineGivingUrl,
+    proposedChanges.onlineGivingUrl,
+  );
+  addChangedText(
+    output,
+    "Public feature selections",
+    serializePublicValue(currentChurch.features),
+    serializePublicValue(proposedChanges.features),
+  );
+  addChangedText(
+    output,
+    "Photo descriptions",
+    serializePublicValue(
+      currentChurch.photos.map(({ alt, caption }) => ({ alt, caption: caption ?? null })),
+    ),
+    serializePublicValue(
+      proposedChanges.photos.map(({ alt, caption }) => ({ alt, caption: caption ?? null })),
+    ),
+  );
 
   return output.join("\n").slice(0, maxTextCharacters);
 }
@@ -180,53 +233,18 @@ function getChangedImageSources(currentChurch: ChurchRecord, proposedChanges: Ch
   return Array.from(new Set(imageSources)).slice(0, maxImagesPerReview);
 }
 
-function valuesMatch(left: unknown, right: unknown) {
-  return JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
-}
-
 /**
- * Automatic approval is intentionally narrower than moderation. Identity,
- * contact, location, link, and media changes always require a human even when
- * the moderation result itself is clear.
+ * The owner elected to let the AI review all public listing-update fields.
+ * Existing authorization, schema, URL, and upload validation still run before
+ * this point; uncertainty or incomplete image coverage fails closed.
  */
 export function getAiAutoClearEligibility(
-  currentChurch: ChurchRecord,
-  proposedChanges: ChurchListingDraft,
+  _currentChurch: ChurchRecord,
+  _proposedChanges: ChurchListingDraft,
 ) {
-  const reasons: string[] = [];
-
-  if (!currentChurch.autoPublishUpdates) {
-    reasons.push("church_auto_clear_not_enabled");
-  }
-
-  const protectedChanges: Array<[string, unknown, unknown]> = [
-    ["church_name_changed", currentChurch.name, proposedChanges.name],
-    ["share_link_changed", currentChurch.customShareSlug, proposedChanges.customShareSlug],
-    ["logo_changed", currentChurch.logoSrc, proposedChanges.logoSrc],
-    ["photos_changed", currentChurch.photos, proposedChanges.photos],
-    ["location_changed", currentChurch.cityId, proposedChanges.cityId],
-    ["location_changed", currentChurch.countyId, proposedChanges.countyId],
-    ["location_changed", currentChurch.stateId, proposedChanges.stateId],
-    ["address_changed", currentChurch.address, proposedChanges.address],
-    ["mailing_address_changed", currentChurch.mailingAddress, proposedChanges.mailingAddress],
-    ["phone_changed", currentChurch.phone, proposedChanges.phone],
-    ["email_changed", currentChurch.email, proposedChanges.email],
-    ["website_changed", currentChurch.website, proposedChanges.website],
-    ["social_links_changed", currentChurch.socialLinks, proposedChanges.socialLinks],
-    ["giving_link_changed", currentChurch.onlineGivingUrl, proposedChanges.onlineGivingUrl],
-  ];
-
-  for (const [reason, currentValue, proposedValue] of protectedChanges) {
-    if (!valuesMatch(currentValue, proposedValue)) {
-      reasons.push(reason);
-    }
-  }
-
-  const uniqueReasons = Array.from(new Set(reasons));
-
   return {
-    eligible: uniqueReasons.length === 0,
-    reasons: uniqueReasons,
+    eligible: true,
+    reasons: [] as string[],
   };
 }
 
@@ -563,7 +581,7 @@ export async function processQueuedChurchUpdateAiReview(
     if (aiReview.status === "clear" && reviewMode === "auto_clear") {
       const eligibility = getAiAutoClearEligibility(church, updateRequest.proposedChanges);
 
-      if (church.autoPublishUpdates && !eligibility.eligible) {
+      if (!eligibility.eligible) {
         const needsHumanReview: ChurchUpdateAiReview = {
           ...aiReview,
           status: "needs_human",

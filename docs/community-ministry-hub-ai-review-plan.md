@@ -9,11 +9,11 @@ The application now has an optional, server-only reviewer for a **submitted repr
 - `off` (the default): no provider request and no workflow change.
 - `shadow`: record a structured recommendation for comparison only; do not send an AI-specific email.
 - `recommend`: record the recommendation and email Michael when the result needs human attention.
-- `auto_clear`: after a measured pilot, allow the trusted application server to approve only a moderation-clear, low-risk update for a church whose existing `autoPublishUpdates` setting was explicitly enabled by an administrator.
+- `auto_clear`: after a measured pilot, allow the trusted application server to approve a moderation-clear listing update; any flagged, uncertain, unavailable, or failed review remains pending for Michael.
 
 The reviewer sends only changed public listing text and new church-owned image bytes. It excludes addresses, phone numbers, representative/account details, registration data, private exports, and reusable Firebase Storage download URLs. It stores only a status, category labels, model name, timestamps, and a safe error code—not raw content, a provider transcript, category scores, or the API key. The record is stored in the separate, admin-only `churchUpdateAiReviews` collection, never on the representative-readable update-request document.
 
-In `shadow` and `recommend`, every result remains advisory and a `clear` result stays `pending_review`. In `auto_clear`, the trusted server may approve only when both the church-level administrator setting and deterministic low-risk-field checks pass. Name, share-link, logo/photo, location/address, phone/email, website/social, and giving-link changes remain human-reviewed even when moderation is clear. `needs_human`, an unavailable image, missing configuration, malformed response, timeout, or provider failure always preserve the human review path. A transaction claim prevents duplicate background callbacks from sending the same queued update to the provider twice.
+In `shadow` and `recommend`, every result remains advisory and a `clear` result stays `pending_review`. In `auto_clear`, the trusted server may approve a clear listing update across all public listing fields, including names, locations, contact details, links, logos, and photos. Existing authorization, schema, URL, image-type, image-size, and image-dimension validation still runs first. `needs_human`, an unavailable image, missing configuration, malformed response, timeout, or provider failure always preserve the human review path. A transaction claim prevents duplicate background callbacks from sending the same queued update to the provider twice.
 
 ## Product decision
 
@@ -89,7 +89,7 @@ OpenAI documents that API usage can produce abuse-monitoring logs retained for u
 
 ### Phase 2 — narrowly bounded auto-clear
 
-- Only churches with the administrator-controlled `autoPublishUpdates` setting and low-risk listing fields may auto-clear.
+- A moderation-clear update may auto-clear across all public listing fields after the owner enables `auto_clear` globally.
 - Initial claims, ownership changes, representative invitations, logos, and any ambiguous result remain human-reviewed.
 - Any provider error, policy change, missing image, or uncertain classification fails closed to human review.
 
